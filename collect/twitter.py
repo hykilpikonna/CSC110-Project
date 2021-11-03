@@ -9,7 +9,7 @@ import tweepy
 from tweepy import API
 from tweepy.models import Status
 
-from collect.utils import Config
+from collect.utils import Config, Posting, debug
 
 
 @dataclass
@@ -80,13 +80,15 @@ def get_user_tweets(api: API, screen_name: str) -> list[Tweet]:
     :param screen_name: Screen name of that individual
     :return: All tweets
     """
-    tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended')
-    # parsed_tweets: list[Tweet] = []
-    #
-    # for tweet in tweets:
-    #     json_str = str(tweet._json).replace("\"", "\\\"").replace('\'', '\"')
-    #     print(tweet._json)
-    #     obj = demjson.decode(str(tweet._json))
-    #     parsed_tweets.append(Tweet(**obj))
+    debug(f'Getting user tweets for {screen_name}')
 
+    tweets: list[Tweet] = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended')
+    while True:
+        debug(f'- Got {len(tweets)} tweets, getting additional tweets...')
+        additional_tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended', max_id=tweets[-1].id)
+        if len(additional_tweets) == 0:
+            break
+        tweets.extend(additional_tweets)
+
+    debug(f'- Got {len(tweets)} tweets, finished.')
     return tweets

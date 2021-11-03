@@ -14,6 +14,5 @@ if __name__ == '__main__':
 
     tweets = get_user_tweets(api, 'voxdotcom')
 
-    for tweet in tweets:
-        print(tweet)
+    print(len(tweets))
 
