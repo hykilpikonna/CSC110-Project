@@ -1,9 +1,3 @@
-import os
-
-import json5
-import tweepy
-from tweepy.models import Status
-
 from collect.twitter import tweepy_login, get_user_tweets
 from collect.utils import *
 

@@ -1,15 +1,11 @@
-import json
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
 
-import demjson as demjson
-import json5
 import tweepy
 from tweepy import API
-from tweepy.models import Status
 
-from collect.utils import Config, Posting, debug
+from collect.utils import Config, debug
 
 
 @dataclass

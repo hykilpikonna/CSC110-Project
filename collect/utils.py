@@ -2,7 +2,6 @@ import os
 from dataclasses import dataclass
 
 import json5
-import tweepy
 
 
 @dataclass
