@@ -1,7 +1,6 @@
 import os
 
 import json5
-import tweepy
 
 
 def load_config() -> dict:
@@ -15,4 +14,3 @@ def load_config() -> dict:
             return json5.load(f)
     else:
         return json5.loads(os.getenv('config'))
-
