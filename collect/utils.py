@@ -28,6 +28,30 @@ class Config:
     telegram_userid: int
 
 
+@dataclass
+class GeneralUser:
+    # Username
+    username: str
+    # A measurement of a user's popularity, such as followers count
+    popularity: int
+    # Which platform is this user from
+    platform: str
+
+
+@dataclass
+class Posting:
+    # Which platform did the user post on
+    platform: str
+    # Username on that platform
+    username: str
+    # Full text of the post's content
+    text: str
+    # Popularity of the post
+    popularity: int
+    # Is it a repost
+    repost: bool
+
+
 def load_config() -> Config:
     """
     Load config using JSON5, from either the local file ~/config.json5 or from the environment variable named config.
