@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from datetime import datetime
 
 import json5
 
@@ -49,6 +50,8 @@ class Posting:
     popularity: int
     # Is it a repost
     repost: bool
+    # Date
+    date: datetime
 
 
 def load_config() -> Config:
