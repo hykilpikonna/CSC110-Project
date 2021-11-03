@@ -81,7 +81,7 @@ def get_user_tweets(api: API, screen_name: str) -> list[Tweet]:
     tweets: list[Tweet] = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended')
     while True:
         debug(f'- Got {len(tweets)} tweets, getting additional tweets...')
-        additional_tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended', max_id=tweets[-1].id)
+        additional_tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended', max_id=int(tweets[-1].id_str) - 1)
         if len(additional_tweets) == 0:
             break
         tweets.extend(additional_tweets)
