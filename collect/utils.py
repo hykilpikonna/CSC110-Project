@@ -33,16 +33,18 @@ def load_config() -> Config:
     """
     Load config using JSON5, from either the local file ~/config.json5 or from the environment variable named config.
 
-    :return: Config dictionary object
+    :return: Config object
     """
     if os.path.isfile('config.json5'):
         with open('config.json5', 'r') as f:
-            return json5.load(f)
+            conf = json5.load(f)
     else:
-        return json5.loads(os.getenv('config'))
+        conf = json5.loads(os.getenv('config'))
+
+    return Config(**conf)
 
 
-def tweepy_login(conf: dict) -> tweepy.API:
+def tweepy_login(conf: Config) -> tweepy.API:
     """
     Login to tweepy
 
