@@ -65,3 +65,12 @@ def load_config() -> Config:
         conf = json5.loads(os.getenv('config'))
 
     return Config(**conf)
+
+
+def debug(msg: object) -> None:
+    """
+    Output a debug message
+
+    :param msg: Message
+    """
+    print('[DEBUG] ' + str(msg))
