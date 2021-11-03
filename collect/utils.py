@@ -28,7 +28,6 @@ class Config:
     telegram_userid: int
 
 
-
 def load_config() -> Config:
     """
     Load config using JSON5, from either the local file ~/config.json5 or from the environment variable named config.
@@ -42,16 +41,3 @@ def load_config() -> Config:
         conf = json5.loads(os.getenv('config'))
 
     return Config(**conf)
-
-
-def tweepy_login(conf: Config) -> tweepy.API:
-    """
-    Login to tweepy
-
-    :param conf: Config from load_config()
-    :return: Tweepy API object
-    """
-    auth = tweepy.OAuthHandler(conf.consumer_key, conf.consumer_secret)
-    auth.set_access_token(conf.access_token, conf.access_secret)
-    api: tweepy.API = tweepy.API(auth)
-    return api
