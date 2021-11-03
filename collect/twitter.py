@@ -1,8 +1,13 @@
+import json
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Union
 
+import demjson as demjson
+import json5
 import tweepy
+from tweepy import API
+from tweepy.models import Status
 
 from collect.utils import Config
 
@@ -67,4 +72,21 @@ def tweepy_login(conf: Config) -> tweepy.API:
     return api
 
 
+def get_user_tweets(api: API, screen_name: str) -> list[Tweet]:
+    """
+    Get all tweets from a specific individual
 
+    :param api: Tweepy API object
+    :param screen_name: Screen name of that individual
+    :return: All tweets
+    """
+    tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended')
+    # parsed_tweets: list[Tweet] = []
+    #
+    # for tweet in tweets:
+    #     json_str = str(tweet._json).replace("\"", "\\\"").replace('\'', '\"')
+    #     print(tweet._json)
+    #     obj = demjson.decode(str(tweet._json))
+    #     parsed_tweets.append(Tweet(**obj))
+
+    return tweets
