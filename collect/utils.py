@@ -1,10 +1,35 @@
 import os
+from dataclasses import dataclass
 
 import json5
 import tweepy
 
 
-def load_config() -> dict:
+@dataclass
+class Config:
+    # Twitter's official API v1 keys
+    consumer_key: str
+    consumer_secret: str
+    access_token: str
+    access_secret: str
+
+    # Twitter's Web API keys
+    # Twitter web authentication token, you can get this by inspecting XHR requests
+    twitter_web_bearer: str
+    # Twitter web cookies file path, you can export cookies using EditThisCookie plugin
+    twitter_web_cookies: str
+    # Twitter request rate: How many requests per second
+    twitter_rate_limit: int
+
+    # Telegram config
+    # Telegram bot token
+    telegram_token: str
+    # Telegram update user id (Who should the bot send updates to?)
+    telegram_userid: int
+
+
+
+def load_config() -> Config:
     """
     Load config using JSON5, from either the local file ~/config.json5 or from the environment variable named config.
 
