@@ -85,13 +85,13 @@ def download_user_tweets(api: API, screen_name: str) -> None:
     start_date = pytz.UTC.localize(datetime(2020, 1, 1))
 
     # Get initial 200 tweets
-    tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended')
+    tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended', trim_user=True)
     postings = [convert_to_generic(t) for t in tweets]
 
     # Get additional tweets
     while True:
         debug(f'- Got {len(tweets)} tweets, getting additional tweets...')
-        additional_tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended',
+        additional_tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended', trim_user=True,
                                                             max_id=int(tweets[-1].id_str) - 1)
         if len(additional_tweets) == 0:
             debug(f'- Got {len(tweets)} tweets, finished because no more tweets are available.')
@@ -102,7 +102,7 @@ def download_user_tweets(api: API, screen_name: str) -> None:
             break
 
         tweets.extend(additional_tweets)
-        postings.extend([convert_to_generic(t) for t in additional_tweets])
+        postings.extend([convert_to_generic(screen_name, t) for t in additional_tweets])
 
     # Make directory
     dir_raw = './data/twitter_users_raw/'
@@ -117,15 +117,14 @@ def download_user_tweets(api: API, screen_name: str) -> None:
         f.write(json_stringify(postings))
 
 
-def convert_to_generic(tweet: Tweet) -> Posting:
+def convert_to_generic(username: str, tweet: Tweet) -> Posting:
     """
     Convert a twitter's tweet to a generic posting
 
     :param tweet: Tweet data
     :return: Generic posting
     """
-    return Posting('twitter',
-                   username=tweet.user.screen_name,
+    return Posting('twitter', username,
                    text=tweet.full_text,
                    popularity=tweet.favorite_count + tweet.retweet_count,
                    repost=tweet.retweeted_status is not None,
