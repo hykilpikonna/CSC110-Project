@@ -55,7 +55,7 @@ class Tweet:
 
     is_quote_status: bool
 
-    retweet_status: Union[dict, None]
+    retweeted_status: Union[dict, None]
     retweet_count: int
     favorite_count: int
 
@@ -128,5 +128,5 @@ def convert_to_generic(tweet: Tweet) -> Posting:
                    username=tweet.user.screen_name,
                    text=tweet.full_text,
                    popularity=tweet.favorite_count + tweet.retweet_count,
-                   repost=tweet.source is not None,
+                   repost=tweet.retweeted_status is not None,
                    date=tweet.created_at)
