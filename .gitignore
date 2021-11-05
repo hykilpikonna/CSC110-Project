@@ -116,3 +116,7 @@ dmypy.json
 *.fdb_latexmk
 *.fls
 *.gz
+*.bbl
+*.blg
+*.bcf
+*.xml
