@@ -9,7 +9,7 @@ import tweepy
 from tweepy import API
 from tweepy.models import Status
 
-from collect.utils import Config, debug
+from collect.utils import Config, debug, Posting, json_stringify
 
 
 @dataclass
@@ -51,6 +51,7 @@ class Tweet:
 
     geo: str
     coordinates: str
+    user: User
 
     is_quote_status: bool
 
@@ -84,12 +85,13 @@ def download_user_tweets(api: API, screen_name: str) -> None:
     start_date = pytz.UTC.localize(datetime(2020, 1, 1))
 
     # Get initial 200 tweets
-    tweets: list[Status] = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended', trim_user=True)
+    tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended')
+    postings = [convert_to_generic(t) for t in tweets]
 
     # Get additional tweets
     while True:
         debug(f'- Got {len(tweets)} tweets, getting additional tweets...')
-        additional_tweets: list[Status] = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended', trim_user=True,
+        additional_tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended',
                                                             max_id=int(tweets[-1].id_str) - 1)
         if len(additional_tweets) == 0:
             debug(f'- Got {len(tweets)} tweets, finished because no more tweets are available.')
@@ -100,15 +102,31 @@ def download_user_tweets(api: API, screen_name: str) -> None:
             break
 
         tweets.extend(additional_tweets)
-
+        postings.extend([convert_to_generic(t) for t in additional_tweets])
 
     # Make directory
-    dir = './data/raw_twitter_users/'
+    dir_raw = './data/twitter_users_raw/'
+    dir = './data/twitter_users/'
+    Path(dir_raw).mkdir(parents=True, exist_ok=True)
     Path(dir).mkdir(parents=True, exist_ok=True)
 
-    # Encode json
-    json_output = json.dumps([t._json for t in tweets], indent=4)
-
     # Store in file
+    with open(dir_raw + screen_name + '.json', 'w') as f:
+        f.write(json.dumps([t._json for t in tweets], indent=1))
     with open(dir + screen_name + '.json', 'w') as f:
-        f.write(json_output)
+        f.write(json_stringify(postings))
+
+
+def convert_to_generic(tweet: Tweet) -> Posting:
+    """
+    Convert a twitter's tweet to a generic posting
+
+    :param tweet: Tweet data
+    :return: Generic posting
+    """
+    return Posting('twitter',
+                   username=tweet.user.screen_name,
+                   text=tweet.full_text,
+                   popularity=tweet.favorite_count + tweet.retweet_count,
+                   repost=tweet.source is not None,
+                   date=tweet.created_at)
