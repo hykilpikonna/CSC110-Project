@@ -86,7 +86,7 @@ def download_user_tweets(api: API, screen_name: str) -> None:
 
     # Get initial 200 tweets
     tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended', trim_user=True)
-    postings = [convert_to_generic(t) for t in tweets]
+    postings = [convert_to_generic(screen_name, t) for t in tweets]
 
     # Get additional tweets
     while True:
@@ -121,11 +121,12 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
     """
     Convert a twitter's tweet to a generic posting
 
+    :param username: Username (for optimization, because including a user object in every tweet slows computation significantly.)
     :param tweet: Tweet data
     :return: Generic posting
     """
     return Posting('twitter', username,
                    text=tweet.full_text,
                    popularity=tweet.favorite_count + tweet.retweet_count,
-                   repost=tweet.retweeted_status is not None,
+                   repost=hasattr(tweet, 'retweeted_status'),
                    date=tweet.created_at)
