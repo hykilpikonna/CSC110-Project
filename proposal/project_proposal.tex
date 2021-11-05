@@ -6,6 +6,14 @@
 \title{CSC110 Project Proposal: COVID-19 Discussion Trend Analysis}
 \author{Azalea Gui \& Peter Lin}
 \date{Friday, November 5, 2021}
+\usepackage[
+backend=biber,
+style=numeric,
+citestyle=apa,
+sorting=nyt
+]{biblatex}
+\addbibresource{references.bib}
+\DeclareNameAlias{author}{last-first}
 
 \begin{document}
     \maketitle
@@ -51,13 +59,16 @@
     Another variant of the frequency histogram will be plotted not against the date but against the country’s confirmed cases since people’s emotions of anxiety might be influenced by the growing or decreasing of confirmed cases. We will also graph some data using this variant to find more insights.
 
 
-    \section*{References}
+%    \section*{References}
 
-    TODO
+%    TODO
 
 % NOTE: LaTeX does have a built-in way of generating references automatically,
 % but it's a bit tricky to use so we STRONGLY recommend writing your references
 % manually, using a standard academic format like APA or MLA.
 % (E.g., https://owl.purdue.edu/owl/research_and_citation/apa_style/apa_formatting_and_style_guide/general_format.html)
 
+
+\nocite{*}
+\printbibliography
 \end{document}
