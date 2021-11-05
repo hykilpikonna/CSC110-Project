@@ -1,6 +1,8 @@
+import dataclasses
+import json
 import os
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, date
 
 import json5
 
@@ -76,3 +78,28 @@ def debug(msg: object) -> None:
     :param msg: Message
     """
     print('[DEBUG] ' + str(msg))
+
+
+class EnhancedJSONEncoder(json.JSONEncoder):
+    def default(self, o):
+
+        # Support encoding dataclasses
+        # https://stackoverflow.com/a/51286749/7346633
+        if dataclasses.is_dataclass(o):
+            return dataclasses.asdict(o)
+
+        # Support encoding datetime
+        if isinstance(o, (datetime, date)):
+            return o.isoformat()
+
+        return super().default(o)
+
+
+def json_stringify(obj) -> str:
+    """
+    Serialize json string with support for dataclasses and datetime
+
+    :param obj: Objects
+    :return: Json strings
+    """
+    return json.dumps(obj, indent=1, cls=EnhancedJSONEncoder)
