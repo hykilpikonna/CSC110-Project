@@ -7,7 +7,7 @@ import time
 from typing import List
 
 import tweepy
-from tweepy import API, TooManyRequests, User, Tweet
+from tweepy import API, TooManyRequests, User, Tweet, Unauthorized
 
 from utils import *
 
@@ -83,7 +83,11 @@ def download_all_tweets(api: API, screen_name: str,
     rate_delay = calculate_rate_delay(60)
 
     # Get initial 200 tweets
-    tweets = get_tweets(api, screen_name, rate_delay, None)
+    try:
+        tweets = get_tweets(api, screen_name, rate_delay, None)
+    except Unauthorized:
+        debug(f'- {screen_name}: Unauthorized. Probably a private account, ignoring.')
+        return
 
     # Get additional tweets
     while True:
