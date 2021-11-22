@@ -117,6 +117,15 @@ def download_user_tweets(api: API, screen_name: str) -> None:
         f.write(json_stringify(postings))
 
 
+
+
+
+    :param start_point:
+    :param n: How many users do you want to download?
+    :return:
+    """
+
+
 def convert_to_generic(username: str, tweet: Tweet) -> Posting:
     """
     Convert a twitter's tweet to a generic posting
@@ -130,3 +139,23 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
                    popularity=tweet.favorite_count + tweet.retweet_count,
                    repost=hasattr(tweet, 'retweeted_status'),
                    date=tweet.created_at)
+
+
+def get_user_followings_data(api: API, screen_name: str) -> list[str]:
+    """
+    Get a user's followings - a list of user that a specific user follows.
+
+    We limited the result to 5000 entries because that is the maximum entries per query that the
+    twitter API allows. And we think 5000 entries is an enough sample size.
+
+    :param api: Tweepy API
+    :param screen_name: The user's screen name
+    :return: List of users that the user follows.
+    """
+    return api.get_friends(screen_name=screen_name, count=5000)
+
+
+if __name__ == '__main__':
+    conf = load_config()
+    api = tweepy_login(conf)
+    print(json.dumps(get_user_followings(api, "sauricat")))

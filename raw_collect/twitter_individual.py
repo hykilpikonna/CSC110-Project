@@ -6,5 +6,5 @@ if __name__ == '__main__':
     conf = load_config()
     api = tweepy_login(conf)
 
-    download_user_tweets(api, 'voxdotcom')
+    download_user_tweets(api, 'sauricat')
 
