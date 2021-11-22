@@ -2,18 +2,21 @@ import json
 import os
 from dataclasses import dataclass
 from datetime import datetime
+from typing import NamedTuple
 
-from utils import normalize_directory, debug
+from utils import normalize_directory, debug, json_stringify
 
 
-@dataclass
-class GeneralUser:
+class UserPopularity(NamedTuple):
+    """
+    User and popularity (we use NamedTuple instead of dataclass because named tuples are easier to
+    serialize in JSON and they require much less space in the stored json format because no key info
+    is stored).
+    """
     # Username
     username: str
     # A measurement of a user's popularity, such as followers count
     popularity: int
-    # Which platform is this user from
-    platform: str
 
 
 @dataclass
@@ -32,12 +35,13 @@ class Posting:
     date: datetime
 
 
-def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[GeneralUser]:
+def process_users_popularity(user_dir: str = './data/twitter/user/') -> list[UserPopularity]:
     """
     After downloading a wide range of users using download_users_start in raw_collect/twitter.py,
     this function will read the user files and rank the users by popularity.
 
-    The return format will consist of a list of users' screen names and popularity.
+    The return format will consist of a list of users' screen names and popularity, which will be
+    saved to <user_dir>/processed_popularity.json
 
     :param user_dir: Download directory of users data, should be the same as the downloads dir in
      download_user_start. (Default: "./data/twitter/user/")
@@ -53,7 +57,7 @@ def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[Genera
             # Read
             with open(f'{user_dir}/{filename}', 'r', encoding='utf-8') as f:
                 user = json.load(f)
-                users.append(GeneralUser(user['screen_name'], user['followers_count'], 'twitter'))
+                users.append(UserPopularity(user['screen_name'], user['followers_count']))
 
             # Log progress
             if len(users) % 2000 == 0:
@@ -62,5 +66,22 @@ def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[Genera
     # Sort by followers count, descending
     users.sort(key=lambda x: x.popularity, reverse=True)
 
+    # Save data
+    with open(f'{user_dir}/../processed_popularity.json', 'w', encoding='utf-8') as f:
+        f.write(json_stringify(users, indent=None))
+
     # Return
     return users
+
+
+def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[UserPopularity]:
+    """
+    Load user popularity data after processing in process_users_popularity
+
+    :param user_dir: Download directory of users data, should be the same as the downloads dir in
+     download_user_start. (Default: "./data/twitter/user/")
+    :return: List of users' screen names and popularity, sorted descending by popularity.
+    """
+    user_dir = normalize_directory(user_dir) + '/users'
+    with open(f'{user_dir}/processed_popularity.json', 'r', encoding='utf-8') as f:
+        return json.load(f)

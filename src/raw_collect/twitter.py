@@ -309,12 +309,12 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
 
 
 if __name__ == '__main__':
-    python_ta.check_all(config={
-        'max-line-length': 100,
-        'disable': ['R1705', 'C0200', 'E9998', 'E9999']
-    })
+    # python_ta.check_all(config={
+    #     'max-line-length': 100,
+    #     'disable': ['R1705', 'C0200', 'E9998', 'E9999']
+    # })
 
     config = load_config('config.json5')
     tweepy_api = tweepy_login(config)
     # download_users_start(tweepy_api, 'sauricat')
-    # download_users_resume_progress(tweepy_api)
+    download_users_resume_progress(tweepy_api)
