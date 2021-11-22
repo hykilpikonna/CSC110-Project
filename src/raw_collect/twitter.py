@@ -227,6 +227,7 @@ def download_users_execute(api: API, n: float, base_dir: str, rate_limit: int,
 
     print(f"Executing friends-chain download:")
     print(f"- n: {n}")
+    print(f"- Requests per minute: {rate_limit}")
     print(f"- Directory: {base_dir}")
     print(f"- Downloaded: {len(downloaded)}")
     print(f"- Current search set: {current_set}")
@@ -317,4 +318,5 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
 if __name__ == '__main__':
     conf = load_config('config.json5')
     api = tweepy_login(conf)
+    # download_users_start(api, 'sauricat')
     download_users_resume_progress(api)
