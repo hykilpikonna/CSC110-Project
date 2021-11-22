@@ -85,6 +85,10 @@ def process_tweets(tweets_dir: str = './data/twitter/user-tweets/') -> None:
     for filename in os.listdir(f'{tweets_dir}/user'):
         # Only check json files and ignore macos dot files
         if filename.endswith('.json') and not filename.startswith('.'):
+            # Check if already processed
+            if os.path.isfile(f'{tweets_dir}/processed/{filename}'):
+                continue
+
             # Read
             tweets = json.loads(read(f'{tweets_dir}/user/{filename}'))
             p = [Posting(is_covid_related(t['full_text']),
