@@ -57,7 +57,7 @@ def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[Genera
 
             # Log progress
             if len(users) % 2000 == 0:
-                debug(f'load_users_popularity: Loaded {len(users)} users.')
+                debug(f'Loaded {len(users)} users.')
 
     # Sort by followers count, descending
     users.sort(key=lambda x: x.popularity, reverse=True)

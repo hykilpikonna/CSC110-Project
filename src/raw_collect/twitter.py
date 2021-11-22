@@ -1,3 +1,6 @@
+"""
+TODO: Module docstring
+"""
 import json
 import math
 import random
@@ -7,32 +10,13 @@ from datetime import datetime
 from pathlib import Path
 from typing import Union
 
+import python_ta
 import pytz
 import tweepy
-from tweepy import API, TooManyRequests
+from tweepy import API, TooManyRequests, User
 
 from process.twitter_process import Posting
 from utils import Config, debug, json_stringify, load_config, normalize_directory
-
-
-@dataclass
-class User:
-    id: int
-    id_str: str
-    name: str
-    screen_name: str
-    location: str
-    description: str
-    url: str
-    entities: dict
-    protected: bool
-    followers_count: int
-    friends_count: int
-    listed_count: int
-    created_at: datetime
-    favourites_count: int
-    verified: bool
-    statuses_count: int
 
 
 @dataclass
@@ -85,7 +69,6 @@ def download_user_tweets(api: API, screen_name: str) -> None:
     :return: None
     """
     debug(f'Getting user tweets for {screen_name}')
-    start_date = pytz.UTC.localize(datetime(2020, 1, 1))
 
     # Get initial 200 tweets
     tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended',
@@ -100,12 +83,6 @@ def download_user_tweets(api: API, screen_name: str) -> None:
                                               max_id=int(tweets[-1].id_str) - 1)
         if len(additional_tweets) == 0:
             debug(f'- Got {len(tweets)} tweets, finished because no more tweets are available.')
-            break
-
-        if additional_tweets[-1].created_at < start_date:
-            debug(
-                f'- Got {len(tweets)} tweets, finished because the earliest tweet in the dataset '
-                f'goes before 2020-01-01.')
             break
 
         tweets.extend(additional_tweets)
@@ -182,7 +159,8 @@ def download_users_start(api: API, start_point: str, n: float = math.inf,
     next_set = set()
 
     # Start download
-    download_users_execute(api, n, base_dir, rate_limit, downloaded, done_set, current_set, next_set)
+    download_users_execute(api, n, base_dir, rate_limit, downloaded,
+                           done_set, current_set, next_set)
 
 
 def download_users_resume_progress(api: API, base_dir: str = './data/twitter/user/') -> None:
@@ -332,7 +310,14 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
 
 
 if __name__ == '__main__':
-    conf = load_config('config.json5')
-    api = tweepy_login(conf)
-    # download_users_start(api, 'sauricat')
-    download_users_resume_progress(api)
+    python_ta.check_all(config={
+        'extra-imports': [],  # the names (strs) of imported modules
+        'allowed-io': [],     # the names (strs) of functions that call print/open/input
+        'max-line-length': 100,
+        'disable': ['R1705', 'C0200']
+    })
+
+    # conf = load_config('config.json5')
+    # api = tweepy_login(conf)
+    # # download_users_start(api, 'sauricat')
+    # download_users_resume_progress(api)
