@@ -289,7 +289,7 @@ def download_users_execute(api: API, n: float, base_dir: str, rate_limit: int,
             meta = {'downloaded': downloaded, 'done_set': done_set,
                     'current_set': current_set, 'next_set': next_set,
                     'n': n, 'rate_limit': rate_limit}
-            f.write(json_stringify(meta))
+            f.write(json.dumps(meta))
 
         debug(f'Finished saving friends of {screen_name}')
         debug(f'============= Total {len(downloaded)} saved =============')
