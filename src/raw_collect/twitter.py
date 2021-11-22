@@ -6,7 +6,6 @@ import math
 import os
 import random
 import time
-from pathlib import Path
 from typing import Union, List
 
 import tweepy
@@ -14,7 +13,7 @@ from tweepy import API, TooManyRequests, User, Tweet
 
 from process.twitter_process import Posting
 from utils import Config, debug, json_stringify, load_config, normalize_directory, \
-    calculate_rate_delay
+    calculate_rate_delay, write, read
 
 
 def tweepy_login(conf: Config) -> tweepy.API:
@@ -72,7 +71,6 @@ def download_all_tweets(api: API, screen_name: str,
     """
     # Ensure directories exist
     base_dir = normalize_directory(base_dir) + '/user'
-    Path(base_dir).mkdir(parents=True, exist_ok=True)
     file = f'{base_dir}/{screen_name}.json'
 
     # Check if user already exists
@@ -99,18 +97,17 @@ def download_all_tweets(api: API, screen_name: str,
 
         # No more tweets
         if len(additional_tweets) == 0:
-            debug(f'- {screen_name}: {len(tweets)} tweets, no more tweets are available.')
+            debug(f'- {screen_name}: {len(tweets)} tweets, no more tweets are available.\n')
             break
 
         # Add tweets to the list
         tweets.extend(additional_tweets)
 
     # Store in file
-    with open(file, 'w', encoding='utf-8') as f:
-        # Even though we are not supposed to use internal fields, there aren't any efficient way of
-        # obtaining the json without the field. Using t.__dict__ will include the API object, which
-        # is not serializable.
-        f.write(json_stringify([t._json for t in tweets]))
+    # Even though we are not supposed to use internal fields, there aren't any efficient way of
+    # obtaining the json without the field. Using t.__dict__ will include the API object, which
+    # is not serializable.
+    write(file, json_stringify([t._json for t in tweets]))
 
 
 def download_users_start(api: API, start_point: str, n: float = math.inf,
@@ -182,8 +179,7 @@ def download_users_resume_progress(api: API, base_dir: str = './data/twitter/use
     :return: None
     """
     # Open file and read
-    with open(f'{base_dir}/meta/meta.json', 'r', encoding='utf-8') as f:
-        meta = json.load(f)
+    meta = json.loads(read(f'{base_dir}/meta/meta.json'))
 
     # Resume
     download_users_execute(api, meta['n'], base_dir,
@@ -213,10 +209,6 @@ def download_users_execute(api: API, n: float, base_dir: str,
     :return: None
     """
     base_dir = normalize_directory(base_dir)
-
-    # Ensure directory exists
-    Path(f'{base_dir}/users').mkdir(parents=True, exist_ok=True)
-    Path(f'{base_dir}/meta').mkdir(parents=True, exist_ok=True)
 
     # Rate limit for this API endpoint is 1 request per minute, and rate delay defines how many
     # seconds to sleep for each request.
@@ -251,8 +243,7 @@ def download_users_execute(api: API, n: float, base_dir: str,
             # This user was not saved, save the user.
             if user not in downloaded:
                 # Save user json
-                with open(f'{base_dir}/users/{user.screen_name}.json', 'w', encoding='utf-8') as f:
-                    f.write(json_stringify(user._json))
+                write(f'{base_dir}/users/{user.screen_name}.json', json_stringify(user._json))
 
                 # Add to set
                 downloaded.add(user.screen_name)
@@ -290,10 +281,9 @@ def download_users_execute(api: API, n: float, base_dir: str,
         done_set.add(screen_name)
 
         # Update meta info so that downloading can be continued
-        with open(f'{base_dir}/meta/meta.json', 'w', encoding='utf-8') as f:
-            meta = {'downloaded': downloaded, 'done_set': done_set,
-                    'current_set': current_set, 'next_set': next_set, 'n': n}
-            f.write(json_stringify(meta, indent=None))
+        meta = {'downloaded': downloaded, 'done_set': done_set,
+                'current_set': current_set, 'next_set': next_set, 'n': n}
+        write(f'{base_dir}/meta/meta.json', json_stringify(meta, indent=None))
 
         debug(f'Finished saving friends of {screen_name}')
         debug(f'============= Total {len(downloaded)} saved =============')
