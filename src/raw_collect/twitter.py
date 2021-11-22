@@ -2,6 +2,7 @@ import io
 import json
 import math
 import random
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -157,6 +158,20 @@ def download_users(start_point: str, n: float = math.inf,
     if base_dir.endswith('/'):
         base_dir = base_dir[:-1]
 
+    # Limit request rate
+    start_time = time.time()
+    num_requests = 0
+
+    # Ensure that the current request rate is under the specified rate limit.
+    def ensure_rate_limit() -> None:
+        requests_per_minute = num_requests / (time.time() - start_time) * 60
+        # We're over the rate limit.
+        if requests_per_minute < rate_limit:
+            # Sleep and check again
+            debug('Rate-limit reached, sleeping')
+            time.sleep((rate_limit - requests_per_minute) * 60)
+            ensure_rate_limit()
+
     # Set of all the downloaded users' screen names
     downloaded = set()
 
@@ -171,11 +186,14 @@ def download_users(start_point: str, n: float = math.inf,
 
     # Loop until there are enough users
     while len(downloaded) < n:
+        ensure_rate_limit()
+
         # Take a screen name from the current list
         screen_name = current_set.pop()
 
         # Get a list of friends.
         friends = api.get_friends(screen_name=screen_name, count=5000)
+        num_requests += 1
 
         # Save users
         for user in friends:
@@ -187,6 +205,7 @@ def download_users(start_point: str, n: float = math.inf,
 
                 # Add to set
                 downloaded.add(user.screen_name)
+                # debug(f'- Downloaded {user.screen_name}')
 
         # Get users and their popularity that we haven't downloaded
         screen_names = [(user.screen_name, user.followers_count) for user in friends
@@ -196,7 +215,6 @@ def download_users(start_point: str, n: float = math.inf,
         screen_names.sort(key=lambda x: x[1])
 
         # Add 3 random users to the next set
-        samples = set()
         if len(screen_names) > 3:
             samples = {n[0] for n in random.sample(screen_names, 3)}
         else:
@@ -222,6 +240,9 @@ def download_users(start_point: str, n: float = math.inf,
             meta = {downloaded: downloaded, done_set: done_set,
                     current_set: current_set, next_set: next_set}
             f.write(json.dumps(meta))
+
+        debug(f'Finished saving friends of {screen_name}')
+        debug(f'============= Total {len(downloaded)} saved =============')
 
 
 def convert_to_generic(username: str, tweet: Tweet) -> Posting:
