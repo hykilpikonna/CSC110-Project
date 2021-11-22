@@ -11,7 +11,8 @@ import pytz
 import tweepy
 from tweepy import API, TooManyRequests
 
-from utils import Config, debug, Posting, json_stringify, load_config, normalize_directory
+from process.twitter_process import Posting
+from utils import Config, debug, json_stringify, load_config, normalize_directory
 
 
 @dataclass
