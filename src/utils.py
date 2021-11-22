@@ -80,6 +80,16 @@ def normalize_directory(directory: str) -> str:
     return directory
 
 
+def calculate_rate_delay(rate_limit: float) -> float:
+    """
+    Calculate the rate delay for each request given rate limit in request per minute
+
+    :param rate_limit: Rate limit in requests per minute
+    :return: Rate delay in seconds per request (added one second just to be safe)
+    """
+    return 1 / rate_limit * 60 + 1
+
+
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, o):
 

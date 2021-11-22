@@ -21,12 +21,19 @@ if __name__ == '__main__':
     #####################
     # Data processing - Step P1
     # (After step C1) Process the downloaded twitter users by popularity
-    users = process_users_popularity()
+    # users = process_users_popularity()
 
-
+    #####################
+    # Data collection - Step C2
+    # (After step P1) Load the downloaded twitter users by popularity, and start downloading as many
+    # tweets from these users as possible.
+    users = load_users_popularity()
 
     # Just curious, who are the 20 most popular individuals on twitter?
     print(tabulate(((u.username, u.popularity) for u in users[:20]), headers=['Name', 'Followers']))
+
+    # Start download
+
 
     #####################
     # Data collection - Step C2
