@@ -184,7 +184,7 @@ def download_users_resume_progress(api: API, base_dir: str = './data/twitter/use
         meta = json.load(f)
 
     # Resume
-    download_users_execute(api, meta['n'], base_dir, meta['resume'],
+    download_users_execute(api, meta['n'], base_dir, meta['rate_limit'],
                            set(meta['downloaded']), set(meta['done_set']),
                            set(meta['current_set']), set(meta['next_set']))
 
@@ -224,6 +224,14 @@ def download_users_execute(api: API, n: float, base_dir: str, rate_limit: int,
 
     # Rate limit delay
     rate_delay = 1 / rate_limit * 60 + 0.1
+
+    print(f"Executing friends-chain download:")
+    print(f"- n: {n}")
+    print(f"- Directory: {base_dir}")
+    print(f"- Downloaded: {len(downloaded)}")
+    print(f"- Current search set: {current_set}")
+    print(f"- Next search set: {len(next_set)}")
+    print()
 
     # Loop until there are enough users
     while len(downloaded) < n:
@@ -309,4 +317,4 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
 if __name__ == '__main__':
     conf = load_config('config.json5')
     api = tweepy_login(conf)
-    download_users(api, 'sauricat')
+    download_users_resume_progress(api)
