@@ -33,10 +33,5 @@ if __name__ == '__main__':
     print(tabulate(((u.username, u.popularity) for u in users[:20]), headers=['Name', 'Followers']))
 
     # Start download
-    download_all_tweets(api, 'sauricat')
-
-    #####################
-    # Data collection - Step C2
-    # Download as many posts of the most popular individuals as possible.
-
-
+    for u in users:
+        download_all_tweets(api, u.username)
