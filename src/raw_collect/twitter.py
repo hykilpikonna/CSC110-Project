@@ -163,6 +163,9 @@ def download_users(api: API, start_point: str, n: float = math.inf,
     Path(f'{base_dir}/users').mkdir(parents=True, exist_ok=True)
     Path(f'{base_dir}/meta').mkdir(parents=True, exist_ok=True)
 
+    # Rate limit delay
+    rate_delay = 1 / rate_limit * 60 + 0.1
+
     # Set of all the downloaded users' screen names
     downloaded = set()
 
@@ -177,9 +180,6 @@ def download_users(api: API, start_point: str, n: float = math.inf,
 
     # Loop until there are enough users
     while len(downloaded) < n:
-        # Rate limit
-        time.sleep(1 / rate_limit * 60 + 0.1)
-
         # Take a screen name from the current list
         screen_name = current_set.pop()
 
@@ -234,6 +234,9 @@ def download_users(api: API, start_point: str, n: float = math.inf,
 
         debug(f'Finished saving friends of {screen_name}')
         debug(f'============= Total {len(downloaded)} saved =============')
+
+        # Rate limit
+        time.sleep(rate_delay)
 
 
 def convert_to_generic(username: str, tweet: Tweet) -> Posting:
