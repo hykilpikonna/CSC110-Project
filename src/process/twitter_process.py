@@ -3,7 +3,7 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 
-from utils import normalize_directory
+from utils import normalize_directory, debug
 
 
 @dataclass
@@ -43,20 +43,24 @@ def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[Genera
      download_user_start. (Default: "./data/twitter/user/")
     :return: List of users' screen names and popularity, sorted descending by popularity.
     """
-    user_dir = normalize_directory(user_dir)
+    user_dir = normalize_directory(user_dir) + '/users'
     users = []
 
     # Loop through all the files
-    for filename in os.listdir(user_dir + ''):
+    for filename in os.listdir(user_dir):
         # Only check json files and ignore macos dot files
         if filename.endswith('.json') and not filename.startswith('.'):
             # Read
-            with open(filename, 'r', encoding='utf-8') as f:
+            with open(f'{user_dir}/{filename}', 'r', encoding='utf-8') as f:
                 user = json.load(f)
                 users.append(GeneralUser(user['screen_name'], user['followers_count'], 'twitter'))
 
+            # Log progress
+            if len(users) % 2000 == 0:
+                debug(f'load_users_popularity: Loaded {len(users)} users.')
+
     # Sort by followers count, descending
-    users.sort(key=lambda x: x[1])
+    users.sort(key=lambda x: x.popularity, reverse=True)
 
     # Return
     return users
