@@ -153,6 +153,45 @@ def download_users(api: API, start_point: str, n: float = math.inf,
     :return: None
     """
 
+    # Set of all the downloaded users' screen names
+    downloaded = set()
+
+    # The set of starting users that are queried.
+    done_set = set()
+
+    # The set of starting users currently looping through
+    current_set = {start_point}
+
+    # The next set of starting users
+    next_set = set()
+
+    # Start download
+    download_users_resume(api, n, base_dir, rate_limit, downloaded, done_set, current_set, next_set)
+
+
+def download_users_resume(api: API, n: float, base_dir: str, rate_limit: int,
+                          downloaded: set[str], done_set: set[str],
+                          current_set: set[str], next_set: set[str]) -> None:
+    """
+    Resume download from the given parameters. The download method is defined in the document for
+    the download_users function.
+
+    Resume functionality is necessary because twitter limits the rate of get friends list to 15
+    requests in a 15-minute window, which is 1 request per minute, so it will take a long time to
+    gather enough data, so we don't want to have to start over from the beginning once something
+    goes wrong.
+
+    :param api: Tweepy's API object
+    :param n: How many users do you want to download?
+    :param base_dir: The downloads folder
+    :param rate_limit: The maximum number of requests per minute
+    :param downloaded: Set of all the downloaded users' screen names
+    :param done_set: The set of starting users that are queried
+    :param current_set: The set of starting users currently looping through
+    :param next_set: The next set of starting users
+    :return: None
+    """
+
     # Ensure that basedir doesn't ends with /
     if base_dir == '':
         base_dir = '.'
@@ -165,18 +204,6 @@ def download_users(api: API, start_point: str, n: float = math.inf,
 
     # Rate limit delay
     rate_delay = 1 / rate_limit * 60 + 0.1
-
-    # Set of all the downloaded users' screen names
-    downloaded = set()
-
-    # The set of starting users that are queried.
-    done_set = set()
-
-    # The set of starting users currently looping through
-    current_set = {start_point}
-
-    # The next set of starting users
-    next_set = set()
 
     # Loop until there are enough users
     while len(downloaded) < n:
