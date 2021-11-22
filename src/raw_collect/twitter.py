@@ -200,7 +200,7 @@ def download_users(api: API, start_point: str, n: float = math.inf,
 
         # Get users and their popularity that we haven't downloaded
         screen_names = [(user.screen_name, user.followers_count) for user in friends
-                        if user.screen_name not in done_set]
+                        if user.screen_name not in done_set and not user.protected]
 
         # Sort by followers count, from least popular to most popular
         screen_names.sort(key=lambda x: x[1])
