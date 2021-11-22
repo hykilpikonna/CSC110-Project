@@ -9,7 +9,7 @@ import tweepy
 from tweepy import API
 from tweepy.models import Status
 
-from collect.utils import Config, debug, Posting, json_stringify
+from collect.utils import Config, debug, Posting, json_stringify, load_config
 
 
 @dataclass
@@ -117,6 +117,9 @@ def download_user_tweets(api: API, screen_name: str) -> None:
         f.write(json_stringify(postings))
 
 
+def download_followings_chain(start_point: str, n: int):
+    """
+    This function downloads n twitter users by using a followings-chain.
 
 
 
