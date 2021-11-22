@@ -140,13 +140,27 @@ def download_users_start(api: API, start_point: str, n: float = math.inf,
     In reality, this method will be biased toward individuals that are worthy of following since
     "friends" are the list of users that someone followed.
 
+    Data Directory
+    --------
     We will download all user data to ./data/twitter/user/users/<screen_name>.json
-
     We will save meta info to ./data/twitter/user/meta/
 
-    Then, we can obtain a list of all users we have downloaded just by obtaining a list of all
-    files under this directory.
+    Twitter API Reference
+    --------
+    We will be using the API endpoint api.twitter.com/friends/list (Documentation:
+    https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list)
+    This will limit the rate of requests to 15 requests in a 15-minute window, which is one request
+    per minute. But it is actually the fastest method of downloading a wide range of users on
+    twitter because it can download a maximum of 200 users at a time while the API for downloading
+    a single user is limited to only 900 queries per 15, which is only 60 users per minute.
 
+    There is another API endpoint that might do the job, which is api.twitter.com/friends/ids (Doc:
+    https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids)
+    However, even though this endpoint has a much higher request rate limit, it only returns user
+    ids and not full user info.
+
+    Parameters
+    --------
     :param api: Tweepy's API object
     :param start_point: Starting user's screen name.
     :param n: How many users do you want to download? (Default: math.inf)
