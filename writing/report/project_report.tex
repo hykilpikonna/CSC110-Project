@@ -2,6 +2,7 @@
 \usepackage{amsmath}
 \usepackage[utf8]{inputenc}
 \usepackage[margin=0.75in]{geometry}
+\usepackage{hyperref}
 
 \title{CSC110 Project: COVID-19 Discussion Trend Analysis}
 \author{Azalea Gui \& Peter Lin}
@@ -26,7 +27,7 @@ sorting=nyt
     \section*{Dataset Used}
     \indent
 
-    
+    1. A wide range of Twitter users: We used twitter's get friends list API \href{https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list}{(documentation)} and the follows-chaining technique to obtain a wide range of twitter users. However, since twitter limited the request rate of this API endpoint to 1 request per minute, we ran the program over many days to gather our data.
     
     \section*{Computational Overview}
 
