@@ -124,7 +124,7 @@ def download_user_tweets(api: API, screen_name: str) -> None:
 
 def download_users(api: API, start_point: str, n: float = math.inf,
                    base_dir: str = './data/twitter/user/',
-                   rate_limit: int = 10) -> None:
+                   rate_limit: int = 1) -> None:
     """
     This function downloads n twitter users by using a friends-chain.
 
@@ -149,7 +149,7 @@ def download_users(api: API, start_point: str, n: float = math.inf,
     :param start_point: Starting user's screen name.
     :param n: How many users do you want to download? (Default: math.inf)
     :param base_dir: The downloads folder (Default: "./data/twitter/user/")
-    :param rate_limit: The maximum number of requests per minute. (Default: 10)
+    :param rate_limit: The maximum number of requests per minute. (Default: 1)
     :return: None
     """
 
@@ -162,24 +162,6 @@ def download_users(api: API, start_point: str, n: float = math.inf,
     # Ensure directory exists
     Path(f'{base_dir}/users').mkdir(parents=True, exist_ok=True)
     Path(f'{base_dir}/meta').mkdir(parents=True, exist_ok=True)
-
-    # Limit request rate
-    start_time = time.time()
-    num_requests = 0
-
-    # Ensure that the current request rate is under the specified rate limit.
-    def ensure_rate_limit() -> None:
-        # Calculate current rate
-        seconds_elapsed = time.time() - start_time
-        requests_per_second = num_requests / seconds_elapsed
-        requests_per_minute = requests_per_second * 60
-
-        # We're over the rate limit.
-        if requests_per_minute > rate_limit:
-            # Sleep and check again
-            debug(f'Rate-limit reached ({requests_per_minute} rpm > {rate_limit} rpm), sleeping')
-            time.sleep((requests_per_minute - rate_limit) * 60)
-            ensure_rate_limit()
 
     # Set of all the downloaded users' screen names
     downloaded = set()
@@ -195,14 +177,14 @@ def download_users(api: API, start_point: str, n: float = math.inf,
 
     # Loop until there are enough users
     while len(downloaded) < n:
-        ensure_rate_limit()
+        # Rate limit
+        time.sleep(1 / rate_limit * 60 + 0.1)
 
         # Take a screen name from the current list
         screen_name = current_set.pop()
 
         # Get a list of friends.
-        friends = api.get_friends(screen_name=screen_name, count=5000)
-        num_requests += 1
+        friends = api.get_friends(screen_name=screen_name, count=200)
 
         # Save users
         for user in friends:
