@@ -1,6 +1,5 @@
 import json
 import math
-import os
 import random
 import time
 from dataclasses import dataclass
@@ -12,7 +11,7 @@ import pytz
 import tweepy
 from tweepy import API, TooManyRequests
 
-from raw_collect.utils import Config, debug, Posting, json_stringify, load_config
+from utils import Config, debug, Posting, json_stringify, load_config, normalize_directory
 
 
 @dataclass
@@ -225,12 +224,7 @@ def download_users_execute(api: API, n: float, base_dir: str, rate_limit: int,
     :param next_set: The next set of starting users
     :return: None
     """
-
-    # Ensure that basedir doesn't ends with /
-    if base_dir == '':
-        base_dir = '.'
-    if base_dir.endswith('/'):
-        base_dir = base_dir[:-1]
+    base_dir = normalize_directory(base_dir)
 
     # Ensure directory exists
     Path(f'{base_dir}/users').mkdir(parents=True, exist_ok=True)

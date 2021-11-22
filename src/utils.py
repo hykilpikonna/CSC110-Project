@@ -56,6 +56,28 @@ def debug(msg: object) -> None:
     print('[DEBUG] ' + str(msg))
 
 
+def normalize_directory(directory: str) -> str:
+    """
+    Normalize a directory input: Ensure that the directory doesn't end with "/", and ensure that an
+    empty directory input will be relative (".")
+
+    >>> normalize_directory('')
+    '.'
+    >>> normalize_directory('path/')
+    'path'
+    >>> normalize_directory('path')
+    'path'
+
+    :param directory: Input directory
+    :return: Normalized directory
+    """
+    if directory == '':
+        directory = '.'
+    if directory.endswith('/'):
+        directory = directory[:-1]
+    return directory
+
+
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, o):
 
