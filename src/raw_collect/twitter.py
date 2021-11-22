@@ -5,46 +5,15 @@ import json
 import math
 import random
 import time
-from dataclasses import dataclass
-from datetime import datetime
 from pathlib import Path
 from typing import Union, List
 
-import python_ta
 import tweepy
 from tweepy import API, TooManyRequests, User, Tweet
 
 from process.twitter_process import Posting
 from utils import Config, debug, json_stringify, load_config, normalize_directory, \
     calculate_rate_delay
-
-
-@dataclass
-class Tweet:
-    created_at: datetime
-    id: int
-    id_str: str
-    full_text: str
-    truncated: bool
-    display_text_range: list[int]
-    entities: dict[str: list]
-    source: str
-
-    in_reply_to_status_id: int
-    in_reply_to_status_id_str: str
-    in_reply_to_user_id: int
-    in_reply_to_user_id_str: str
-    in_reply_to_screen_name: str
-
-    geo: str
-    coordinates: str
-    user: User
-
-    is_quote_status: bool
-
-    retweeted_status: Union[dict, None]
-    retweet_count: int
-    favorite_count: int
 
 
 def tweepy_login(conf: Config) -> tweepy.API:
@@ -127,8 +96,9 @@ def download_all_tweets(api: API, screen_name: str,
     # Store in file
     with open(f'{base_dir}/{screen_name}.json', 'w', encoding='utf-8') as f:
         # Even though we are not supposed to use internal fields, there aren't any efficient way of
-        # obtaining the json without the field.
-        f.write(json_stringify([t.__dict__ for t in tweets]))
+        # obtaining the json without the field. Using t.__dict__ will include the API object, which
+        # is not serializable.
+        f.write(json_stringify([t._json for t in tweets]))
 
 
 def download_users_start(api: API, start_point: str, n: float = math.inf,

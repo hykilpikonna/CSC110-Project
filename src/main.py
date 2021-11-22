@@ -1,7 +1,7 @@
 from tabulate import tabulate
 
 from process.twitter_process import load_users_popularity, process_users_popularity
-from raw_collect.twitter import tweepy_login
+from raw_collect.twitter import tweepy_login, download_all_tweets
 from utils import load_config
 
 if __name__ == '__main__':
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     print(tabulate(((u.username, u.popularity) for u in users[:20]), headers=['Name', 'Followers']))
 
     # Start download
-
+    download_all_tweets(api, 'sauricat')
 
     #####################
     # Data collection - Step C2

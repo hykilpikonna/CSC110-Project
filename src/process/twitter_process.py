@@ -82,6 +82,6 @@ def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[UserPo
      download_user_start. (Default: "./data/twitter/user/")
     :return: List of users' screen names and popularity, sorted descending by popularity.
     """
-    user_dir = normalize_directory(user_dir) + '/users'
+    user_dir = normalize_directory(user_dir)
     with open(f'{user_dir}/processed_popularity.json', 'r', encoding='utf-8') as f:
-        return json.load(f)
+        return [UserPopularity(*u) for u in json.load(f)]
