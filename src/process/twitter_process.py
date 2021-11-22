@@ -32,7 +32,7 @@ class Posting:
     date: datetime
 
 
-def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[tuple[str, int]]:
+def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[GeneralUser]:
     """
     After downloading a wide range of users using download_users_start in raw_collect/twitter.py,
     this function will read the user files and rank the users by popularity.
@@ -53,7 +53,7 @@ def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[tuple[
             # Read
             with open(filename, 'r', encoding='utf-8') as f:
                 user = json.load(f)
-                users.append((user['screen_name'], user['followers_count']))
+                users.append(GeneralUser(user['screen_name'], user['followers_count'], 'twitter'))
 
     # Sort by followers count, descending
     users.sort(key=lambda x: x[1])
