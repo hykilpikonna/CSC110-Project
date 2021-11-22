@@ -67,7 +67,7 @@ def download_all_tweets(api: API, screen_name: str,
     :param base_dir: The downloads folder (Default: "./data/twitter/user-tweets/")
     :return: None
     """
-    debug(f'Getting user tweets for {screen_name}')
+    debug(f'Downloading user tweets for {screen_name}')
 
     # Ensure directories exist
     base_dir = normalize_directory(base_dir) + '/user'
@@ -82,12 +82,12 @@ def download_all_tweets(api: API, screen_name: str,
     # Get additional tweets
     while True:
         # Try to get more tweets
-        debug(f'- Got {len(tweets)} tweets, getting additional tweets...')
+        debug(f'- {screen_name}: {len(tweets)} tweets, downloading additional tweets...')
         additional_tweets = get_tweets(api, screen_name, rate_delay, int(tweets[-1].id_str) - 1)
 
         # No more tweets
         if len(additional_tweets) == 0:
-            debug(f'- Got {len(tweets)} tweets, finished because no more tweets are available.')
+            debug(f'- {screen_name}: {len(tweets)} tweets, no more tweets are available.')
             break
 
         # Add tweets to the list
