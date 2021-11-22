@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Union
 
 import python_ta
-import pytz
 import tweepy
 from tweepy import API, TooManyRequests, User
 
@@ -90,14 +89,14 @@ def download_user_tweets(api: API, screen_name: str) -> None:
 
     # Make directory
     dir_raw = './data/twitter_users_raw/'
-    dir = './data/twitter_users/'
+    dir_processed = './data/twitter_users/'
     Path(dir_raw).mkdir(parents=True, exist_ok=True)
-    Path(dir).mkdir(parents=True, exist_ok=True)
+    Path(dir_processed).mkdir(parents=True, exist_ok=True)
 
     # Store in file
     with open(dir_raw + screen_name + '.json', 'w') as f:
         f.write(json_stringify([t._json for t in tweets]))
-    with open(dir + screen_name + '.json', 'w') as f:
+    with open(dir_processed + screen_name + '.json', 'w') as f:
         f.write(json_stringify(postings))
 
 
@@ -212,7 +211,7 @@ def download_users_execute(api: API, n: float, base_dir: str, rate_limit: int,
     # Rate limit delay
     rate_delay = 1 / rate_limit * 60 + 1
 
-    print(f"Executing friends-chain download:")
+    print("Executing friends-chain download:")
     print(f"- n: {n}")
     print(f"- Requests per minute: {rate_limit}")
     print(f"- Directory: {base_dir}")
@@ -311,13 +310,11 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
 
 if __name__ == '__main__':
     python_ta.check_all(config={
-        'extra-imports': [],  # the names (strs) of imported modules
-        'allowed-io': [],     # the names (strs) of functions that call print/open/input
         'max-line-length': 100,
-        'disable': ['R1705', 'C0200']
+        'disable': ['R1705', 'C0200', 'E9998', 'E9999']
     })
 
-    # conf = load_config('config.json5')
-    # api = tweepy_login(conf)
-    # # download_users_start(api, 'sauricat')
-    # download_users_resume_progress(api)
+    config = load_config('config.json5')
+    tweepy_api = tweepy_login(config)
+    # download_users_start(tweepy_api, 'sauricat')
+    # download_users_resume_progress(tweepy_api)
