@@ -3,6 +3,7 @@ TODO: Module docstring
 """
 import json
 import math
+import os
 import random
 import time
 from pathlib import Path
@@ -46,7 +47,8 @@ def get_tweets(api: API, name: str, rate_delay: float, max_id: Union[int, None])
 
 
 def download_all_tweets(api: API, screen_name: str,
-                        base_dir: str = './data/twitter/user-tweets/') -> None:
+                        base_dir: str = './data/twitter/user-tweets/',
+                        download_if_exists: bool = False) -> None:
     """
     Download all tweets from a specific individual to a local folder.
 
@@ -65,13 +67,23 @@ def download_all_tweets(api: API, screen_name: str,
     :param api: Tweepy API object
     :param screen_name: Screen name of that individual
     :param base_dir: The downloads folder (Default: "./data/twitter/user-tweets/")
+    :param download_if_exists: Whether or not to download if it already exists (Default: False)
     :return: None
     """
-    debug(f'Downloading user tweets for {screen_name}')
-
     # Ensure directories exist
     base_dir = normalize_directory(base_dir) + '/user'
     Path(base_dir).mkdir(parents=True, exist_ok=True)
+    file = f'{base_dir}/{screen_name}.json'
+
+    # Check if user already exists
+    if os.path.isfile(file):
+        if download_if_exists:
+            debug(f'!!! User tweets data for {screen_name} already exists, but overwriting.')
+        else:
+            debug(f'User tweets data for {screen_name} already exists, skipping.')
+            return
+
+    debug(f'Downloading user tweets for {screen_name}')
 
     # Rate limit for this endpoint is 60 rpm for user auth and 69.44 rpm for app auth.
     rate_delay = calculate_rate_delay(60)
@@ -82,7 +94,7 @@ def download_all_tweets(api: API, screen_name: str,
     # Get additional tweets
     while True:
         # Try to get more tweets
-        debug(f'- {screen_name}: {len(tweets)} tweets, downloading additional tweets...')
+        debug(f'- {screen_name}: {len(tweets)} tweets...')
         additional_tweets = get_tweets(api, screen_name, rate_delay, int(tweets[-1].id_str) - 1)
 
         # No more tweets
@@ -94,7 +106,7 @@ def download_all_tweets(api: API, screen_name: str,
         tweets.extend(additional_tweets)
 
     # Store in file
-    with open(f'{base_dir}/{screen_name}.json', 'w', encoding='utf-8') as f:
+    with open(file, 'w', encoding='utf-8') as f:
         # Even though we are not supposed to use internal fields, there aren't any efficient way of
         # obtaining the json without the field. Using t.__dict__ will include the API object, which
         # is not serializable.
