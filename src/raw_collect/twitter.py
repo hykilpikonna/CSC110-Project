@@ -13,7 +13,6 @@ import tweepy
 from raw_collect.utils import Config, debug, Posting, json_stringify, load_config
 from tweepy import API
 
-
 @dataclass
 class User:
     id: int

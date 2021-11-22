@@ -56,14 +56,15 @@ class Posting:
     date: datetime
 
 
-def load_config() -> Config:
+def load_config(path: str = 'config.json5') -> Config:
     """
     Load config using JSON5, from either the local file ~/config.json5 or from the environment variable named config.
 
+    :param path: Path of the config file (Default: config.json5)
     :return: Config object
     """
-    if os.path.isfile('config.json5'):
-        with open('config.json5', 'r') as f:
+    if os.path.isfile(path):
+        with open(path, 'r', encoding='utf-8') as f:
             conf = json5.load(f)
     else:
         conf = json5.loads(os.getenv('config'))
