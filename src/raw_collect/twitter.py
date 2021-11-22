@@ -89,6 +89,12 @@ def download_all_tweets(api: API, screen_name: str,
         debug(f'- {screen_name}: Unauthorized. Probably a private account, ignoring.')
         return
 
+    # This person has no tweets, done. (By the way, we discovered that @lorde has no tweets but has
+    # 7 million followers... wow!)
+    if len(tweets) == 0:
+        write(file, '[]')
+        return
+
     # Get additional tweets
     while True:
         # Try to get more tweets
