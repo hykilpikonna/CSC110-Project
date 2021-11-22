@@ -1,4 +1,5 @@
 import json
+import math
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -6,10 +7,8 @@ from typing import Union
 
 import pytz
 import tweepy
-from tweepy import API
-from tweepy.models import Status
-
 from collect.utils import Config, debug, Posting, json_stringify, load_config
+from tweepy import API
 
 
 @dataclass
@@ -85,20 +84,23 @@ def download_user_tweets(api: API, screen_name: str) -> None:
     start_date = pytz.UTC.localize(datetime(2020, 1, 1))
 
     # Get initial 200 tweets
-    tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended', trim_user=True)
+    tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended',
+                               trim_user=True)
     postings = [convert_to_generic(screen_name, t) for t in tweets]
 
     # Get additional tweets
     while True:
         debug(f'- Got {len(tweets)} tweets, getting additional tweets...')
-        additional_tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended', trim_user=True,
-                                                            max_id=int(tweets[-1].id_str) - 1)
+        additional_tweets = api.user_timeline(screen_name=screen_name, count=200,
+                                              tweet_mode='extended', trim_user=True,
+                                              max_id=int(tweets[-1].id_str) - 1)
         if len(additional_tweets) == 0:
             debug(f'- Got {len(tweets)} tweets, finished because no more tweets are available.')
             break
 
         if additional_tweets[-1].created_at < start_date:
-            debug(f'- Got {len(tweets)} tweets, finished because the earliest tweet in the dataset goes before 2020-01-01.')
+            debug(
+                f'- Got {len(tweets)} tweets, finished because the earliest tweet in the dataset goes before 2020-01-01.')
             break
 
         tweets.extend(additional_tweets)
@@ -117,15 +119,29 @@ def download_user_tweets(api: API, screen_name: str) -> None:
         f.write(json_stringify(postings))
 
 
-def download_followings_chain(start_point: str, n: int):
+def download_users(start_point: str, n: float = math.inf, rate_limit: int = 10) -> None:
     """
     This function downloads n twitter users by using a followings-chain.
 
+    Since there isn't an API or a database with all twitter users, we can't obtain a strict list
+    of all twitter users, nor can we obtain a list of strictly random or most popular twitter
+    users. Therefore, we use the method of follows chaining: we start from a specific individual,
+    obtain their followers, and pick 6 random individuals from the followings list. Then, we repeat
+    the process for the selected followings: we pick 6 random followings of the 6 random followings
+    that we picked.
 
+    In reality, this method will be biased toward individuals that are worthy of following since we
+    are picking random followings.
 
-    :param start_point:
-    :param n: How many users do you want to download?
-    :return:
+    We will download all user data to /data/twitter/user/<screen_name>.json
+
+    Then, we can obtain a list of all users we have downloaded just by obtaining a list of all
+    files under this directory.
+
+    :param start_point: Starting user's screen name.
+    :param n: How many users do you want to download? (Set to infinity if you want all the data)
+    :param rate_limit: The maximum number of requests per minute.
+    :return: None
     """
 
 
