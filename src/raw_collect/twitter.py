@@ -249,17 +249,17 @@ def download_users_execute(api: API, n: float, base_dir: str, rate_limit: int,
                 # debug(f'- Downloaded {user.screen_name}')
 
         # Get users and their popularity that we haven't downloaded
-        screen_names = [(user.screen_name, user.followers_count) for user in friends
-                        if user.screen_name not in done_set and not user.protected]
+        screen_names = [(u.screen_name, u.followers_count) for u in friends
+                        if u.screen_name not in done_set and not u.protected]
 
         # Sort by followers count, from least popular to most popular
         screen_names.sort(key=lambda x: x[1])
 
         # Add 3 random users to the next set
         if len(screen_names) > 3:
-            samples = {n[0] for n in random.sample(screen_names, 3)}
+            samples = {u[0] for u in random.sample(screen_names, 3)}
         else:
-            samples = {n[0] for n in screen_names}
+            samples = {u[0] for u in screen_names}
 
         # Add 3 most popular users that we haven't downloaded to the next set
         while len(screen_names) > 0 and len(samples) < 6:
