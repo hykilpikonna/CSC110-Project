@@ -93,14 +93,20 @@ class EnhancedJSONEncoder(json.JSONEncoder):
         if isinstance(o, (datetime, date)):
             return o.isoformat()
 
+        # Support for sets
+        # https://stackoverflow.com/a/8230505/7346633
+        if isinstance(o, set):
+            return list(o)
+
         return super().default(o)
 
 
 def json_stringify(obj) -> str:
     """
-    Serialize json string with support for dataclasses and datetime
+    Serialize json string with support for dataclasses and datetime and sets and with custom
+    configuration.
 
     :param obj: Objects
     :return: Json strings
     """
-    return json.dumps(obj, indent=1, cls=EnhancedJSONEncoder)
+    return json.dumps(obj, indent=1, cls=EnhancedJSONEncoder, ensure_ascii=False)
