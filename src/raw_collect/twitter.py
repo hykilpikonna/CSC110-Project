@@ -169,12 +169,16 @@ def download_users(api: API, start_point: str, n: float = math.inf,
 
     # Ensure that the current request rate is under the specified rate limit.
     def ensure_rate_limit() -> None:
-        requests_per_minute = num_requests / (time.time() - start_time) * 60
+        # Calculate current rate
+        seconds_elapsed = time.time() - start_time
+        requests_per_second = num_requests / seconds_elapsed
+        requests_per_minute = requests_per_second * 60
+
         # We're over the rate limit.
         if requests_per_minute > rate_limit:
             # Sleep and check again
-            debug(f'Rate-limit reached ({requests_per_minute} > {rate_limit} rpm), sleeping')
-            time.sleep((rate_limit - requests_per_minute) * 60)
+            debug(f'Rate-limit reached ({requests_per_minute} rpm > {rate_limit} rpm), sleeping')
+            time.sleep((requests_per_minute - rate_limit) * 60)
             ensure_rate_limit()
 
     # Set of all the downloaded users' screen names
