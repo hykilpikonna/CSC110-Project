@@ -1,4 +1,9 @@
+
+# Json5 is a human-readable json format that allows for things such as unquoted keys or comments.
 json5~=0.9.6
+
+# Tweepy is a python SDK for twitter
 tweepy==4.4.0
 
+# Pytz is for timezone manipulations
 pytz~=2021.1
