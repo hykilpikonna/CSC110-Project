@@ -1,8 +1,8 @@
 from tabulate import tabulate
 
-from process.twitter_process import load_users_popularity, process_users_popularity
-from raw_collect.twitter import tweepy_login, download_all_tweets
-from utils import load_config
+from process.twitter_process import *
+from raw_collect.twitter import *
+from utils import *
 
 if __name__ == '__main__':
     # Load config and create API
@@ -21,17 +21,23 @@ if __name__ == '__main__':
     #####################
     # Data processing - Step P1
     # (After step C1) Process the downloaded twitter users by popularity
-    # users = process_users_popularity()
+    # process_users_popularity()
 
     #####################
     # Data collection - Step C2
     # (After step P1) Load the downloaded twitter users by popularity, and start downloading as many
     # tweets from these users as possible.
-    users = load_users_popularity()
+    # users = load_users_popularity()
 
     # Just curious, who are the 20 most popular individuals on twitter?
-    print(tabulate(((u.username, u.popularity) for u in users[:20]), headers=['Name', 'Followers']))
+    # print(tabulate(((u.username, u.popularity) for u in users[:20]),
+    #                headers=['Name', 'Followers']))
 
     # Start download
-    for u in users:
-        download_all_tweets(api, u.username)
+    # for u in users:
+    #     download_all_tweets(api, u.username)
+
+    #####################
+    # Data processing - Step P2
+    # (After step C2) Process the downloaded tweets, determine whether they are covid-related
+    process_tweets()
