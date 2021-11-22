@@ -167,9 +167,9 @@ def download_users(api: API, start_point: str, n: float = math.inf,
     def ensure_rate_limit() -> None:
         requests_per_minute = num_requests / (time.time() - start_time) * 60
         # We're over the rate limit.
-        if requests_per_minute < rate_limit:
+        if requests_per_minute > rate_limit:
             # Sleep and check again
-            debug('Rate-limit reached, sleeping')
+            debug(f'Rate-limit reached ({requests_per_minute} > {rate_limit} rpm), sleeping')
             time.sleep((rate_limit - requests_per_minute) * 60)
             ensure_rate_limit()
 
