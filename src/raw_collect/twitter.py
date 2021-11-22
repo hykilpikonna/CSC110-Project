@@ -1,4 +1,3 @@
-import io
 import json
 import math
 import random
@@ -10,8 +9,10 @@ from typing import Union
 
 import pytz
 import tweepy
-from raw_collect.utils import Config, debug, Posting, json_stringify, load_config
 from tweepy import API
+
+from raw_collect.utils import Config, debug, Posting, json_stringify, load_config
+
 
 @dataclass
 class User:
@@ -261,6 +262,6 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
 
 
 if __name__ == '__main__':
-    conf = load_config()
+    conf = load_config('../../config.json5')
     api = tweepy_login(conf)
     download_users(api, 'sauricat')

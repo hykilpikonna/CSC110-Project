@@ -1,2 +1,4 @@
-json5
-tweepy
+json5~=0.9.6
+tweepy==4.4.0
+
+pytz~=2021.1
