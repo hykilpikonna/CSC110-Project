@@ -1,5 +1,6 @@
 import json
 import math
+import random
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -119,19 +120,21 @@ def download_user_tweets(api: API, screen_name: str) -> None:
         f.write(json_stringify(postings))
 
 
-def download_users(start_point: str, n: float = math.inf, rate_limit: int = 10) -> None:
+def download_users(start_point: str, n: float = math.inf,
+                   base_dir: str = '/data/twitter/user/',
+                   rate_limit: int = 10) -> None:
     """
-    This function downloads n twitter users by using a followings-chain.
+    This function downloads n twitter users by using a friends-chain.
 
     Since there isn't an API or a database with all twitter users, we can't obtain a strict list
     of all twitter users, nor can we obtain a list of strictly random or most popular twitter
     users. Therefore, we use the method of follows chaining: we start from a specific individual,
-    obtain their followers, and pick 6 random individuals from the followings list. Then, we repeat
-    the process for the selected followings: we pick 6 random followings of the 6 random followings
+    obtain their followers, and pick 6 random individuals from the friends list. Then, we repeat
+    the process for the selected friends: we pick 6 random friends of the 6 random friends
     that we picked.
 
-    In reality, this method will be biased toward individuals that are worthy of following since we
-    are picking random followings.
+    In reality, this method will be biased toward individuals that are worthy of following since
+    "friends" are the list of users that someone followed.
 
     We will download all user data to /data/twitter/user/<screen_name>.json
 
@@ -139,10 +142,77 @@ def download_users(start_point: str, n: float = math.inf, rate_limit: int = 10) 
     files under this directory.
 
     :param start_point: Starting user's screen name.
-    :param n: How many users do you want to download? (Set to infinity if you want all the data)
-    :param rate_limit: The maximum number of requests per minute.
+    :param n: How many users do you want to download? (Default: math.inf)
+    :param base_dir: The downloads folder (Default: "/data/twitter/user/")
+    :param rate_limit: The maximum number of requests per minute. (Default: 10)
     :return: None
     """
+
+    # Ensure that basedir ends with /
+    if base_dir == '':
+        base_dir = '.'
+    if not base_dir.endswith('/'):
+        base_dir += '/'
+
+    # Set of all the downloaded users' screen names
+    downloaded = set()
+
+    # The set of starting users that are queried.
+    done_set = set()
+
+    # The set of starting users currently looping through
+    current_set = {start_point}
+
+    # The next set of starting users
+    next_set = set()
+
+    # Loop until there are enough users
+    while len(downloaded) < n:
+        # Take a screen name from the current list
+        screen_name = current_set.pop()
+
+        # Get a list of friends.
+        friends = api.get_friends(screen_name=screen_name, count=5000)
+
+        # Save users
+        for user in friends:
+            # This user was not saved, save the user.
+            if user not in downloaded:
+                # Save user json
+                with open(base_dir + user.screen_name + '.json', 'w') as f:
+                    f.write(json.dumps(user._json))
+
+                # Add to set
+                downloaded.add(user.screen_name)
+
+        # Get users and their popularity that we haven't downloaded
+        screen_names = [(user.screen_name, user.followers_count) for user in friends
+                        if user.screen_name not in done_set]
+
+        # Sort by followers count, from least popular to most popular
+        screen_names.sort(key=lambda x: x[1])
+
+        # Add 3 random users to the next set
+        samples = set()
+        if len(screen_names) > 3:
+            samples = {n[0] for n in random.sample(screen_names, 3)}
+        else:
+            samples = {n[0] for n in screen_names}
+
+        # Add 3 most popular users that we haven't downloaded to the next set
+        while len(screen_names) > 0 and len(samples) < 6:
+            most_popular = screen_names.pop()[0]
+            if most_popular not in done_set and most_popular not in samples:
+                samples.add(most_popular)
+
+        # Add the selected users to the next set
+        for s in samples:
+            next_set.add(s)
+
+        # Change name lists
+        if len(current_set) == 0:
+            current_set = next_set
+            next_set = set()
 
 
 def convert_to_generic(username: str, tweet: Tweet) -> Posting:
