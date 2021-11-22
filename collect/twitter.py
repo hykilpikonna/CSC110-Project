@@ -112,7 +112,7 @@ def download_user_tweets(api: API, screen_name: str) -> None:
 
     # Store in file
     with open(dir_raw + screen_name + '.json', 'w') as f:
-        f.write(json.dumps([t._json for t in tweets], indent=1))
+        f.write(json.dumps([t._json for t in tweets], indent=1, ensure_ascii=False))
     with open(dir + screen_name + '.json', 'w') as f:
         f.write(json_stringify(postings))
 
