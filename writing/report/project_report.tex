@@ -1,0 +1,53 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.75in]{geometry}
+
+\title{CSC110 Project: COVID-19 Discussion Trend Analysis}
+\author{Azalea Gui \& Peter Lin}
+\date{December 5, 2021}
+\usepackage[
+backend=biber,
+style=numeric,
+citestyle=apa,
+sorting=nyt
+]{biblatex}
+\addbibresource{references.bib}
+\DeclareNameAlias{author}{last-first}
+
+\begin{document}
+    \maketitle
+
+    \section*{Problem Description and Research Question}
+    \indent
+
+    We have observed that there have been increasingly more voices talking about COVID-19 since the start of the pandemic. However, with recent policy changes in many countries aiming to limit the effect of COVID-19, it is unclear how people’s discussions would react. Some people might be inclined to believe that the pandemic is starting to end so that discussing it would seem increasingly like an unnecessary effort. In contrast, others might find these policy changes controversial and want to voice their opinions on them even more. Also, even though COVID-related topics are almost always on the news, some news outlets might intentionally cover them more frequently than others. For the people watching the news, some people might find these news reports interesting, while others can’t help but switch channels. So, how people’s interest in listening about or discussing COVID-related topics changes over time is not very clear. \textbf{Our goal is to analyze how people’s interest in COVID-related topics changes and how frequently people have discussed COVID-related issues in the two years since the pandemic started.} Also, different social media platforms might induce people to view the pandemic differently. For example, we don’t know whether people on open social media platforms such as Twitter, where everyone can view your posts, might be more or less inclined to post or COVID-related content than people on closed social media platforms such as Instagram, Wechat, or Telegram. Also, people or news outlets with different numbers of followers or viewers might have different inclinations too. \textbf{So, we also aim to compare people’s interests in posting about COVID-related topics between platforms and popularity.}
+
+    \section*{Dataset Used}
+    \indent
+
+    
+    
+    \section*{Computational Overview}
+
+    \subsection*{Data Gathering}
+    \indent
+
+    We plan to transform different platforms’ user posting data, all with unique formats, into data in a platform-independent data model to store and compare. When processing social media data, we will convert platform-dependent keywords such as \texttt{favorites}, \texttt{retweets}, or \texttt{full\_text} on Twitter and \texttt{content}, \texttt{views}, or \texttt{comments} on Telegram into our unique platform-independent model with keywords such as \texttt{popularity} and \texttt{text}. And we will store all processed data in \textbf{JSON} before analysis. As for the raw data from different social media platforms, we plan to gather Twitter data using the \textbf{Tweepy} library and Telegram channels data using \textbf{python-telegram-bot}. However, unfortunately, there are no known libraries for Wechat Moments. We will try to obtain Wechat data through package capture using pyshark, but that might not be successful.
+
+    For news outlet data, we plan to use \textbf{requests} to obtain raw HTML from different listing sites, extract news articles’ titles, publishers, and publishing dates with \textbf{regex}, and store them using JSON. We will convert different HTML formats from different news publishers’ sites into our platform-independent news model.
+
+    We also use the \textbf{Json5} library to parse configurations and API keys of our data gathering and analysis programs.
+
+    \subsection*{Data Analysis/Visualization}
+    \indent
+
+    We plan to use \textbf{matplotlib} to create data images or \textbf{plotly} to create websites for data visualization. We plan to use \textbf{NumPy} for statistical calculations.
+
+    To identify whether or not some article is about COVID, we currently use a keyword search. However, a keyword search might not be accurate when COVID has became such an essential background to our society (i.e. many articles with the word COVID in them are about something else). We might experiment with training a binary classification model with \textbf{Keras} and \textbf{scikit-learn} to better classify COVID articles. We might also experiment with training autoencoders with vectorized word occurence data in an COVID-related article to find if there are significant categories within COVID articles (i.e. some COVID articles might be about new COVID policies, and others might just be general updates relating to COVID, and this might be an important insight because people's interests in these different types of COVID articles might differ).
+
+    The primary type of graph we will use will be a frequency histogram——an individual or a group of data’s frequency of mentioning COVID-related topics will be graphed against the date from January 1, 2020, to Nov 1, 2021. We will experiment with group sizes and classification methods to find which variables influence the frequency and which don’t. (For example, we will group individuals by popularity and compare between groups to find if popularity impacts the frequency they mention COVID-related topics). We also plan to overlay these charts in comparison to visualize the statistical differences better.
+
+    Another variant of the frequency histogram will be plotted not against the date but against the country’s confirmed cases since people’s emotions of anxiety might be influenced by the growing or decreasing of confirmed cases. We will also graph some data using this variant to find more insights.
+
+\end{document}
