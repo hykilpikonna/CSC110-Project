@@ -10,7 +10,7 @@ from typing import Union
 
 import pytz
 import tweepy
-from tweepy import API
+from tweepy import API, TooManyRequests
 
 from raw_collect.utils import Config, debug, Posting, json_stringify, load_config
 
@@ -223,7 +223,7 @@ def download_users_execute(api: API, n: float, base_dir: str, rate_limit: int,
     Path(f'{base_dir}/meta').mkdir(parents=True, exist_ok=True)
 
     # Rate limit delay
-    rate_delay = 1 / rate_limit * 60 + 0.1
+    rate_delay = 1 / rate_limit * 60 + 1
 
     print(f"Executing friends-chain download:")
     print(f"- n: {n}")
@@ -239,8 +239,15 @@ def download_users_execute(api: API, n: float, base_dir: str, rate_limit: int,
         # Take a screen name from the current list
         screen_name = current_set.pop()
 
-        # Get a list of friends.
-        friends = api.get_friends(screen_name=screen_name, count=200)
+        try:
+            # Get a list of friends.
+            friends = api.get_friends(screen_name=screen_name, count=200)
+        except TooManyRequests:
+            # Rate limited, sleep and try again
+            debug('Caught TooManyRequests exception: Rate limited, sleep and try again.')
+            time.sleep(rate_delay)
+            current_set.add(screen_name)
+            continue
 
         # Save users
         for user in friends:
