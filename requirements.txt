@@ -7,3 +7,7 @@ tweepy==4.4.0
 
 # Pytz is for timezone manipulations
 pytz~=2021.1
+
+# Testing and code checking
+pytest
+python-ta
