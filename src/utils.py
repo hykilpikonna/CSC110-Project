@@ -1,4 +1,5 @@
 import dataclasses
+import inspect
 import json
 import os
 from dataclasses import dataclass
@@ -53,7 +54,8 @@ def debug(msg: object) -> None:
 
     :param msg: Message
     """
-    print('[DEBUG] ' + str(msg))
+    caller = inspect.stack()[1].function
+    print(f'[DEBUG] {caller}: {msg}')
 
 
 def normalize_directory(directory: str) -> str:
