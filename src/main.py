@@ -12,7 +12,7 @@ if __name__ == '__main__':
     #####################
     # Data collection - Step C1
     # Download a wide range of users from Twitter using follow-chaining starting from a single user.
-    # download_users_start(api, 'sauricat')
+    # download_users_start(api, 'voxdotcom')
 
     # This task will run for a very very long time to obtain a large dataset of twitter users. If
     # you want to stop the process, you can resume it later using the following line:

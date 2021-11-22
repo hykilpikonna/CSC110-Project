@@ -1,19 +1,15 @@
 """
 TODO: Module docstring
 """
-import json
 import math
-import os
 import random
 import time
-from typing import Union, List
+from typing import List
 
 import tweepy
 from tweepy import API, TooManyRequests, User, Tweet
 
-from process.twitter_process import Posting
-from utils import Config, debug, json_stringify, load_config, normalize_directory, \
-    calculate_rate_delay, write, read
+from utils import *
 
 
 def tweepy_login(conf: Config) -> tweepy.API:
@@ -290,22 +286,6 @@ def download_users_execute(api: API, n: float, base_dir: str,
 
         # Rate limit
         time.sleep(rate_delay)
-
-
-def convert_to_generic(username: str, tweet: Tweet) -> Posting:
-    """
-    Convert a twitter's tweet to a generic posting
-
-    :param username: Username (for optimization, because including a user object in every tweet
-    slows computation significantly.)
-    :param tweet: Tweet data
-    :return: Generic posting
-    """
-    return Posting('twitter', username,
-                   text=tweet.full_text,
-                   popularity=tweet.favorite_count + tweet.retweet_count,
-                   repost=hasattr(tweet, 'retweeted_status'),
-                   date=tweet.created_at)
 
 
 if __name__ == '__main__':
