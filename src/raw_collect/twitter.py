@@ -159,6 +159,10 @@ def download_users(api: API, start_point: str, n: float = math.inf,
     if base_dir.endswith('/'):
         base_dir = base_dir[:-1]
 
+    # Ensure directory exists
+    Path(f'{base_dir}/users').mkdir(parents=True, exist_ok=True)
+    Path(f'{base_dir}/meta').mkdir(parents=True, exist_ok=True)
+
     # Limit request rate
     start_time = time.time()
     num_requests = 0
