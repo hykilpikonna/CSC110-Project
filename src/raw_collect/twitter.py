@@ -117,7 +117,7 @@ def download_user_tweets(api: API, screen_name: str) -> None:
 
     # Store in file
     with open(dir_raw + screen_name + '.json', 'w') as f:
-        f.write(json.dumps([t._json for t in tweets], indent=1, ensure_ascii=False))
+        f.write(json_stringify([t._json for t in tweets]))
     with open(dir + screen_name + '.json', 'w') as f:
         f.write(json_stringify(postings))
 
@@ -242,8 +242,8 @@ def download_users(api: API, start_point: str, n: float = math.inf,
 
         # Update meta info so that downloading can be continued
         with open(f'{base_dir}/meta/meta.json', 'w', encoding='utf-8') as f:
-            meta = {downloaded: downloaded, done_set: done_set,
-                    current_set: current_set, next_set: next_set}
+            meta = {'downloaded': downloaded, 'done_set': done_set,
+                    'current_set': current_set, 'next_set': next_set}
             f.write(json_stringify(meta))
 
         debug(f'Finished saving friends of {screen_name}')
