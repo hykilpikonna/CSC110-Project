@@ -8,11 +8,11 @@ import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Union
+from typing import Union, List
 
 import python_ta
 import tweepy
-from tweepy import API, TooManyRequests, User
+from tweepy import API, TooManyRequests, User, Tweet
 
 from process.twitter_process import Posting
 from utils import Config, debug, json_stringify, load_config, normalize_directory, \
@@ -60,49 +60,75 @@ def tweepy_login(conf: Config) -> tweepy.API:
     return api
 
 
-def download_user_tweets(api: API, screen_name: str,
-                         base_dir: str = './data/twitter/user-tweets/') -> None:
+def get_tweets(api: API, name: str, rate_delay: float, max_id: Union[int, None]) -> List[Tweet]:
     """
-    Download all tweets from a specific individual to a local folder
+    Get tweets and wait for delay
+
+    :param api: Tweepy API object
+    :param name: Screen name
+    :param rate_delay: Seconds of delay per request
+    :param max_id: Max id of the tweet or none
+    :return: Tweets list
+    """
+    tweets = api.user_timeline(screen_name=name, count=200, tweet_mode='extended', trim_user=True,
+                               max_id=max_id)
+    time.sleep(rate_delay)
+    return tweets
+
+
+def download_all_tweets(api: API, screen_name: str,
+                        base_dir: str = './data/twitter/user-tweets/') -> None:
+    """
+    Download all tweets from a specific individual to a local folder.
+
+    Data Directory
+    --------
+    It will download all tweets to ./data/twitter/user-tweets/user/<screen_name>.json
+
+    Twitter API Reference
+    --------
+    It will be using the API endpoint api.twitter.com/statuses/user_timeline (Documentation:
+    https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline)
+    This endpoint has a rate limit of 900 requests / 15-minutes = 60 rpm for user auth, and it has a
+    limit of 100,000 requests / 24 hours = 69.44 rpm independent of authentication method. To be
+    safe, this function uses a rate limit of 60 rpm.
 
     :param api: Tweepy API object
     :param screen_name: Screen name of that individual
     :param base_dir: The downloads folder (Default: "./data/twitter/user-tweets/")
     :return: None
     """
-    base_dir = normalize_directory(base_dir)
-
     debug(f'Getting user tweets for {screen_name}')
 
+    # Ensure directories exist
+    base_dir = normalize_directory(base_dir) + '/user'
+    Path(base_dir).mkdir(parents=True, exist_ok=True)
+
+    # Rate limit for this endpoint is 60 rpm for user auth and 69.44 rpm for app auth.
+    rate_delay = calculate_rate_delay(60)
+
     # Get initial 200 tweets
-    tweets = api.user_timeline(screen_name=screen_name, count=200, tweet_mode='extended',
-                               trim_user=True)
-    postings = [convert_to_generic(screen_name, t) for t in tweets]
+    tweets = get_tweets(api, screen_name, rate_delay, None)
 
     # Get additional tweets
     while True:
+        # Try to get more tweets
         debug(f'- Got {len(tweets)} tweets, getting additional tweets...')
-        additional_tweets = api.user_timeline(screen_name=screen_name, count=200,
-                                              tweet_mode='extended', trim_user=True,
-                                              max_id=int(tweets[-1].id_str) - 1)
+        additional_tweets = get_tweets(api, screen_name, rate_delay, int(tweets[-1].id_str) - 1)
+
+        # No more tweets
         if len(additional_tweets) == 0:
             debug(f'- Got {len(tweets)} tweets, finished because no more tweets are available.')
             break
 
+        # Add tweets to the list
         tweets.extend(additional_tweets)
-        postings.extend([convert_to_generic(screen_name, t) for t in additional_tweets])
-
-    # Make directory
-    dir_raw = './data/twitter_users_raw/'
-    dir_processed = './data/twitter_users/'
-    Path(dir_raw).mkdir(parents=True, exist_ok=True)
-    Path(dir_processed).mkdir(parents=True, exist_ok=True)
 
     # Store in file
-    with open(dir_raw + screen_name + '.json', 'w') as f:
-        f.write(json_stringify([t._json for t in tweets]))
-    with open(dir_processed + screen_name + '.json', 'w') as f:
-        f.write(json_stringify(postings))
+    with open(f'{base_dir}/{screen_name}.json', 'w', encoding='utf-8') as f:
+        # Even though we are not supposed to use internal fields, there aren't any efficient way of
+        # obtaining the json without the field.
+        f.write(json_stringify([t.__dict__ for t in tweets]))
 
 
 def download_users_start(api: API, start_point: str, n: float = math.inf,
@@ -122,12 +148,12 @@ def download_users_start(api: API, start_point: str, n: float = math.inf,
 
     Data Directory
     --------
-    We will download all user data to ./data/twitter/user/users/<screen_name>.json
-    We will save meta info to ./data/twitter/user/meta/
+    It will download all user data to ./data/twitter/user/users/<screen_name>.json
+    It will save meta info to ./data/twitter/user/meta/
 
     Twitter API Reference
     --------
-    We will be using the API endpoint api.twitter.com/friends/list (Documentation:
+    It will be using the API endpoint api.twitter.com/friends/list (Documentation:
     https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list)
     This will limit the rate of requests to 15 requests in a 15-minute window, which is one request
     per minute. But it is actually the fastest method of downloading a wide range of users on
@@ -212,7 +238,7 @@ def download_users_execute(api: API, n: float, base_dir: str,
 
     # Rate limit for this API endpoint is 1 request per minute, and rate delay defines how many
     # seconds to sleep for each request.
-    rate_delay = calculate_rate_delay(1)
+    rate_delay = calculate_rate_delay(1) + 1
 
     print("Executing friends-chain download:")
     print(f"- n: {n}")
@@ -230,7 +256,7 @@ def download_users_execute(api: API, n: float, base_dir: str,
 
         try:
             # Get a list of friends.
-            friends = api.get_friends(screen_name=screen_name, count=200)
+            friends: List[User] = api.get_friends(screen_name=screen_name, count=200)
         except TooManyRequests:
             # Rate limited, sleep and try again
             debug('Caught TooManyRequests exception: Rate limited, sleep and try again.')

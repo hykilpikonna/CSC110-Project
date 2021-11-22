@@ -87,7 +87,7 @@ def calculate_rate_delay(rate_limit: float) -> float:
     :param rate_limit: Rate limit in requests per minute
     :return: Rate delay in seconds per request (added one second just to be safe)
     """
-    return 1 / rate_limit * 60 + 1
+    return 1 / rate_limit * 60
 
 
 class EnhancedJSONEncoder(json.JSONEncoder):
