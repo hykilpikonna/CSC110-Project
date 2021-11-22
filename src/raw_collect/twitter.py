@@ -1,3 +1,4 @@
+import io
 import json
 import math
 import random
@@ -121,7 +122,7 @@ def download_user_tweets(api: API, screen_name: str) -> None:
 
 
 def download_users(start_point: str, n: float = math.inf,
-                   base_dir: str = '/data/twitter/user/',
+                   base_dir: str = './data/twitter/user/',
                    rate_limit: int = 10) -> None:
     """
     This function downloads n twitter users by using a friends-chain.
@@ -136,23 +137,25 @@ def download_users(start_point: str, n: float = math.inf,
     In reality, this method will be biased toward individuals that are worthy of following since
     "friends" are the list of users that someone followed.
 
-    We will download all user data to /data/twitter/user/<screen_name>.json
+    We will download all user data to ./data/twitter/user/users/<screen_name>.json
+
+    We will save meta info to ./data/twitter/user/meta/
 
     Then, we can obtain a list of all users we have downloaded just by obtaining a list of all
     files under this directory.
 
     :param start_point: Starting user's screen name.
     :param n: How many users do you want to download? (Default: math.inf)
-    :param base_dir: The downloads folder (Default: "/data/twitter/user/")
+    :param base_dir: The downloads folder (Default: "./data/twitter/user/")
     :param rate_limit: The maximum number of requests per minute. (Default: 10)
     :return: None
     """
 
-    # Ensure that basedir ends with /
+    # Ensure that basedir doesn't ends with /
     if base_dir == '':
         base_dir = '.'
-    if not base_dir.endswith('/'):
-        base_dir += '/'
+    if base_dir.endswith('/'):
+        base_dir = base_dir[:-1]
 
     # Set of all the downloaded users' screen names
     downloaded = set()
@@ -179,7 +182,7 @@ def download_users(start_point: str, n: float = math.inf,
             # This user was not saved, save the user.
             if user not in downloaded:
                 # Save user json
-                with open(base_dir + user.screen_name + '.json', 'w') as f:
+                with open(f'{base_dir}/users/{user.screen_name}.json', 'w', encoding='utf-8') as f:
                     f.write(json.dumps(user._json))
 
                 # Add to set
@@ -213,6 +216,12 @@ def download_users(start_point: str, n: float = math.inf,
         if len(current_set) == 0:
             current_set = next_set
             next_set = set()
+
+        # Update meta info so that downloading can be continued
+        with open(f'{base_dir}/meta/meta.json', 'w', encoding='utf-8') as f:
+            meta = {downloaded: downloaded, done_set: done_set,
+                    current_set: current_set, next_set: next_set}
+            f.write(json.dumps(meta))
 
 
 def convert_to_generic(username: str, tweet: Tweet) -> Posting:
