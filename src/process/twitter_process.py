@@ -24,7 +24,7 @@ def process_users_popularity(user_dir: str = './data/twitter/user/') -> None:
     this function will read the user files and rank the users by popularity.
 
     The return format will consist of a list of users' screen names and popularity, which will be
-    saved to <user_dir>/processed_popularity.json
+    saved to <user_dir>/processed/popularity.json
 
     :param user_dir: Download directory of users data, should be the same as the downloads dir in
      download_user_start. (Default: "./data/twitter/user/")
@@ -79,6 +79,18 @@ class Posting(NamedTuple):
 
 
 def process_tweets(tweets_dir: str = './data/twitter/user-tweets/') -> None:
+    """
+    Process tweets, reduce the tweets data to only a few fields defined in the Posting class. These
+    include whether or not the tweet is covid-related, how popular is the tweet, if it is a repost,
+    and its date. The processed tweet does not contain its content.
+
+    If a user's tweets is already processed, this function will skip over that user's data.
+
+    This function will save the processed tweets data to <user_dir>/processed/<username>.json
+
+    :param tweets_dir: Raw tweets directory (Default: './data/twitter/user-tweets/')
+    :return:
+    """
     tweets_dir = normalize_directory(tweets_dir)
 
     # Loop through all the files
