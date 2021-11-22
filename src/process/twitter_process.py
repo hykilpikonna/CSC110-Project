@@ -64,6 +64,21 @@ def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[UserPo
     return [UserPopularity(*u) for u in json.loads(read(f'{user_dir}/processed/popularity.json'))]
 
 
+def get_user_popularity_ranking(user: str, user_dir: str = './data/twitter/user/') -> int:
+    """
+    Get a user's popularity ranking. This is not used in data analysis, just for curiosity.
+
+    :param user: Username
+    :param user_dir: Download directory
+    :return: User's popularity ranking
+    """
+    pop = load_users_popularity(user_dir)
+    for i in range(len(pop)):
+        if pop[i].username == user:
+            return i + 1
+    return -1
+
+
 class Posting(NamedTuple):
     """
     Posting data (whether or not a posting is covid-related)
