@@ -1,5 +1,5 @@
-from collect.twitter import tweepy_login, download_user_tweets
-from collect.utils import *
+from raw_collect.twitter import tweepy_login, download_user_tweets
+from raw_collect.utils import *
 
 
 if __name__ == '__main__':
