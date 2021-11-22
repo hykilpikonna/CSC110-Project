@@ -206,7 +206,7 @@ def download_users(api: API, start_point: str, n: float = math.inf,
             if user not in downloaded:
                 # Save user json
                 with open(f'{base_dir}/users/{user.screen_name}.json', 'w', encoding='utf-8') as f:
-                    f.write(json.dumps(user._json))
+                    f.write(json_stringify(user._json))
 
                 # Add to set
                 downloaded.add(user.screen_name)
@@ -244,7 +244,7 @@ def download_users(api: API, start_point: str, n: float = math.inf,
         with open(f'{base_dir}/meta/meta.json', 'w', encoding='utf-8') as f:
             meta = {downloaded: downloaded, done_set: done_set,
                     current_set: current_set, next_set: next_set}
-            f.write(json.dumps(meta))
+            f.write(json_stringify(meta))
 
         debug(f'Finished saving friends of {screen_name}')
         debug(f'============= Total {len(downloaded)} saved =============')
@@ -266,6 +266,6 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
 
 
 if __name__ == '__main__':
-    conf = load_config('../../config.json5')
+    conf = load_config('config.json5')
     api = tweepy_login(conf)
     download_users(api, 'sauricat')
