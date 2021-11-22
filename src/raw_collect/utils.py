@@ -3,6 +3,7 @@ import json
 import os
 from dataclasses import dataclass
 from datetime import datetime, date
+from typing import Union
 
 import json5
 
@@ -101,12 +102,13 @@ class EnhancedJSONEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-def json_stringify(obj) -> str:
+def json_stringify(obj, indent: Union[int, None] = 1) -> str:
     """
     Serialize json string with support for dataclasses and datetime and sets and with custom
     configuration.
 
     :param obj: Objects
+    :param indent: Indent size or none
     :return: Json strings
     """
-    return json.dumps(obj, indent=1, cls=EnhancedJSONEncoder, ensure_ascii=False)
+    return json.dumps(obj, indent=indent, cls=EnhancedJSONEncoder, ensure_ascii=False)
