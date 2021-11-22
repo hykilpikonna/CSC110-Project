@@ -1,5 +1,6 @@
 import json
 import math
+import os
 import random
 import time
 from dataclasses import dataclass
@@ -103,7 +104,8 @@ def download_user_tweets(api: API, screen_name: str) -> None:
 
         if additional_tweets[-1].created_at < start_date:
             debug(
-                f'- Got {len(tweets)} tweets, finished because the earliest tweet in the dataset goes before 2020-01-01.')
+                f'- Got {len(tweets)} tweets, finished because the earliest tweet in the dataset '
+                f'goes before 2020-01-01.')
             break
 
         tweets.extend(additional_tweets)
@@ -122,9 +124,9 @@ def download_user_tweets(api: API, screen_name: str) -> None:
         f.write(json_stringify(postings))
 
 
-def download_users(api: API, start_point: str, n: float = math.inf,
-                   base_dir: str = './data/twitter/user/',
-                   rate_limit: int = 1) -> None:
+def download_users_start(api: API, start_point: str, n: float = math.inf,
+                         base_dir: str = './data/twitter/user/',
+                         rate_limit: int = 1) -> None:
     """
     This function downloads n twitter users by using a friends-chain.
 
@@ -166,14 +168,32 @@ def download_users(api: API, start_point: str, n: float = math.inf,
     next_set = set()
 
     # Start download
-    download_users_resume(api, n, base_dir, rate_limit, downloaded, done_set, current_set, next_set)
+    download_users_execute(api, n, base_dir, rate_limit, downloaded, done_set, current_set, next_set)
 
 
-def download_users_resume(api: API, n: float, base_dir: str, rate_limit: int,
-                          downloaded: set[str], done_set: set[str],
-                          current_set: set[str], next_set: set[str]) -> None:
+def download_users_resume_progress(api: API, base_dir: str = './data/twitter/user/') -> None:
     """
-    Resume download from the given parameters. The download method is defined in the document for
+    Resume from started progress
+
+    :param api: Tweepy's API object
+    :param base_dir: The downloads folder
+    :return: None
+    """
+    # Open file and read
+    with open(f'{base_dir}/meta/meta.json', 'r', encoding='utf-8') as f:
+        meta = json.load(f)
+
+    # Resume
+    download_users_execute(api, meta['n'], base_dir, meta['resume'],
+                           set(meta['downloaded']), set(meta['done_set']),
+                           set(meta['current_set']), set(meta['next_set']))
+
+
+def download_users_execute(api: API, n: float, base_dir: str, rate_limit: int,
+                           downloaded: set[str], done_set: set[str],
+                           current_set: set[str], next_set: set[str]) -> None:
+    """
+    Execute download from the given parameters. The download method is defined in the document for
     the download_users function.
 
     Resume functionality is necessary because twitter limits the rate of get friends list to 15
@@ -253,10 +273,14 @@ def download_users_resume(api: API, n: float, base_dir: str, rate_limit: int,
             current_set = next_set
             next_set = set()
 
+        # This one is done
+        done_set.add(screen_name)
+
         # Update meta info so that downloading can be continued
         with open(f'{base_dir}/meta/meta.json', 'w', encoding='utf-8') as f:
             meta = {'downloaded': downloaded, 'done_set': done_set,
-                    'current_set': current_set, 'next_set': next_set}
+                    'current_set': current_set, 'next_set': next_set,
+                    'n': n, 'rate_limit': rate_limit}
             f.write(json_stringify(meta))
 
         debug(f'Finished saving friends of {screen_name}')
@@ -270,7 +294,8 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
     """
     Convert a twitter's tweet to a generic posting
 
-    :param username: Username (for optimization, because including a user object in every tweet slows computation significantly.)
+    :param username: Username (for optimization, because including a user object in every tweet
+    slows computation significantly.)
     :param tweet: Tweet data
     :return: Generic posting
     """
