@@ -41,3 +41,9 @@ if __name__ == '__main__':
     # Data processing - Step P2
     # (After step C2) Process the downloaded tweets, determine whether they are covid-related
     process_tweets()
+
+    # Who posted the most covid tweets? (covid vs non-covid ratio)
+    # - Graph histogram of this ratio
+    # Who has the most covid tweet popularity (popularity of covid vs non-covid tweets ratio)
+    # - Graph histogram of this ratio
+

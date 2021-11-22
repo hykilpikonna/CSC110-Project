@@ -140,7 +140,7 @@ class EnhancedJSONEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-def json_stringify(obj, indent: Union[int, None] = 1) -> str:
+def json_stringify(obj, indent: Union[int, None] = None) -> str:
     """
     Serialize json string with support for dataclasses and datetime and sets and with custom
     configuration.

@@ -49,7 +49,7 @@ def process_users_popularity(user_dir: str = './data/twitter/user/') -> None:
     users.sort(key=lambda x: x.popularity, reverse=True)
 
     # Save data
-    write(f'{user_dir}/processed/popularity.json', json_stringify(users, indent=None))
+    write(f'{user_dir}/processed/popularity.json', json_stringify(users))
 
 
 def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[UserPopularity]:
@@ -110,7 +110,7 @@ def process_tweets(tweets_dir: str = './data/twitter/user-tweets/') -> None:
                  for t in tweets]
 
             # Save data
-            write(f'{tweets_dir}/processed/{filename}', json_stringify(p, indent=None))
+            write(f'{tweets_dir}/processed/{filename}', json_stringify(p))
             debug(f'Processed: {filename}')
 
 

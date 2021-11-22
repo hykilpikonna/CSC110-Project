@@ -283,7 +283,7 @@ def download_users_execute(api: API, n: float, base_dir: str,
         # Update meta info so that downloading can be continued
         meta = {'downloaded': downloaded, 'done_set': done_set,
                 'current_set': current_set, 'next_set': next_set, 'n': n}
-        write(f'{base_dir}/meta/meta.json', json_stringify(meta, indent=None))
+        write(f'{base_dir}/meta/meta.json', json_stringify(meta))
 
         debug(f'Finished saving friends of {screen_name}')
         debug(f'============= Total {len(downloaded)} saved =============')
