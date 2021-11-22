@@ -260,21 +260,7 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
                    date=tweet.created_at)
 
 
-def get_user_followings_data(api: API, screen_name: str) -> list[str]:
-    """
-    Get a user's followings - a list of user that a specific user follows.
-
-    We limited the result to 5000 entries because that is the maximum entries per query that the
-    twitter API allows. And we think 5000 entries is an enough sample size.
-
-    :param api: Tweepy API
-    :param screen_name: The user's screen name
-    :return: List of users that the user follows.
-    """
-    return api.get_friends(screen_name=screen_name, count=5000)
-
-
 if __name__ == '__main__':
     conf = load_config()
     api = tweepy_login(conf)
-    print(json.dumps(get_user_followings(api, "sauricat")))
+
