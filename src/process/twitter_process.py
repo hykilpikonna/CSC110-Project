@@ -1,6 +1,6 @@
 import json
 import os
-from datetime import datetime
+from datetime import datetime, time
 from typing import NamedTuple
 
 from utils import *
@@ -77,6 +77,27 @@ class Posting(NamedTuple):
     # Date
     date: datetime
 
+
+def process_tweets(tweets_dir: str = './data/twitter/user-tweets/') -> None:
+    tweets_dir = normalize_directory(tweets_dir)
+
+    # Loop through all the files
+    for filename in os.listdir(f'{tweets_dir}/user'):
+        # Only check json files and ignore macos dot files
+        if filename.endswith('.json') and not filename.startswith('.'):
+            # Read
+            tweets = json.loads(read(f'{tweets_dir}/user/{filename}'))
+            p = [Posting(is_covid_related(t['full_text']),
+                         t['favorite_count'] + t['retweet_count'],
+                         'retweeted_status' in t,
+                         datetime.strptime(t['created_at'], '%a %b %d %H:%M:%S +0000 %Y'))
+                 for t in tweets]
+
+            # Save data
+            write(f'{tweets_dir}/processed/{filename}', json_stringify(p, indent=None))
+            debug(f'Processed: {filename}')
+
+
 def is_covid_related(text: str) -> bool:
     """
     Is a tweet / article covid-related. Currently, this is done through keyword matching. Even
@@ -91,4 +112,3 @@ def is_covid_related(text: str) -> bool:
     # posts refer to covid only as "the pandemic".
     keywords = 'covid; the pandemic; lockdown; spikevax; comirnaty; vaxzevria; 疫情'.split('; ')
     return any(k in text for k in keywords)
-
