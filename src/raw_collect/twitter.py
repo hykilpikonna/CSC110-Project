@@ -122,7 +122,7 @@ def download_user_tweets(api: API, screen_name: str) -> None:
         f.write(json_stringify(postings))
 
 
-def download_users(start_point: str, n: float = math.inf,
+def download_users(api: API, start_point: str, n: float = math.inf,
                    base_dir: str = './data/twitter/user/',
                    rate_limit: int = 10) -> None:
     """
@@ -145,6 +145,7 @@ def download_users(start_point: str, n: float = math.inf,
     Then, we can obtain a list of all users we have downloaded just by obtaining a list of all
     files under this directory.
 
+    :param api: Tweepy's API object
     :param start_point: Starting user's screen name.
     :param n: How many users do you want to download? (Default: math.inf)
     :param base_dir: The downloads folder (Default: "./data/twitter/user/")
@@ -263,4 +264,4 @@ def convert_to_generic(username: str, tweet: Tweet) -> Posting:
 if __name__ == '__main__':
     conf = load_config()
     api = tweepy_login(conf)
-
+    download_users('sauricat')
