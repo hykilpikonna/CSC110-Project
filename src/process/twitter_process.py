@@ -127,4 +127,4 @@ def is_covid_related(text: str) -> bool:
     # pandemics or other vaccines. However, I think we need to include "the pandemic" because many
     # posts refer to covid only as "the pandemic".
     keywords = 'covid; the pandemic; lockdown; spikevax; comirnaty; vaxzevria; 疫情'.split('; ')
-    return any(k in text for k in keywords)
+    return any(k in text.lower() for k in keywords)
