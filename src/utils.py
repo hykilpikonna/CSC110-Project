@@ -4,6 +4,7 @@ import json
 import os
 from dataclasses import dataclass
 from datetime import datetime, date
+from pathlib import Path
 from typing import Union
 
 import json5
@@ -88,6 +89,35 @@ def calculate_rate_delay(rate_limit: float) -> float:
     :return: Rate delay in seconds per request (added one second just to be safe)
     """
     return 1 / rate_limit * 60
+
+
+def write(file: str, text: str) -> None:
+    """
+    Write text to a file
+
+    :param file: File path
+    :param text: Text
+    :return: None
+    """
+    file = file.replace('\\', '/')
+
+    if '/' in file:
+        path = '/'.join(file.split('/')[:-1])
+        Path(path).mkdir(parents=True, exist_ok=True)
+
+    with open(file, 'w', encoding='utf-8') as f:
+        f.write(text)
+
+
+def read(file: str) -> str:
+    """
+    Read file content
+
+    :param file: File path
+    :return: None
+    """
+    with open(file, 'r', encoding='utf-8') as f:
+        return f.read()
 
 
 class EnhancedJSONEncoder(json.JSONEncoder):
