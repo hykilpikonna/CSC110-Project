@@ -120,4 +120,6 @@ dmypy.json
 *.blg
 *.bcf
 *.xml
+
 config.json5
+data/
