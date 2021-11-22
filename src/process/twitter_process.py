@@ -18,23 +18,7 @@ class UserPopularity(NamedTuple):
     popularity: int
 
 
-@dataclass
-class Posting:
-    # Which platform did the user post on
-    platform: str
-    # Username on that platform
-    username: str
-    # Full text of the post's content
-    text: str
-    # Popularity of the post
-    popularity: int
-    # Is it a repost
-    repost: bool
-    # Date
-    date: datetime
-
-
-def process_users_popularity(user_dir: str = './data/twitter/user/') -> list[UserPopularity]:
+def process_users_popularity(user_dir: str = './data/twitter/user/') -> None:
     """
     After downloading a wide range of users using download_users_start in raw_collect/twitter.py,
     this function will read the user files and rank the users by popularity.
@@ -44,19 +28,18 @@ def process_users_popularity(user_dir: str = './data/twitter/user/') -> list[Use
 
     :param user_dir: Download directory of users data, should be the same as the downloads dir in
      download_user_start. (Default: "./data/twitter/user/")
-    :return: List of users' screen names and popularity, sorted descending by popularity.
+    :return: None
     """
-    user_dir = normalize_directory(user_dir) + '/users'
+    user_dir = normalize_directory(user_dir)
     users = []
 
     # Loop through all the files
-    for filename in os.listdir(user_dir):
+    for filename in os.listdir(f'{user_dir}/users'):
         # Only check json files and ignore macos dot files
         if filename.endswith('.json') and not filename.startswith('.'):
             # Read
-            with open(f'{user_dir}/{filename}', 'r', encoding='utf-8') as f:
-                user = json.load(f)
-                users.append(UserPopularity(user['screen_name'], user['followers_count']))
+            user = json.loads(read(f'{user_dir}/users/{filename}'))
+            users.append(UserPopularity(user['screen_name'], user['followers_count']))
 
             # Log progress
             if len(users) % 2000 == 0:
@@ -66,11 +49,7 @@ def process_users_popularity(user_dir: str = './data/twitter/user/') -> list[Use
     users.sort(key=lambda x: x.popularity, reverse=True)
 
     # Save data
-    with open(f'{user_dir}/../processed_popularity.json', 'w', encoding='utf-8') as f:
-        f.write(json_stringify(users, indent=None))
-
-    # Return
-    return users
+    write(f'{user_dir}/processed/popularity.json', json_stringify(users, indent=None))
 
 
 def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[UserPopularity]:
