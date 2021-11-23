@@ -1,5 +1,6 @@
 import json
 import os
+import random
 from datetime import datetime, time
 from typing import NamedTuple
 
@@ -81,6 +82,38 @@ def get_user_popularity_ranking(user: str, user_dir: str = './data/twitter/user/
             return i + 1
     return -1
 
+
+def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
+    """
+    Select our sample of 500 most popular users and 500 random users who meet the criteria. The
+    criteria we use is that the user must have at least 150 followers, and must have a number of
+    postings in between 1000 and 3250. Analyzing someone who don't post or someone who doesn't have
+    enough followers for interaction might not reveal useful information.
+
+    The result will be stored in <user_dir>/processed/sample.json
+
+    :param user_dir: Download directory for users
+    :return: None
+    """
+    user_dir = normalize_directory(user_dir)
+
+    # Load users
+    users = load_users_popularity(user_dir)
+
+    # Find most popular, and exclude them from the random sample
+    most_popular = users[:500]
+    users = users[500:]
+
+    # Filter by criteria
+    filtered = {u for u in users if 150 < u.popularity and 1000 < u.num_postings < 3250}
+    debug(f'There are {len(filtered)} users who meets the criteria.')
+
+    # Sample
+    sample = random.sample(filtered, 500)
+
+    # Save
+    write(f'{user_dir}/processed/sample.json',
+          json_stringify({'most_popular': most_popular, 'random': sample}))
 
 class Posting(NamedTuple):
     """
