@@ -10,9 +10,13 @@ from dataclasses import dataclass
 
 class UserPopularity(NamedTuple):
     """
-    User and popularity (we use NamedTuple instead of dataclass because named tuples are easier to
-    serialize in JSON and they require much less space in the stored json format because no key info
-    is stored).
+    User and popularity.
+
+    We use NamedTuple instead of dataclass because named tuples are easier to serialize in JSON and
+    they require much less space in the stored json format because no key info is stored. For
+    example, using dataclass, the json for one UserPopularity object will be:
+    {"username": "a", "popularity": 1, "num_postings": 1}, while using NamedTuple, the json will be:
+    ["a", 1, 1], which saves an entire 42 bytes for each user.
     """
     # Username
     username: str
