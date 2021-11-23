@@ -22,13 +22,13 @@ if __name__ == '__main__':
     # Data processing - Step P1
     # (After step C1) Process the downloaded twitter users, extract screen name, popularity, and
     # number of tweets data.
-    process_users()
+    # process_users()
 
     #####################
     # Data processing - Step P2
     # (After step P1) Select 500 most popular users and 500 random users who meet a particular
     # criteria as our sample.
-    # select_user_sample()
+    select_user_sample()
 
     #####################
     # Data collection - Step C2.1
