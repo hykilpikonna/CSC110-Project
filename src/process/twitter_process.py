@@ -213,8 +213,17 @@ def is_covid_related(text: str) -> bool:
     :param text: Text content
     :return: Whether the text is covid related
     """
-    # We cannot include words like "pandemic" or "vaccine" because they might refer to other
+    # English
+    # We're hesitate to include words like "pandemic" or "vaccine" because they might refer to other
     # pandemics or other vaccines. However, I think we need to include "the pandemic" because many
-    # posts refer to covid only as "the pandemic".
-    keywords = 'covid; the pandemic; lockdown; spikevax; comirnaty; vaxzevria; 疫情'.split('; ')
+    # posts refer to covid only as "the pandemic."
+    keywords = ['covid', 'the pandemic', 'lockdown', 'spikevax', 'comirnaty', 'vaxzevria',
+                'coronavirus', 'moderna', 'pfizer', 'quarantine', 'vaccine']
+
+    # Chinese
+    keywords += ['新冠', '疫情', '感染', '疫苗', '隔离']
+
+    # Japanese
+    keywords += ['コロナ', '検疫']
+
     return any(k in text.lower() for k in keywords)
