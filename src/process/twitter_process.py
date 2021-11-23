@@ -121,7 +121,8 @@ def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
     users = load_users(user_dir)
 
     # Filter by language first
-    users = [u for u in users if any(lang in u.lang for lang in {'en', 'zh', 'ja'})]
+    users = [u for u in users if u.lang is not None and
+             any(lang in u.lang for lang in {'en', 'zh', 'ja'})]
 
     # Find most popular, and exclude them from the random sample
     most_popular = users[:500]
