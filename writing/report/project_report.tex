@@ -16,6 +16,8 @@ sorting=nyt
 \addbibresource{references.bib}
 \DeclareNameAlias{author}{last-first}
 
+\newcommand{\C}{\texttt}
+
 \begin{document}
     \maketitle
 
@@ -27,8 +29,12 @@ sorting=nyt
     \section*{Dataset Used}
     \indent
 
-    1. A wide range of Twitter users: We used twitter's get friends list API \href{https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list}{(documentation)} and the follows-chaining technique to obtain a wide range of twitter users. However, since twitter limited the request rate of this API endpoint to 1 request per minute, we ran the program over many days to gather our data.
-    
+    \begin{itemize}
+        \item[1.] A wide range of Twitter users: We used twitter's get friends list API \href{https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list}{(documentation)} and the follows-chaining technique to obtain a wide range of twitter users. This technique is explained in the Computational Overview section. Due to rate limiting, we ran the program for one day and obtained 224,619 users (852.3 MB decompressed). However, only the username, popularity, post count, and language data are used, and the processed (filtered) user dataset \C{data/twitter/user/processed/users.json} is only 7.9 MB in total.
+         
+        \item[2.] All tweets from sampled users: We selected two samples of 500 users (the sampling method is explained in the Computational Overview section), and we used the user-timeline API \href{https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline}{(documentation)} to obtain all of their tweets. Due to rate limiting, the program took around 16 hours to finish, and we obtained 6.18 GB of raw data (uncompressed). During processing, we reduced the data for each tweet to only its date, popularity (likes + retweets), whether it is a retweet, and whether it is COVID-related. The text of the tweets are not retained, and the processed data directory \C{data/twitter/user-tweets/processed} is only 107.6 MB in total.
+    \end{itemize}
+ 
     \section*{Computational Overview}
 
     \subsection*{Data Gathering}
