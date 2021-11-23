@@ -5,7 +5,7 @@ from typing import NamedTuple
 from utils import *
 
 
-class UserPopularity(NamedTuple):
+class ProcessedUser(NamedTuple):
     """
     User and popularity.
 
@@ -25,13 +25,13 @@ class UserPopularity(NamedTuple):
     lang: str
 
 
-def process_users_popularity(user_dir: str = './data/twitter/user/') -> None:
+def process_users(user_dir: str = './data/twitter/user/') -> None:
     """
     After downloading a wide range of users using download_users_start in raw_collect/twitter.py,
-    this function will read the user files and rank the users by popularity.
+    this function will read the user files, extract only relevant information defined in the
+    ProcessedUser class, and rank the users by popularity.
 
-    The return format will consist of a list of users' screen names and popularity, which will be
-    saved to <user_dir>/processed/popularity.json
+    This function will save the processed user data to <user_dir>/processed/users.json
 
     :param user_dir: Download directory of users data, should be the same as the downloads dir in
      download_user_start. (Default: "./data/twitter/user/")
@@ -55,8 +55,8 @@ def process_users_popularity(user_dir: str = './data/twitter/user/') -> None:
             if lang is None:
                 lang = status_lang
 
-            users.append(UserPopularity(user['screen_name'], user['followers_count'],
-                                        user['statuses_count'], lang))
+            users.append(ProcessedUser(user['screen_name'], user['followers_count'],
+                                       user['statuses_count'], lang))
 
             # Log progress
             if len(users) % 2000 == 0:
@@ -66,19 +66,19 @@ def process_users_popularity(user_dir: str = './data/twitter/user/') -> None:
     users.sort(key=lambda x: x.popularity, reverse=True)
 
     # Save data
-    write(f'{user_dir}/processed/popularity.json', json_stringify(users))
+    write(f'{user_dir}/processed/users.json', json_stringify(users))
 
 
-def load_users_popularity(user_dir: str = './data/twitter/user/') -> list[UserPopularity]:
+def load_users(user_dir: str = './data/twitter/user/') -> list[ProcessedUser]:
     """
-    Load user popularity data after processing in process_users_popularity
+    Load processed user data after process_users
 
     :param user_dir: Download directory of users data, should be the same as the downloads dir in
      download_user_start. (Default: "./data/twitter/user/")
-    :return: List of users' screen names and popularity, sorted descending by popularity.
+    :return: List of processed users, sorted descending by popularity.
     """
     user_dir = normalize_directory(user_dir)
-    return [UserPopularity(*u) for u in json.loads(read(f'{user_dir}/processed/popularity.json'))]
+    return [ProcessedUser(*u) for u in json.loads(read(f'{user_dir}/processed/users.json'))]
 
 
 def get_user_popularity_ranking(user: str, user_dir: str = './data/twitter/user/') -> int:
@@ -89,7 +89,7 @@ def get_user_popularity_ranking(user: str, user_dir: str = './data/twitter/user/
     :param user_dir: Download directory
     :return: User's popularity ranking
     """
-    pop = load_users_popularity(user_dir)
+    pop = load_users(user_dir)
     for i in range(len(pop)):
         if pop[i].username == user:
             return i + 1
@@ -98,8 +98,8 @@ def get_user_popularity_ranking(user: str, user_dir: str = './data/twitter/user/
 
 @dataclass()
 class Sample:
-    most_popular: list[UserPopularity]
-    random: list[UserPopularity]
+    most_popular: list[ProcessedUser]
+    random: list[ProcessedUser]
 
 
 def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
@@ -118,7 +118,7 @@ def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
     user_dir = normalize_directory(user_dir)
 
     # Load users
-    users = load_users_popularity(user_dir)
+    users = load_users(user_dir)
 
     # Find most popular, and exclude them from the random sample
     most_popular = users[:500]
@@ -146,8 +146,8 @@ def load_user_sample(user_dir: str = './data/twitter/user/') -> Sample:
     user_dir = normalize_directory(user_dir)
 
     j = json.loads(read(f'{user_dir}/processed/sample.json'))
-    return Sample([UserPopularity(*u) for u in j['most_popular']],
-                  [UserPopularity(*u) for u in j['random']])
+    return Sample([ProcessedUser(*u) for u in j['most_popular']],
+                  [ProcessedUser(*u) for u in j['random']])
 
 
 class Posting(NamedTuple):
