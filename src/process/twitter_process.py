@@ -1,11 +1,8 @@
-import json
-import os
 import random
-from datetime import datetime, time
+from dataclasses import dataclass
 from typing import NamedTuple
 
 from utils import *
-from dataclasses import dataclass
 
 
 class UserPopularity(NamedTuple):
@@ -24,6 +21,8 @@ class UserPopularity(NamedTuple):
     popularity: int
     # Number of tweets
     num_postings: int
+    # Language
+    lang: str
 
 
 def process_users_popularity(user_dir: str = './data/twitter/user/') -> None:
@@ -47,8 +46,17 @@ def process_users_popularity(user_dir: str = './data/twitter/user/') -> None:
         if filename.endswith('.json') and not filename.startswith('.'):
             # Read
             user = json.loads(read(f'{user_dir}/users/{filename}'))
+
+            # Get user language (The problem is, most people's lang field are null, so we have to
+            # look at the language of their latest status as well, while they might not have a
+            # status field as well!)
+            lang = user['lang']
+            status_lang = user['status']['lang'] if 'status' in user else None
+            if lang is None:
+                lang = status_lang
+
             users.append(UserPopularity(user['screen_name'], user['followers_count'],
-                                        user['statuses_count']))
+                                        user['statuses_count'], lang))
 
             # Log progress
             if len(users) % 2000 == 0:
@@ -99,7 +107,8 @@ def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
     Select our sample of 500 most popular users and 500 random users who meet the criteria. The
     criteria we use is that the user must have at least 150 followers, and must have a number of
     postings in between 1000 and 3250. Analyzing someone who don't post or someone who doesn't have
-    enough followers for interaction might not reveal useful information.
+    enough followers for interaction might not reveal useful information. We also filter based on
+    language, because we only know how to identify COVID-related posts in a few languages.
 
     The result will be stored in <user_dir>/processed/sample.json
 
@@ -139,8 +148,6 @@ def load_user_sample(user_dir: str = './data/twitter/user/') -> Sample:
     j = json.loads(read(f'{user_dir}/processed/sample.json'))
     return Sample([UserPopularity(*u) for u in j['most_popular']],
                   [UserPopularity(*u) for u in j['random']])
-
-
 
 
 class Posting(NamedTuple):
