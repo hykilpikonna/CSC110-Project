@@ -16,6 +16,8 @@ class UserPopularity(NamedTuple):
     username: str
     # A measurement of a user's popularity, such as followers count
     popularity: int
+    # Number of tweets
+    num_postings: int
 
 
 def process_users_popularity(user_dir: str = './data/twitter/user/') -> None:
@@ -39,7 +41,8 @@ def process_users_popularity(user_dir: str = './data/twitter/user/') -> None:
         if filename.endswith('.json') and not filename.startswith('.'):
             # Read
             user = json.loads(read(f'{user_dir}/users/{filename}'))
-            users.append(UserPopularity(user['screen_name'], user['followers_count']))
+            users.append(UserPopularity(user['screen_name'], user['followers_count'],
+                                        user['statuses_count']))
 
             # Log progress
             if len(users) % 2000 == 0:
