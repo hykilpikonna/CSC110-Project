@@ -5,6 +5,7 @@ from datetime import datetime, time
 from typing import NamedTuple
 
 from utils import *
+from dataclasses import dataclass
 
 
 class UserPopularity(NamedTuple):
@@ -83,6 +84,12 @@ def get_user_popularity_ranking(user: str, user_dir: str = './data/twitter/user/
     return -1
 
 
+@dataclass()
+class Sample:
+    most_popular: list[UserPopularity]
+    random: list[UserPopularity]
+
+
 def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
     """
     Select our sample of 500 most popular users and 500 random users who meet the criteria. The
@@ -113,7 +120,24 @@ def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
 
     # Save
     write(f'{user_dir}/processed/sample.json',
-          json_stringify({'most_popular': most_popular, 'random': sample}))
+          json_stringify(Sample(most_popular, sample)))
+
+
+def load_user_sample(user_dir: str = './data/twitter/user/') -> Sample:
+    """
+    Load the selected sample
+
+    :param user_dir: Download directory for users
+    :return: None
+    """
+    user_dir = normalize_directory(user_dir)
+
+    j = json.loads(read(f'{user_dir}/processed/sample.json'))
+    return Sample([UserPopularity(*u) for u in j['most_popular']],
+                  [UserPopularity(*u) for u in j['random']])
+
+
+
 
 class Posting(NamedTuple):
     """
