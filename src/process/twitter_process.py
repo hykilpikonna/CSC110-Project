@@ -102,6 +102,7 @@ class Sample:
     """
     most_popular: list[ProcessedUser]
     random: list[ProcessedUser]
+    english_news: list[str]
 
 
 def select_user_sample() -> None:
@@ -143,12 +144,12 @@ def select_user_sample() -> None:
     sample = random.sample(filtered, 500)
 
     # Save
-    write(file, json_stringify(Sample(most_popular, sample)))
+    write(file, json_stringify(Sample(most_popular, sample, get_english_news_channels())))
 
 
-def get_news_channels() -> list[str]:
+def get_english_news_channels() -> list[str]:
     """
-    Find news channels
+    Find news channels that post in English
 
     Run this after download_all_tweets(api, 'TwitterNews')
 
