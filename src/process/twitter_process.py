@@ -1,3 +1,4 @@
+import os
 import random
 from dataclasses import dataclass
 from typing import NamedTuple
@@ -208,6 +209,18 @@ def process_tweets(tweets_dir: str = './data/twitter/user-tweets/') -> None:
             # Save data
             write(f'{tweets_dir}/processed/{filename}', json_stringify(p))
             debug(f'Processed: {filename}')
+
+
+def load_tweets(tweets_dir: str, username: str) -> list[Posting]:
+    """
+    Load tweets for a specific user
+
+    :param tweets_dir: Tweets directory
+    :param username: User's screen name
+    :return: User's processed tweets
+    """
+    return [Posting(*p) for p in json.loads(read(
+        os.path.join(tweets_dir, f'processed/{username}.json')))]
 
 
 def is_covid_related(text: str) -> bool:
