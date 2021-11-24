@@ -109,7 +109,7 @@ def view_covid_tweets_pop(users: list[ProcessedUser],
     plt.title(f'COVID-related popularity ratios for {sample_name}')
     plt.xticks(rotation=90)
     plt.tight_layout()
-    plt.hist(x_list, bins=100, color='#ffcccc')
+    plt.hist(x_list, bins=40, color='#ffcccc')
     plt.axvline([1], color='lightgray')
     plt.show()
 
