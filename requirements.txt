@@ -8,9 +8,14 @@ tweepy==4.4.0
 # Pytz is for timezone manipulations
 pytz~=2021.1
 
+#####################
+# Data visualization
 # Print table data
 tabulate==0.8.9
+# Draw local graphs
+matplotlib==3.5.0
 
+#####################
 # Testing and code checking
 pytest
 python-ta
