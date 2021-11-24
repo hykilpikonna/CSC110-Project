@@ -146,6 +146,28 @@ def select_user_sample() -> None:
     write(file, json_stringify(Sample(most_popular, sample)))
 
 
+def get_news_channels() -> list[str]:
+    """
+    Find news channels
+
+    Run this after download_all_tweets(api, 'TwitterNews')
+
+    Precondition:
+      - <tweets_dir>/user/TwitterNews.json exists.
+
+    :return: A list of news channel screen names
+    """
+    # Find news channels in retweets from TwitterNews
+    news_channels = {'TwitterNews'}
+    for tweet in json.loads(read(f'{TWEETS_DIR}/user/TwitterNews.json')):
+        text: str = tweet['full_text']
+        if text.startswith('RT @'):
+            user = text[4:].split(':')[0]
+            news_channels.add(user)
+
+    return list(news_channels)
+
+
 def load_user_sample() -> Sample:
     """
     Load the selected sample
