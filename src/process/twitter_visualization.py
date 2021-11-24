@@ -1,6 +1,8 @@
 """
 TODO: Module Docstring
 """
+import statistics
+
 from matplotlib import pyplot as plt
 from tabulate import tabulate
 
@@ -81,8 +83,8 @@ def view_covid_tweets_pop(users: list[ProcessedUser],
         if len(covid) == 0 or len(tweets) == 0:
             continue
         # Get the average popularity for COVID-related tweets
-        covid_avg = sum(t.popularity for t in covid) / len(covid)
-        global_avg = sum(t.popularity for t in tweets) / len(tweets)
+        covid_avg = statistics.mean(t.popularity for t in covid)
+        global_avg = statistics.mean(t.popularity for t in tweets)
         # Get the relative popularity
         user_popularity.append((u.username, covid_avg / global_avg))
 
@@ -99,10 +101,25 @@ def view_covid_tweets_pop(users: list[ProcessedUser],
     print(f"20 Users of whose COVID-related posts are the most popular:")
     print(tabulate([[u[0], f'{u[1]:.2f}'] for u in user_popularity[:20]],
                    ['Username', 'Popularity Ratio']))
+    print()
+
+    # Calculate statistics
+    x_list = [f[1] for f in user_popularity]
+    s = get_statistics(x_list)
+    print(f'With outliers, ')
+    print(f'- mean: {s.mean:.2f}, median: {s.median:.2f}, stddev: {s.stddev:.2f}')
+    print()
 
     # Remove outliers
     print('As there are many outliers in the popularity ratio, they are removed in graphing.')
-    x_list = remove_outliers([f[1] for f in user_popularity])
+    print()
+    x_list = remove_outliers(x_list)
+
+    # Calculate statistics without outliers
+    s = get_statistics(x_list)
+    print(f'Without outliers, ')
+    print(f'- mean: {s.mean:.2f}, median: {s.median:.2f}, stddev: {s.stddev:.2f}')
+    print()
 
     # Graph histogram
     plt.title(f'COVID-related popularity ratios for {sample_name}')

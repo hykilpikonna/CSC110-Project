@@ -2,10 +2,11 @@ import dataclasses
 import inspect
 import json
 import os
+import statistics
 from dataclasses import dataclass
 from datetime import datetime, date
 from pathlib import Path
-from typing import Union
+from typing import Union, NamedTuple
 
 import json5
 import numpy as np
@@ -122,6 +123,22 @@ def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float
     is_outlier = modified_z_score > z_threshold
 
     return [points[v] for v in range(len(x)) if not is_outlier[v]]
+
+
+class Stats(NamedTuple):
+    mean: float
+    median: float
+    stddev: float
+
+
+def get_statistics(points: list[float]) -> Stats:
+    """
+    Calculate statistics for a set of points
+
+    :param points: Input points
+    :return: Statistics
+    """
+    return Stats(statistics.mean(points), statistics.median(points), statistics.stdev(points))
 
 
 class EnhancedJSONEncoder(json.JSONEncoder):
