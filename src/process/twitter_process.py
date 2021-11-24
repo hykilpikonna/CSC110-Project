@@ -3,6 +3,8 @@ import random
 from dataclasses import dataclass
 from typing import NamedTuple
 
+from py7zr import py7zr, SevenZipFile
+
 from utils import *
 
 
@@ -246,3 +248,25 @@ def is_covid_related(text: str) -> bool:
     keywords += ['コロナ', '検疫']
 
     return any(k in text.lower() for k in keywords)
+
+
+def pack_data(data_dir: str = './data/') -> None:
+    """
+    This function packs processed data and raw data separately.
+
+    :param data_dir: Root directory of all data.
+    :return: None
+    """
+    data_dir = normalize_directory(data_dir)
+    packed_dir = f'{data_dir}/packed'
+    Path(packed_dir).mkdir(parents=True, exist_ok=True)
+
+    # Pack data for processed.
+    debug('Packing data...')
+    processed_dirs = ['/twitter/user/meta', '/twitter/user/processed',
+                      '/twitter/user-tweets/processed']
+    with SevenZipFile(f'{packed_dir}/processed.7z', 'w') as z:
+        z: SevenZipFile = z
+        for p in processed_dirs:
+            debug(f'- Packing {p}')
+            z.writeall(data_dir + p)

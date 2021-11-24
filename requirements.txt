@@ -8,6 +8,9 @@ tweepy==4.4.0
 # Pytz is for timezone manipulations
 pytz~=2021.1
 
+# 7zip packing utility for packing our processed data
+py7zr==0.16.3
+
 #####################
 # Data visualization
 # Print table data
