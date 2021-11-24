@@ -100,11 +100,16 @@ def view_covid_tweets_pop(users: list[ProcessedUser],
     print(tabulate([[u[0], f'{u[1]:.2f}'] for u in user_popularity[:20]],
                    ['Username', 'Popularity Ratio']))
 
+    # Remove outliers
+    print('As there are many outliers in the popularity ratio, they are removed in graphing.')
+    x_list = remove_outliers([f[1] for f in user_popularity])
+    print(x_list)
+
     # Graph histogram
     plt.title(f'COVID-related popularity ratios for {sample_name}')
     plt.xticks(rotation=90)
     plt.tight_layout()
-    plt.hist([f[1] for f in user_popularity], bins=100, color='#ffcccc')
+    plt.hist(x_list, bins=100, color='#ffcccc')
     plt.axvline([1], color='lightgray')
     plt.show()
 

@@ -109,11 +109,11 @@ def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float
     :param z_threshold: Z threshold for identifying whether or not a point is an outlier
     :return: List with outliers removed
     """
-    points = np.array(points)
-    if len(points.shape) == 1:
-        points = points[:, None]
-    median = np.median(points, axis=0)
-    diff = np.sum((points - median)**2, axis=-1)
+    x = np.array(points)
+    if len(x.shape) == 1:
+        x = x[:, None]
+    median = np.median(x, axis=0)
+    diff = np.sum((x - median) ** 2, axis=-1)
     diff = np.sqrt(diff)
     med_abs_deviation = np.median(diff)
 
@@ -121,7 +121,7 @@ def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float
 
     is_outlier = modified_z_score > z_threshold
 
-    return [points[v] for v in range(len(points)) if not is_outlier[v]]
+    return [points[v] for v in range(len(x)) if not is_outlier[v]]
 
 
 class EnhancedJSONEncoder(json.JSONEncoder):
