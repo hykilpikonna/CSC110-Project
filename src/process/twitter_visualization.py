@@ -103,7 +103,6 @@ def view_covid_tweets_pop(users: list[ProcessedUser],
     # Remove outliers
     print('As there are many outliers in the popularity ratio, they are removed in graphing.')
     x_list = remove_outliers([f[1] for f in user_popularity])
-    print(x_list)
 
     # Graph histogram
     plt.title(f'COVID-related popularity ratios for {sample_name}')
