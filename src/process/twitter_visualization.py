@@ -19,7 +19,7 @@ class Reporter:
     file: str
 
     def __init__(self, file: str) -> None:
-        report = ''
+        self.report = ''
         self.file = file
 
     def print(self, line: str = '', arg: Any = None) -> None:
@@ -84,7 +84,7 @@ def view_covid_tweets_freq(users: list[str],
     plt.tight_layout()
     plt.hist([f[1] for f in user_frequency], bins=100, color='#ffcccc')
     plt.savefig(f'{REPORT_DIR}/1-covid-tweet-frequency/{sample_name}.png')
-    
+
     # Save report
     r.save()
 
@@ -196,7 +196,7 @@ def view_covid_tweets_date(tweets: list[Posting]):
 
 if __name__ == '__main__':
     sample = load_user_sample()
-    # view_covid_tweets_freq(sample.most_popular, '500-pop')
+    view_covid_tweets_freq([u.username for u in sample.most_popular], '500-pop')
     # view_covid_tweets_freq(sample.random, '500-rand')
     # view_covid_tweets_pop(sample.most_popular, '500-pop')
     # view_covid_tweets_pop(sample.random, '500-rand')
@@ -206,6 +206,6 @@ if __name__ == '__main__':
     # combine_tweets_for_sample([u.username for u in samples.random], '500-rand')
     # combine_tweets_for_sample(samples.english_news, 'eng-news')
 
-    tweets = load_combined_tweets('500-pop')
-    print(len(tweets))
-    view_covid_tweets_date(tweets)
+    # tweets = load_combined_tweets('500-pop')
+    # print(len(tweets))
+    # view_covid_tweets_date(tweets)
