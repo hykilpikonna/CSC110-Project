@@ -4,3 +4,4 @@
 DATA_DIR = './data'
 TWEETS_DIR = f'{DATA_DIR}/twitter/user-tweets'
 USER_DIR = f'{DATA_DIR}/twitter/user'
+REPORT_DIR = './report'

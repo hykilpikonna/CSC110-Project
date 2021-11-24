@@ -6,7 +6,26 @@ import statistics
 from matplotlib import pyplot as plt
 from tabulate import tabulate
 
+from constants import REPORT_DIR
 from process.twitter_process import *
+
+
+class Reporter:
+    """
+    Report file creator
+    """
+    report: str
+    file: str
+
+    def __init__(self, file: str) -> None:
+        report = ''
+        self.file = file
+
+    def print(self, line: str) -> None:
+        self.report += line + '\n'
+
+    def save(self) -> None:
+        write(self.file, self.report)
 
 
 def view_covid_tweets_freq(users: list[str],
@@ -50,7 +69,7 @@ def view_covid_tweets_freq(users: list[str],
     plt.xticks(rotation=90)
     plt.tight_layout()
     plt.hist([f[1] for f in user_frequency], bins=100, color='#ffcccc')
-    plt.show()
+    plt.savefig(f'{REPORT_DIR}/1-covid-tweet-frequency/{sample_name}.png')
 
 
 def view_covid_tweets_pop(users: list[str],
@@ -154,10 +173,10 @@ def view_covid_tweets_date(tweets: list[Posting]):
 
 if __name__ == '__main__':
     sample = load_user_sample()
-    # view_covid_tweets_freq(sample.most_popular, '500 most popular Twitter users')
-    # view_covid_tweets_freq(sample.random, '500 random Twitter users')
-    # view_covid_tweets_pop(sample.most_popular, '500 most popular Twitter users')
-    # view_covid_tweets_pop(sample.random, '500 random Twitter users')
+    # view_covid_tweets_freq(sample.most_popular, '500-pop')
+    # view_covid_tweets_freq(sample.random, '500-rand')
+    # view_covid_tweets_pop(sample.most_popular, '500-pop')
+    # view_covid_tweets_pop(sample.random, '500-rand')
 
     # samples = load_user_sample()
     # combine_tweets_for_sample([u.username for u in samples.most_popular], '500-pop')
