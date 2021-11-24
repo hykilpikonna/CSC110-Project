@@ -5,6 +5,7 @@ import random
 from typing import NamedTuple
 from dataclasses import dataclass
 
+import dateutil.parser
 import requests
 from bs4 import BeautifulSoup
 from py7zr import SevenZipFile
@@ -206,8 +207,8 @@ class Posting(NamedTuple):
     popularity: int
     # Is it a repost
     repost: bool
-    # Date
-    date: datetime
+    # Date in ISO format
+    date: str
 
 
 def process_tweets() -> None:
@@ -235,7 +236,8 @@ def process_tweets() -> None:
             p = [Posting(is_covid_related(t['full_text']),
                          t['favorite_count'] + t['retweet_count'],
                          'retweeted_status' in t,
-                         datetime.strptime(t['created_at'], '%a %b %d %H:%M:%S +0000 %Y'))
+                         datetime.strptime(t['created_at'], '%a %b %d %H:%M:%S +0000 %Y')
+                         .isoformat())
                  for t in tweets]
 
             # Save data
@@ -278,6 +280,31 @@ def is_covid_related(text: str) -> bool:
     keywords += ['コロナ', '検疫', '三密']
 
     return any(k in text.lower() for k in keywords)
+
+
+def combine_tweets_for_sample(sample: list[str], name: str) -> None:
+    """
+    Combine tweets data for every user in a sample
+
+    Preconditions:
+      - name is a valid file name for your OS.
+
+    :param sample: Sample is a list of users' screen names
+    :param name: The name of the sample
+    :return: None
+    """
+    tweets: list[Posting] = []
+    for u in sample:
+        tweets += load_tweets(u)
+
+    # Sort by date, latest first
+    tweets.sort(key=lambda x: x.date, reverse=True)
+
+    # Ignore tweets that are earlier than the start of COVID
+    tweets = [t for t in tweets if t.date > '2020-01-01T01:01:01']
+
+    # Save
+    write(f'{TWEETS_DIR}/sample-combined/{name.replace(" ", "-")}.json', json_stringify(tweets))
 
 
 def pack_data() -> None:
