@@ -13,6 +13,8 @@ if __name__ == '__main__':
     #####################
     # Data collection - Step C1.1
     # Download a wide range of users from Twitter using follow-chaining starting from a single user.
+    # (This task will never stop before it downloads every single user from twitter, so we need to
+    # manually stop it when there are enough users)
     # download_users_start(api, 'voxdotcom')
 
     # This task will run for a very very long time to obtain a large dataset of twitter users. If
@@ -22,7 +24,7 @@ if __name__ == '__main__':
     ####################
     # Data collection - Step C1.2
     # Download all tweets from TwitterNews
-    download_all_tweets(api, 'TwitterNews')
+    # download_all_tweets(api, 'TwitterNews')
 
     #####################
     # Data processing - Step P1
@@ -52,6 +54,12 @@ if __name__ == '__main__':
     # (After step P2) Download all tweets from the 500 randomly selected users, takes around 2 hours
     # for u in load_user_sample().random:
     #     download_all_tweets(api, u.username)
+
+    #####################
+    # Data collection - Step C2.3
+    # (After step P2) Download all tweets from the news channels we selected.
+    for u in load_user_sample().english_news:
+        download_all_tweets(api, u)
 
     #####################
     # Data processing - Step P3
