@@ -28,7 +28,7 @@ if __name__ == '__main__':
     # Data processing - Step P2
     # (After step P1) Select 500 most popular users and 500 random users who meet a particular
     # criteria as our sample.
-    # select_user_sample()
+    select_user_sample()
 
     # Just curious, who are the 20 most popular individuals on twitter?
     # print(tabulate(((u.username, u.popularity) for u in load_user_sample().most_popular[:20]),
@@ -47,25 +47,8 @@ if __name__ == '__main__':
     # for u in load_user_sample().random:
     #     download_all_tweets(api, u.username)
 
-    sample = load_user_sample()
-    names = {v.username for v in sample.random}
-    names = names.union({v.username for v in sample.most_popular})
+    for u in os.listdir('./data/twitter/user-tweets/user'):
 
-    remove = set()
-    for file in os.listdir('./data/twitter/user-tweets/user'):
-        u = file.replace('.json', '')
-        if all(p.username != u for p in sample.most_popular) and all(p.username != u for p in sample.random):
-            remove.add(u)
-
-    print(len(remove))
-    print(len(os.listdir('./data/twitter/user-tweets/user')))
-
-    for file in remove:
-        os.remove(f'./data/twitter/user-tweets/user/{file}.json')
-        os.remove(f'./data/twitter/user-tweets/processed/{file}.json')
-
-    # print(len(sample.pop))
-    # print(json_stringify(sample.random))
 
     #####################
     # Data processing - Step P3
