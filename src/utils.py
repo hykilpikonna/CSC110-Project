@@ -141,6 +141,21 @@ def get_statistics(points: list[float]) -> Stats:
     return Stats(statistics.mean(points), statistics.median(points), statistics.stdev(points))
 
 
+def parse_date(iso: str) -> datetime:
+    """
+    Parse date faster
+
+    Preconditions:
+      - iso is the output of datetime.isoformat() (In a format like "2021-10-20T23:50:14")
+
+    :param iso: Input date
+    :return: Datetime object
+    """
+    params = [iso[:4], iso[5:7], iso[8:10], iso[11:13], iso[14:16], iso[17:19]]
+    params = [int(i) for i in params]
+    return datetime(*params)
+
+
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, o):
 
