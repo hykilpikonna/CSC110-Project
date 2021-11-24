@@ -73,7 +73,7 @@ def write(file: str, text: str) -> None:
     """
     Write text to a file
 
-    :param file: File path
+    :param file: File path (will be converted to lowercase)
     :param text: Text
     :return: None
     """
@@ -91,7 +91,7 @@ def read(file: str) -> str:
     """
     Read file content
 
-    :param file: File path
+    :param file: File path (will be converted to lowercase)
     :return: None
     """
     with open(file.lower(), 'r', encoding='utf-8') as f:

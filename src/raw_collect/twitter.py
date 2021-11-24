@@ -7,7 +7,7 @@ import time
 from typing import List
 
 import tweepy
-from tweepy import API, TooManyRequests, User, Tweet, Unauthorized
+from tweepy import API, TooManyRequests, User, Tweet, Unauthorized, NotFound
 
 from constants import TWEETS_DIR, USER_DIR
 from utils import *
@@ -86,6 +86,9 @@ def download_all_tweets(api: API, screen_name: str,
     except Unauthorized:
         debug(f'- {screen_name}: Unauthorized. Probably a private account, ignoring.')
         return
+    except NotFound:
+        debug(f'- {screen_name}: Not found. Probably a deleted account, writing []')
+        tweets = []
 
     # This person has no tweets, done. (By the way, we discovered that @lorde has no tweets but has
     # 7 million followers... wow!)

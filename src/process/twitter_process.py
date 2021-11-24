@@ -5,6 +5,8 @@ import random
 from typing import NamedTuple
 from dataclasses import dataclass
 
+import requests
+from bs4 import BeautifulSoup
 from py7zr import SevenZipFile
 
 from constants import DATA_DIR, TWEETS_DIR, USER_DIR
@@ -149,7 +151,8 @@ def select_user_sample() -> None:
 
 def get_english_news_channels() -> list[str]:
     """
-    Find news channels that post in English
+    Find news channels that post in English from retweets of TwitterNews, combined with an
+    established list of 100 most influential news channels reported by Nur Bermmen from memeburn.com
 
     Run this after download_all_tweets(api, 'TwitterNews')
 
@@ -165,6 +168,17 @@ def get_english_news_channels() -> list[str]:
         if text.startswith('RT @'):
             user = text[4:].split(':')[0]
             news_channels.add(user)
+
+    # Find news channels from top 100 list on memeburn.com
+    url = 'https://memeburn.com/2010/09/the-100-most-influential-news-media-twitter-accounts/'
+    soup = BeautifulSoup(requests.get(url).text, 'html.parser')
+    users = {h.text[1:] for h in soup.select('table tr td:nth-child(2) > a')}
+
+    # Combine two sets, ignoring case (since the ids in the 100 list are all lowercased)
+    news_channels_lower = {n.lower() for n in news_channels}
+    for u in users:
+        if u not in news_channels_lower:
+            news_channels.add(u)
 
     return list(news_channels)
 
