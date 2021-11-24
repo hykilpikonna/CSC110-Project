@@ -116,6 +116,13 @@ def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
     :return: None
     """
     user_dir = normalize_directory(user_dir)
+    file = f'{user_dir}/processed/sample.json'
+
+    # Exists
+    if os.path.isfile(file):
+        debug(f'There is already a sample generated at {file}. If you want to reselect the'
+              f'sample, please delete the existing sample file.')
+        return
 
     # Load users
     users = load_users(user_dir)
@@ -136,8 +143,7 @@ def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
     sample = random.sample(filtered, 500)
 
     # Save
-    write(f'{user_dir}/processed/sample.json',
-          json_stringify(Sample(most_popular, sample)))
+    write(file, json_stringify(Sample(most_popular, sample)))
 
 
 def load_user_sample(user_dir: str = './data/twitter/user/') -> Sample:

@@ -30,30 +30,30 @@ if __name__ == '__main__':
     # criteria as our sample.
     select_user_sample()
 
+    # Just curious, who are the 20 most popular individuals on twitter?
+    # print(tabulate(((u.username, u.popularity) for u in load_user_sample().most_popular[:20]),
+    #                headers=['Name', 'Followers']))
+
     #####################
     # Data collection - Step C2.1
     # (After step P2) Load the downloaded twitter users by popularity, and start downloading all
-    # tweets from 500 of the most popular users.
-    # sample = load_user_sample()
-
-    # Just curious, who are the 20 most popular individuals on twitter?
-    # print(tabulate(((u.username, u.popularity) for u in sample.most_popular[:20]),
-    #                headers=['Name', 'Followers']))
-
-    # Start download
-    # for u in sample.most_popular:
+    # tweets from 500 of the most popular users. Takes around 2 hours.
+    # for u in load_user_sample().most_popular:
     #     download_all_tweets(api, u.username)
 
     #####################
     # Data collection - Step C2.2
-    # (After step P2) Download all tweets from the 500 randomly selected users
-    for u in load_user_sample().random:
-        download_all_tweets(api, u.username)
+    # (After step P2) Download all tweets from the 500 randomly selected users, takes around 2 hours
+    # for u in load_user_sample().random:
+    #     download_all_tweets(api, u.username)
+
+    for u in os.listdir('./data/twitter/user-tweets/user'):
+
 
     #####################
-    # Data processing - Step P2
+    # Data processing - Step P3
     # (After step C2) Process the downloaded tweets, determine whether they are covid-related
-    process_tweets()
+    # process_tweets()
 
     # Who posted the most covid tweets? (covid vs non-covid ratio)
     # - Graph histogram of this ratio
