@@ -7,9 +7,10 @@ from utils import *
 # Constants (The instructors said that we can use global constants here:
 # https://piazza.com/class/ksovzjrlsye72f?cid=1664
 # They should not end with "/"
-data_dir = './data'
-tweets_dir = f'{data_dir}/twitter/user-tweets'
-user_dir = f'{data_dir}/twitter/user'
+DATA_DIR = './data'
+TWEETS_DIR = f'{DATA_DIR}/twitter/user-tweets'
+USER_DIR = f'{DATA_DIR}/twitter/user'
+
 
 if __name__ == '__main__':
     # Load config and create API

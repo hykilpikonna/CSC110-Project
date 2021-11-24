@@ -9,7 +9,7 @@ from typing import List
 import tweepy
 from tweepy import API, TooManyRequests, User, Tweet, Unauthorized
 
-from main import tweets_dir, user_dir
+from main import TWEETS_DIR, USER_DIR
 from utils import *
 
 
@@ -65,7 +65,7 @@ def download_all_tweets(api: API, screen_name: str,
     :return: None
     """
     # Ensure directories exist
-    file = f'{tweets_dir}/user/{screen_name}.json'
+    file = f'{TWEETS_DIR}/user/{screen_name}.json'
 
     # Check if user already exists
     if os.path.isfile(file):
@@ -180,7 +180,7 @@ def download_users_resume_progress(api: API) -> None:
     :return: None
     """
     # Open file and read
-    meta = json.loads(read(f'{user_dir}/meta/meta.json'))
+    meta = json.loads(read(f'{USER_DIR}/meta/meta.json'))
 
     # Resume
     download_users_execute(api, meta['n'],
@@ -215,7 +215,7 @@ def download_users_execute(api: API, n: float,
     print("Executing friends-chain download:")
     print(f"- n: {n}")
     print(f"- Requests per minute: 1")
-    print(f"- Directory: {user_dir}")
+    print(f"- Directory: {USER_DIR}")
     print(f"- Downloaded: {len(downloaded)}")
     print(f"- Current search set: {len(current_set)}")
     print(f"- Next search set: {len(next_set)}")
@@ -241,7 +241,7 @@ def download_users_execute(api: API, n: float,
             # This user was not saved, save the user.
             if user not in downloaded:
                 # Save user json
-                write(f'{user_dir}/users/{user.screen_name}.json', json_stringify(user._json))
+                write(f'{USER_DIR}/users/{user.screen_name}.json', json_stringify(user._json))
 
                 # Add to set
                 downloaded.add(user.screen_name)
@@ -281,7 +281,7 @@ def download_users_execute(api: API, n: float,
         # Update meta info so that downloading can be continued
         meta = {'downloaded': downloaded, 'done_set': done_set,
                 'current_set': current_set, 'next_set': next_set, 'n': n}
-        write(f'{user_dir}/meta/meta.json', json_stringify(meta))
+        write(f'{USER_DIR}/meta/meta.json', json_stringify(meta))
 
         debug(f'Finished saving friends of {screen_name}')
         debug(f'============= Total {len(downloaded)} saved =============')

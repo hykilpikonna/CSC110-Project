@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 from py7zr import SevenZipFile
 
-from main import data_dir, tweets_dir, user_dir
+from main import DATA_DIR, TWEETS_DIR, USER_DIR
 from utils import *
 
 
@@ -44,11 +44,11 @@ def process_users() -> None:
     users = []
 
     # Loop through all the files
-    for filename in os.listdir(f'{user_dir}/users'):
+    for filename in os.listdir(f'{USER_DIR}/users'):
         # Only check json files and ignore macos dot files
         if filename.endswith('.json') and not filename.startswith('.'):
             # Read
-            user = json.loads(read(f'{user_dir}/users/{filename}'))
+            user = json.loads(read(f'{USER_DIR}/users/{filename}'))
 
             # Get user language (The problem is, most people's lang field are null, so we have to
             # look at the language of their latest status as well, while they might not have a
@@ -69,7 +69,7 @@ def process_users() -> None:
     users.sort(key=lambda x: x.popularity, reverse=True)
 
     # Save data
-    write(f'{user_dir}/processed/users.json', json_stringify(users))
+    write(f'{USER_DIR}/processed/users.json', json_stringify(users))
 
 
 def load_users() -> list[ProcessedUser]:
@@ -78,7 +78,7 @@ def load_users() -> list[ProcessedUser]:
 
     :return: List of processed users, sorted descending by popularity.
     """
-    return [ProcessedUser(*u) for u in json.loads(read(f'{user_dir}/processed/users.json'))]
+    return [ProcessedUser(*u) for u in json.loads(read(f'{USER_DIR}/processed/users.json'))]
 
 
 def get_user_popularity_ranking(user: str) -> int:
@@ -116,7 +116,7 @@ def select_user_sample() -> None:
 
     :return: None
     """
-    file = f'{user_dir}/processed/sample.json'
+    file = f'{USER_DIR}/processed/sample.json'
 
     # Exists
     if os.path.isfile(file):
@@ -152,7 +152,7 @@ def load_user_sample() -> Sample:
 
     :return: None
     """
-    j = json.loads(read(f'{user_dir}/processed/sample.json'))
+    j = json.loads(read(f'{USER_DIR}/processed/sample.json'))
     return Sample([ProcessedUser(*u) for u in j['most_popular']],
                   [ProcessedUser(*u) for u in j['random']])
 
@@ -185,15 +185,15 @@ def process_tweets() -> None:
     :return: None
     """
     # Loop through all the files
-    for filename in os.listdir(f'{tweets_dir}/user'):
+    for filename in os.listdir(f'{TWEETS_DIR}/user'):
         # Only check json files and ignore macos dot files
         if filename.endswith('.json') and not filename.startswith('.'):
             # Check if already processed
-            if os.path.isfile(f'{tweets_dir}/processed/{filename}'):
+            if os.path.isfile(f'{TWEETS_DIR}/processed/{filename}'):
                 continue
 
             # Read
-            tweets = json.loads(read(f'{tweets_dir}/user/{filename}'))
+            tweets = json.loads(read(f'{TWEETS_DIR}/user/{filename}'))
             p = [Posting(is_covid_related(t['full_text']),
                          t['favorite_count'] + t['retweet_count'],
                          'retweeted_status' in t,
@@ -201,7 +201,7 @@ def process_tweets() -> None:
                  for t in tweets]
 
             # Save data
-            write(f'{tweets_dir}/processed/{filename}', json_stringify(p))
+            write(f'{TWEETS_DIR}/processed/{filename}', json_stringify(p))
             debug(f'Processed: {filename}')
 
 
@@ -213,7 +213,7 @@ def load_tweets(username: str) -> list[Posting]:
     :return: User's processed tweets
     """
     return [Posting(*p) for p in json.loads(read(
-        os.path.join(tweets_dir, f'processed/{username}.json')))]
+        os.path.join(TWEETS_DIR, f'processed/{username}.json')))]
 
 
 def is_covid_related(text: str) -> bool:
@@ -248,7 +248,7 @@ def pack_data() -> None:
 
     :return: None
     """
-    packed_dir = f'{data_dir}/packed'
+    packed_dir = f'{DATA_DIR}/packed'
     Path(packed_dir).mkdir(parents=True, exist_ok=True)
 
     # Pack data for processed.
@@ -259,4 +259,4 @@ def pack_data() -> None:
         z: SevenZipFile = z
         for p in processed_dirs:
             debug(f'- Packing {p}')
-            z.writeall(data_dir + p)
+            z.writeall(DATA_DIR + p)
