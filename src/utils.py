@@ -121,6 +121,8 @@ def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float
 
     is_outlier = modified_z_score > z_threshold
 
+    return [points[v] for v in range(len(points)) if not is_outlier[v]]
+
 
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, o):
