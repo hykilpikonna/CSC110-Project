@@ -21,21 +21,21 @@ sorting=nyt
 \begin{document}
     \maketitle
 
-    \section*{Problem Description and Research Question}
+    \section{Problem Description and Research Question}
     \indent
 
     We have observed that there have been increasingly more voices talking about COVID-19 since the start of the pandemic. However, with recent policy changes in many countries aiming to limit the effect of COVID-19, it is unclear how people’s discussions would react. Some people might be inclined to believe that the pandemic is starting to end so that discussing it would seem increasingly like an unnecessary effort. In contrast, others might find these policy changes controversial and want to voice their opinions on them even more. Also, even though COVID-related topics are almost always on the news, some news outlets might intentionally cover them more frequently than others. For the people watching the news, some people might find these news reports interesting, while others can’t help but switch channels. So, how people’s interest in listening about or discussing COVID-related topics changes over time is not very clear. \textbf{Our goal is to analyze how people’s interest in COVID-related topics changes and how frequently people have discussed COVID-related issues in the two years since the pandemic started.} Also, different social media platforms might induce people to view the pandemic differently. For example, we don’t know whether people on open social media platforms such as Twitter, where everyone can view your posts, might be more or less inclined to post or COVID-related content than people on closed social media platforms such as Instagram, Wechat, or Telegram. Also, people or news outlets with different numbers of followers or viewers might have different inclinations too. \textbf{So, we also aim to compare people’s interests in posting about COVID-related topics between platforms and popularity.}
 
-    \section*{Dataset Used}
+    \section{Dataset Used}
     \indent
 
     \begin{itemize}
         \item[1.] A wide range of Twitter users: We used twitter's get friends list API \href{https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list}{(documentation)} and the follows-chaining technique to obtain a wide range of twitter users. This technique is explained in the Computational Overview section. Due to rate limiting, we ran the program for one day and obtained 224,619 users (852.3 MB decompressed). However, only the username, popularity, post count, and language data are used, and the processed (filtered) user dataset \C{data/twitter/user/processed/users.json} is only 7.9 MB in total.
          
-        \item[2.] All tweets from sampled users: We selected two samples of 500 users (the sampling method is explained in the Computational Overview section), and we used the user-timeline API \href{https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline}{(documentation)} to obtain all of their tweets. Due to rate limiting, the program took around 16 hours to finish, and we obtained 6.18 GB of raw data (uncompressed). During processing, we reduced the data for each tweet to only its date, popularity (likes + retweets), whether it is a retweet, and whether it is COVID-related. The text of the tweets are not retained, and the processed data directory \C{data/twitter/user-tweets/processed} is only 107.6 MB in total.
+        \item[2.] All tweets from sampled users: We selected two samples of 500 users each (the sampling method is explained in the Computational Overview section), and we used the user-timeline API \href{https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline}{(documentation)} to obtain all of their tweets. Due to rate limiting, the program took around 16 hours to finish, and we obtained 6.07 GB of raw data (uncompressed). During processing, we reduced the data for each tweet to only its date, popularity (likes + retweets), whether it is a retweet, and whether it is COVID-related. The text of the tweets are not retained, and the processed data directory \C{data/twitter/user-tweets/processed} is only 107.9 MB in total.
     \end{itemize}
  
-    \section*{Computational Overview}
+    \section{Computational Overview}
 
     \subsection*{Data Gathering}
     \indent
