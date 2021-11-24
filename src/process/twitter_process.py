@@ -237,7 +237,7 @@ def is_covid_related(text: str) -> bool:
     keywords += ['新冠', '疫情', '感染', '疫苗', '隔离']
 
     # Japanese
-    keywords += ['コロナ', '検疫']
+    keywords += ['コロナ', '検疫', '三密']
 
     return any(k in text.lower() for k in keywords)
 
