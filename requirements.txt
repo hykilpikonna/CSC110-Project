@@ -5,6 +5,9 @@ json5~=0.9.6
 # Tweepy is a python SDK for twitter
 tweepy==4.4.0
 
+# requests is for getting html from a website URL
+requests==2.26.0
+
 # beautifulsoup is used to extract data from html
 beautifulsoup4==4.10.0
 
