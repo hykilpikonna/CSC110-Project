@@ -140,9 +140,30 @@ def load_covid_tweets_pop(users: list[str]):
     user_popularity.sort(key=lambda x: x[1], reverse=True)
     return user_popularity
 
+
+def view_covid_tweets_date(tweets: list[Posting]):
+
+    # Graph histogram
+    plt.title(f'COVID posting dates')
+    plt.xticks(rotation=45)
+    plt.yticks(rotation=45)
+    plt.tight_layout()
+    plt.hist([parse_date(t.date) for t in tweets if t.covid_related], bins=40, color='#ffcccc')
+    plt.show()
+
+
 if __name__ == '__main__':
     sample = load_user_sample()
     # view_covid_tweets_freq(sample.most_popular, '500 most popular Twitter users')
     # view_covid_tweets_freq(sample.random, '500 random Twitter users')
-    view_covid_tweets_pop(sample.most_popular, '500 most popular Twitter users')
-    view_covid_tweets_pop(sample.random, '500 random Twitter users')
+    # view_covid_tweets_pop(sample.most_popular, '500 most popular Twitter users')
+    # view_covid_tweets_pop(sample.random, '500 random Twitter users')
+
+    # samples = load_user_sample()
+    # combine_tweets_for_sample([u.username for u in samples.most_popular], '500-pop')
+    # combine_tweets_for_sample([u.username for u in samples.random], '500-rand')
+    # combine_tweets_for_sample(samples.english_news, 'eng-news')
+
+    tweets = load_combined_tweets('500-pop')
+    print(len(tweets))
+    view_covid_tweets_date(tweets)
