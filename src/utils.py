@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Union
 
 import json5
+import numpy as np
 
 
 @dataclass
@@ -96,6 +97,29 @@ def read(file: str) -> str:
     """
     with open(file.lower(), 'r', encoding='utf-8') as f:
         return f.read()
+
+
+def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float]:
+    """
+    Create list with outliers removed for graphing
+
+    Credit to: https://stackoverflow.com/a/11886564/7346633
+
+    :param points: Input points list
+    :param z_threshold: Z threshold for identifying whether or not a point is an outlier
+    :return: List with outliers removed
+    """
+    points = np.array(points)
+    if len(points.shape) == 1:
+        points = points[:, None]
+    median = np.median(points, axis=0)
+    diff = np.sum((points - median)**2, axis=-1)
+    diff = np.sqrt(diff)
+    med_abs_deviation = np.median(diff)
+
+    modified_z_score = 0.6745 * diff / med_abs_deviation
+
+    is_outlier = modified_z_score > z_threshold
 
 
 class EnhancedJSONEncoder(json.JSONEncoder):

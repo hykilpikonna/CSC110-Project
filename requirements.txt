@@ -1,25 +1,28 @@
 
+####################
+# Data Collection
 # Json5 is a human-readable json format that allows for things such as unquoted keys or comments.
 json5~=0.9.6
-
 # Tweepy is a python SDK for twitter
 tweepy==4.4.0
-
 # requests is for getting html from a website URL
 requests==2.26.0
-
 # beautifulsoup is used to extract data from html
 beautifulsoup4==4.10.0
 
-# 7zip packing utility for packing our processed data
-py7zr==0.16.3
-
 #####################
-# Data visualization
+# Data Visualization
 # Print table data
 tabulate==0.8.9
 # Draw local graphs
 matplotlib==3.5.0
+# Calculate data statistics
+numpy==1.21.4
+
+####################
+# Data Packing
+# 7zip packing utility for packing our processed data
+py7zr==0.16.3
 
 #####################
 # Testing and code checking
