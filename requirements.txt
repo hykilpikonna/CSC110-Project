@@ -5,6 +5,9 @@ json5~=0.9.6
 # Tweepy is a python SDK for twitter
 tweepy==4.4.0
 
+# beautifulsoup is used to extract data from html
+beautifulsoup4==4.10.0
+
 # 7zip packing utility for packing our processed data
 py7zr==0.16.3
 
