@@ -7,7 +7,7 @@ from dataclasses import dataclass
 
 from py7zr import SevenZipFile
 
-from main import DATA_DIR, TWEETS_DIR, USER_DIR
+from constants import DATA_DIR, TWEETS_DIR, USER_DIR
 from utils import *
 
 

@@ -4,13 +4,6 @@ from process.twitter_process import *
 from raw_collect.twitter import *
 from utils import *
 
-# Constants (The instructors said that we can use global constants here:
-# https://piazza.com/class/ksovzjrlsye72f?cid=1664
-# They should not end with "/"
-DATA_DIR = './data'
-TWEETS_DIR = f'{DATA_DIR}/twitter/user-tweets'
-USER_DIR = f'{DATA_DIR}/twitter/user'
-
 
 if __name__ == '__main__':
     # Load config and create API
@@ -18,13 +11,18 @@ if __name__ == '__main__':
     api = tweepy_login(conf)
 
     #####################
-    # Data collection - Step C1
+    # Data collection - Step C1.1
     # Download a wide range of users from Twitter using follow-chaining starting from a single user.
     # download_users_start(api, 'voxdotcom')
 
     # This task will run for a very very long time to obtain a large dataset of twitter users. If
     # you want to stop the process, you can resume it later using the following line:
     # download_users_resume_progress(api)
+
+    ####################
+    # Data collection - Step C1.2
+    # Download all tweets from twitternews
+    download_all_tweets(api, 'twitternews')
 
     #####################
     # Data processing - Step P1
@@ -35,7 +33,7 @@ if __name__ == '__main__':
     #####################
     # Data processing - Step P2
     # (After step P1) Select 500 most popular users and 500 random users who meet a particular
-    # criteria as our sample.
+    # criteria as our sample, also find news channels
     # select_user_sample()
 
     # Just curious, who are the 20 most popular individuals on twitter?
@@ -66,6 +64,7 @@ if __name__ == '__main__':
 
     # Who posted the most covid tweets? (covid vs non-covid ratio)
     # - Graph histogram of this ratio
+
     # Who has the most covid tweet popularity (popularity of covid vs non-covid tweets ratio)
     # - Graph histogram of this ratio
 

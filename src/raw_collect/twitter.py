@@ -9,7 +9,7 @@ from typing import List
 import tweepy
 from tweepy import API, TooManyRequests, User, Tweet, Unauthorized
 
-from main import TWEETS_DIR, USER_DIR
+from constants import TWEETS_DIR, USER_DIR
 from utils import *
 
 
