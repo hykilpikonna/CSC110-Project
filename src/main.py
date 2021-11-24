@@ -35,7 +35,6 @@ if __name__ == '__main__':
     # (After step P1) Select 500 most popular users and 500 random users who meet a particular
     # criteria as our sample, also find news channels
     # select_user_sample()
-    get_english_news_channels()
 
     # Just curious, who are the 20 most popular individuals on twitter?
     # print(tabulate(((u.username, u.popularity) for u in load_user_sample().most_popular[:20]),

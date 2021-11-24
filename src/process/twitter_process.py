@@ -177,7 +177,8 @@ def load_user_sample() -> Sample:
     """
     j = json.loads(read(f'{USER_DIR}/processed/sample.json'))
     return Sample([ProcessedUser(*u) for u in j['most_popular']],
-                  [ProcessedUser(*u) for u in j['random']])
+                  [ProcessedUser(*u) for u in j['random']],
+                  j['english_news'])
 
 
 class Posting(NamedTuple):
