@@ -9,7 +9,7 @@ from tabulate import tabulate
 from process.twitter_process import *
 
 
-def view_covid_tweets_freq(users: list[ProcessedUser],
+def view_covid_tweets_freq(users: list[str],
                            sample_name: str) -> None:
     """
     Visualize the frequency that the sampled users post about COVID. For example, someone who
@@ -24,10 +24,10 @@ def view_covid_tweets_freq(users: list[ProcessedUser],
     user_frequency = []
     for u in users:
         # Load processed tweet
-        tweets = load_tweets(u.username)
+        tweets = load_tweets(u)
         # Get the frequency of COVID-related tweets
         freq = len([1 for t in tweets if t.covid_related]) / len(tweets)
-        user_frequency.append((u.username, freq))
+        user_frequency.append((u, freq))
 
     # Sort by frequency
     user_frequency.sort(key=lambda x: x[1], reverse=True)
@@ -53,7 +53,7 @@ def view_covid_tweets_freq(users: list[ProcessedUser],
     plt.show()
 
 
-def view_covid_tweets_pop(users: list[ProcessedUser],
+def view_covid_tweets_pop(users: list[str],
                           sample_name: str) -> None:
     """
     Visualize the relative popularity of the sampled users' posts about COVID. For example, if one
@@ -69,27 +69,7 @@ def view_covid_tweets_pop(users: list[ProcessedUser],
     :param sample_name: Name of the sample
     :return: None
     """
-    # Load tweets, and get the frequency of covid tweets for each user
-    user_popularity = []
-    for u in users:
-        # Load processed tweet
-        tweets = load_tweets(u.username)
-        # Ignore retweets
-        tweets = [t for t in tweets if not t.repost]
-        # Filter covid tweets
-        covid = [t for t in tweets if t.covid_related]
-        # To prevent divide by zero, ignore everyone who didn't post about covid or who didn't post
-        # at all.
-        if len(covid) == 0 or len(tweets) == 0:
-            continue
-        # Get the average popularity for COVID-related tweets
-        covid_avg = statistics.mean(t.popularity for t in covid)
-        global_avg = statistics.mean(t.popularity for t in tweets)
-        # Get the relative popularity
-        user_popularity.append((u.username, covid_avg / global_avg))
-
-    # Sort by relative popularity
-    user_popularity.sort(key=lambda x: x[1], reverse=True)
+    user_popularity = load_covid_tweets_pop(users)
 
     # How many people are ignored
     print(f"In {sample_name} -")
@@ -129,6 +109,36 @@ def view_covid_tweets_pop(users: list[ProcessedUser],
     plt.axvline([1], color='lightgray')
     plt.show()
 
+
+def load_covid_tweets_pop(users: list[str]):
+    """
+    Helper function for view_covid_tweets_pop. This function loads and calculates relative
+    popularity of COVID posts by a list of users
+
+    :param users: Users in a sample
+    :return: List of users and their relative popularity for COVID posts
+    """
+    user_popularity = []
+    for u in users:
+        # Load processed tweet
+        tweets = load_tweets(u)
+        # Ignore retweets
+        tweets = [t for t in tweets if not t.repost]
+        # Filter covid tweets
+        covid = [t for t in tweets if t.covid_related]
+        # To prevent divide by zero, ignore everyone who didn't post about covid or who didn't post
+        # at all.
+        if len(covid) == 0 or len(tweets) == 0:
+            continue
+        # Get the average popularity for COVID-related tweets
+        covid_avg = statistics.mean(t.popularity for t in covid)
+        global_avg = statistics.mean(t.popularity for t in tweets)
+        # Get the relative popularity
+        user_popularity.append((u, covid_avg / global_avg))
+
+    # Sort by relative popularity
+    user_popularity.sort(key=lambda x: x[1], reverse=True)
+    return user_popularity
 
 if __name__ == '__main__':
     sample = load_user_sample()
