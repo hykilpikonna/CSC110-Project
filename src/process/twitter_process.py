@@ -325,6 +325,20 @@ def combine_tweets_for_sample(sample: list[str], name: str) -> None:
     write(f'{TWEETS_DIR}/sample-combined/{name.replace(" ", "-")}.json', json_stringify(tweets))
 
 
+def load_combined_tweets(sample_name: str) -> list[Posting]:
+    """
+    Load combined tweets data from combine_tweets_for_sample
+
+    Preconditions:
+      - combine_tweets_for_sample has been ran on the specified sample
+
+    :param sample_name: Sample name, the same as combine_tweets_for_sample
+    :return: List of tweets for the sample combined.
+    """
+    data = json.loads(read(f'{TWEETS_DIR}/sample-combined/{sample_name.replace(" ", "-")}.json'))
+    return [Posting(*d) for d in data]
+
+
 def pack_data() -> None:
     """
     This function packs processed data and raw data separately.
