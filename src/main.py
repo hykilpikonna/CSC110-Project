@@ -4,6 +4,13 @@ from process.twitter_process import *
 from raw_collect.twitter import *
 from utils import *
 
+# Constants (The instructors said that we can use global constants here:
+# https://piazza.com/class/ksovzjrlsye72f?cid=1664
+# They should not end with "/"
+data_dir = './data'
+tweets_dir = f'{data_dir}/twitter/user-tweets'
+user_dir = f'{data_dir}/twitter/user'
+
 if __name__ == '__main__':
     # Load config and create API
     conf = load_config('config.json5')
@@ -52,8 +59,16 @@ if __name__ == '__main__':
     # (After step C2) Process the downloaded tweets, determine whether they are covid-related
     # process_tweets()
 
+    ####################
+    # Data Visualization - Step V1
+    # Meta-data visualization: Let's see some data about the sample
+
     # Who posted the most covid tweets? (covid vs non-covid ratio)
     # - Graph histogram of this ratio
     # Who has the most covid tweet popularity (popularity of covid vs non-covid tweets ratio)
     # - Graph histogram of this ratio
 
+    ####################
+    # Finalize the program for submission.
+    # Pack processed and unprocessed data:
+    # pack_data()
