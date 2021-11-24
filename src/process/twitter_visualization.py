@@ -78,15 +78,15 @@ def view_covid_tweets_freq(users: list[str],
     r.print(tabulate([[u[0], f'{u[1] * 100:.1f}%'] for u in user_frequency[:20]],
                    ['Username', 'Frequency']))
 
+    # Save report
+    r.save()
+
     # Graph histogram
     plt.title(f'COVID-related posting frequency for {sample_name}')
     plt.xticks(rotation=90)
     plt.tight_layout()
     plt.hist([f[1] for f in user_frequency], bins=100, color='#ffcccc')
     plt.savefig(f'{REPORT_DIR}/1-covid-tweet-frequency/{sample_name}.png')
-
-    # Save report
-    r.save()
 
 
 def view_covid_tweets_pop(users: list[str],
@@ -140,6 +140,9 @@ def view_covid_tweets_pop(users: list[str],
     r.print(f'- mean: {s.mean:.2f}, median: {s.median:.2f}, stddev: {s.stddev:.2f}')
     r.print()
 
+    # Save report
+    r.save()
+
     # Graph histogram
     plt.title(f'COVID-related popularity ratios for {sample_name}')
     plt.xticks(rotation=90)
@@ -147,9 +150,6 @@ def view_covid_tweets_pop(users: list[str],
     plt.hist(x_list, bins=40, color='#ffcccc')
     plt.axvline([1], color='lightgray')
     plt.savefig(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample_name}.png')
-
-    # Save report
-    r.save()
 
 
 def load_covid_tweets_pop(users: list[str]):
