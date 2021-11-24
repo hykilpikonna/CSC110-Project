@@ -148,6 +148,7 @@ def parse_date(iso: str) -> datetime:
 
     Preconditions:
       - iso is the output of datetime.isoformat() (In a format like "2021-10-20T23:50:14")
+      - iso is a valid date (this function does not check for the validity of the input)
 
     :param iso: Input date
     :return: Datetime object
