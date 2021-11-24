@@ -2,6 +2,7 @@
 TODO: Module Docstring
 """
 import statistics
+from typing import Any
 
 from matplotlib import pyplot as plt
 from tabulate import tabulate
@@ -21,8 +22,18 @@ class Reporter:
         report = ''
         self.file = file
 
-    def print(self, line: str) -> None:
-        self.report += line + '\n'
+    def print(self, line: str = '', arg: Any = None) -> None:
+        """
+        Add a line to the report
+
+        :param line: Line content
+        :param arg: Additional argument
+        :return: None
+        """
+        self.report += line
+        if arg is not None:
+            self.report += str(arg)
+        self.report += '\n'
 
     def save(self) -> None:
         write(self.file, self.report)
@@ -51,17 +62,20 @@ def view_covid_tweets_freq(users: list[str],
     # Sort by frequency
     user_frequency.sort(key=lambda x: x[1], reverse=True)
 
+    # Init reporter
+    r = Reporter(f'{REPORT_DIR}/1-covid-tweet-frequency/{sample_name}.md')
+    r.print(f"In {sample_name} -")
+
     # How many people didn't post about COVID?
-    print(f"In {sample_name} -")
-    print("How many people didn't post about COVID:",
-          len([a for a in user_frequency if a[1] == 0]))
-    print("How many people have less than 1% of their posts about COVID:",
+    r.print("How many people didn't post about COVID:",
+            len([a for a in user_frequency if a[1] == 0]))
+    r.print("How many people have less than 1% of their posts about COVID:",
           len([a for a in user_frequency if a[1] <= 0.01]))
-    print()
+    r.print()
 
     # Top 20
-    print(f"20 Users of who post COVID-related tweets most frequently:")
-    print(tabulate([[u[0], f'{u[1] * 100:.1f}%'] for u in user_frequency[:20]],
+    r.print(f"20 Users of who post COVID-related tweets most frequently:")
+    r.print(tabulate([[u[0], f'{u[1] * 100:.1f}%'] for u in user_frequency[:20]],
                    ['Username', 'Frequency']))
 
     # Graph histogram
@@ -70,6 +84,9 @@ def view_covid_tweets_freq(users: list[str],
     plt.tight_layout()
     plt.hist([f[1] for f in user_frequency], bins=100, color='#ffcccc')
     plt.savefig(f'{REPORT_DIR}/1-covid-tweet-frequency/{sample_name}.png')
+    
+    # Save report
+    r.save()
 
 
 def view_covid_tweets_pop(users: list[str],
@@ -90,35 +107,38 @@ def view_covid_tweets_pop(users: list[str],
     """
     user_popularity = load_covid_tweets_pop(users)
 
+    # Init reporter
+    r = Reporter(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample_name}.md')
+    r.print(f"In {sample_name} -")
+
     # How many people are ignored
-    print(f"In {sample_name} -")
-    print("To prevent division by zero, we ignored people who didn't post about COVID or didn't "
+    r.print("To prevent division by zero, we ignored people who didn't post about COVID or didn't "
           f"post at all. We ignored {len(users) - len(user_popularity)} people in this list.")
-    print()
+    r.print()
 
     # Top 20
-    print(f"20 Users of whose COVID-related posts are the most popular:")
-    print(tabulate([[u[0], f'{u[1]:.2f}'] for u in user_popularity[:20]],
+    r.print(f"20 Users of whose COVID-related posts are the most popular:")
+    r.print(tabulate([[u[0], f'{u[1]:.2f}'] for u in user_popularity[:20]],
                    ['Username', 'Popularity Ratio']))
-    print()
+    r.print()
 
     # Calculate statistics
     x_list = [f[1] for f in user_popularity]
     s = get_statistics(x_list)
-    print(f'With outliers, ')
-    print(f'- mean: {s.mean:.2f}, median: {s.median:.2f}, stddev: {s.stddev:.2f}')
-    print()
+    r.print(f'With outliers, ')
+    r.print(f'- mean: {s.mean:.2f}, median: {s.median:.2f}, stddev: {s.stddev:.2f}')
+    r.print()
 
     # Remove outliers
-    print('As there are many outliers in the popularity ratio, they are removed in graphing.')
-    print()
+    r.print('As there are many outliers in the popularity ratio, they are removed in graphing.')
+    r.print()
     x_list = remove_outliers(x_list)
 
     # Calculate statistics without outliers
     s = get_statistics(x_list)
-    print(f'Without outliers, ')
-    print(f'- mean: {s.mean:.2f}, median: {s.median:.2f}, stddev: {s.stddev:.2f}')
-    print()
+    r.print(f'Without outliers, ')
+    r.print(f'- mean: {s.mean:.2f}, median: {s.median:.2f}, stddev: {s.stddev:.2f}')
+    r.print()
 
     # Graph histogram
     plt.title(f'COVID-related popularity ratios for {sample_name}')
@@ -126,7 +146,10 @@ def view_covid_tweets_pop(users: list[str],
     plt.tight_layout()
     plt.hist(x_list, bins=40, color='#ffcccc')
     plt.axvline([1], color='lightgray')
-    plt.show()
+    plt.savefig(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample_name}.png')
+
+    # Save report
+    r.save()
 
 
 def load_covid_tweets_pop(users: list[str]):
