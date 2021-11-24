@@ -1,9 +1,11 @@
-import os
+"""
+TODO: Module Docstring
+"""
 import random
-from dataclasses import dataclass
 from typing import NamedTuple
+from dataclasses import dataclass
 
-from py7zr import py7zr, SevenZipFile
+from py7zr import SevenZipFile
 
 from utils import *
 
@@ -101,6 +103,9 @@ def get_user_popularity_ranking(user: str, user_dir: str = './data/twitter/user/
 
 @dataclass()
 class Sample:
+    """
+    This is a data class storing our different samples.
+    """
     most_popular: list[ProcessedUser]
     random: list[ProcessedUser]
 
@@ -165,7 +170,8 @@ def load_user_sample(user_dir: str = './data/twitter/user/') -> Sample:
 
 class Posting(NamedTuple):
     """
-    Posting data (whether or not a posting is covid-related)
+    Posting data stores the processed tweets data, and it contains info such as whether or not a
+    tweet is covid-related
     """
     # Full text of the post's content
     covid_related: bool
