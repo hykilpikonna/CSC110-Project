@@ -8,8 +8,7 @@ from process.twitter_process import *
 
 
 def view_covid_tweets_freq(users: list[ProcessedUser],
-                           sample_name: str,
-                           tweets_dir: str = './data/twitter/user-tweets/') -> None:
+                           sample_name: str) -> None:
     """
     Visualize the frequency that the sampled users post about COVID. For example, someone who
     posted every single tweet about COVID will have a frequency of 1, and someone who doesn't
@@ -17,16 +16,13 @@ def view_covid_tweets_freq(users: list[ProcessedUser],
 
     :param users: Sample users
     :param sample_name: Name of the sample
-    :param tweets_dir: Data dir for tweets
     :return: None
     """
-    tweets_dir = normalize_directory(tweets_dir)
-
     # Load tweets, and get the frequency of covid tweets for each user
     user_frequency = []
     for u in users:
         # Load processed tweet
-        tweets = load_tweets(tweets_dir, u.username)
+        tweets = load_tweets(u.username)
         # Get the frequency of COVID-related tweets
         freq = len([1 for t in tweets if t.covid_related]) / len(tweets)
         user_frequency.append((u.username, freq))

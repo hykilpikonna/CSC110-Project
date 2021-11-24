@@ -9,6 +9,7 @@ from typing import List
 import tweepy
 from tweepy import API, TooManyRequests, User, Tweet, Unauthorized
 
+from main import tweets_dir, user_dir
 from utils import *
 
 
@@ -42,7 +43,6 @@ def get_tweets(api: API, name: str, rate_delay: float, max_id: Union[int, None])
 
 
 def download_all_tweets(api: API, screen_name: str,
-                        base_dir: str = './data/twitter/user-tweets/',
                         download_if_exists: bool = False) -> None:
     """
     Download all tweets from a specific individual to a local folder.
@@ -61,13 +61,11 @@ def download_all_tweets(api: API, screen_name: str,
 
     :param api: Tweepy API object
     :param screen_name: Screen name of that individual
-    :param base_dir: The downloads folder (Default: "./data/twitter/user-tweets/")
     :param download_if_exists: Whether or not to download if it already exists (Default: False)
     :return: None
     """
     # Ensure directories exist
-    base_dir = normalize_directory(base_dir) + '/user'
-    file = f'{base_dir}/{screen_name}.json'
+    file = f'{tweets_dir}/user/{screen_name}.json'
 
     # Check if user already exists
     if os.path.isfile(file):
@@ -116,8 +114,7 @@ def download_all_tweets(api: API, screen_name: str,
     write(file, json_stringify([t._json for t in tweets]))
 
 
-def download_users_start(api: API, start_point: str, n: float = math.inf,
-                         base_dir: str = './data/twitter/user/') -> None:
+def download_users_start(api: API, start_point: str, n: float = math.inf) -> None:
     """
     This function downloads n twitter users by using a friends-chain.
 
@@ -155,7 +152,6 @@ def download_users_start(api: API, start_point: str, n: float = math.inf,
     :param api: Tweepy's API object
     :param start_point: Starting user's screen name.
     :param n: How many users do you want to download? (Default: math.inf)
-    :param base_dir: The downloads folder (Default: "./data/twitter/user/")
     :return: None
     """
 
@@ -172,28 +168,27 @@ def download_users_start(api: API, start_point: str, n: float = math.inf,
     next_set = set()
 
     # Start download
-    download_users_execute(api, n, base_dir, downloaded,
+    download_users_execute(api, n, downloaded,
                            done_set, current_set, next_set)
 
 
-def download_users_resume_progress(api: API, base_dir: str = './data/twitter/user/') -> None:
+def download_users_resume_progress(api: API) -> None:
     """
     Resume from started progress
 
     :param api: Tweepy's API object
-    :param base_dir: The downloads folder
     :return: None
     """
     # Open file and read
-    meta = json.loads(read(f'{base_dir}/meta/meta.json'))
+    meta = json.loads(read(f'{user_dir}/meta/meta.json'))
 
     # Resume
-    download_users_execute(api, meta['n'], base_dir,
+    download_users_execute(api, meta['n'],
                            set(meta['downloaded']), set(meta['done_set']),
                            set(meta['current_set']), set(meta['next_set']))
 
 
-def download_users_execute(api: API, n: float, base_dir: str,
+def download_users_execute(api: API, n: float,
                            downloaded: set[str], done_set: set[str],
                            current_set: set[str], next_set: set[str]) -> None:
     """
@@ -207,15 +202,12 @@ def download_users_execute(api: API, n: float, base_dir: str,
 
     :param api: Tweepy's API object
     :param n: How many users do you want to download?
-    :param base_dir: The downloads folder
     :param downloaded: Set of all the downloaded users' screen names
     :param done_set: The set of starting users that are queried
     :param current_set: The set of starting users currently looping through
     :param next_set: The next set of starting users
     :return: None
     """
-    base_dir = normalize_directory(base_dir)
-
     # Rate limit for this API endpoint is 1 request per minute, and rate delay defines how many
     # seconds to sleep for each request.
     rate_delay = calculate_rate_delay(1) + 1
@@ -223,7 +215,7 @@ def download_users_execute(api: API, n: float, base_dir: str,
     print("Executing friends-chain download:")
     print(f"- n: {n}")
     print(f"- Requests per minute: 1")
-    print(f"- Directory: {base_dir}")
+    print(f"- Directory: {user_dir}")
     print(f"- Downloaded: {len(downloaded)}")
     print(f"- Current search set: {len(current_set)}")
     print(f"- Next search set: {len(next_set)}")
@@ -249,7 +241,7 @@ def download_users_execute(api: API, n: float, base_dir: str,
             # This user was not saved, save the user.
             if user not in downloaded:
                 # Save user json
-                write(f'{base_dir}/users/{user.screen_name}.json', json_stringify(user._json))
+                write(f'{user_dir}/users/{user.screen_name}.json', json_stringify(user._json))
 
                 # Add to set
                 downloaded.add(user.screen_name)
@@ -289,7 +281,7 @@ def download_users_execute(api: API, n: float, base_dir: str,
         # Update meta info so that downloading can be continued
         meta = {'downloaded': downloaded, 'done_set': done_set,
                 'current_set': current_set, 'next_set': next_set, 'n': n}
-        write(f'{base_dir}/meta/meta.json', json_stringify(meta))
+        write(f'{user_dir}/meta/meta.json', json_stringify(meta))
 
         debug(f'Finished saving friends of {screen_name}')
         debug(f'============= Total {len(downloaded)} saved =============')

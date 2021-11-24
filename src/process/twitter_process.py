@@ -7,6 +7,7 @@ from dataclasses import dataclass
 
 from py7zr import SevenZipFile
 
+from main import data_dir, tweets_dir, user_dir
 from utils import *
 
 
@@ -30,7 +31,7 @@ class ProcessedUser(NamedTuple):
     lang: str
 
 
-def process_users(user_dir: str = './data/twitter/user/') -> None:
+def process_users() -> None:
     """
     After downloading a wide range of users using download_users_start in raw_collect/twitter.py,
     this function will read the user files, extract only relevant information defined in the
@@ -38,11 +39,8 @@ def process_users(user_dir: str = './data/twitter/user/') -> None:
 
     This function will save the processed user data to <user_dir>/processed/users.json
 
-    :param user_dir: Download directory of users data, should be the same as the downloads dir in
-     download_user_start. (Default: "./data/twitter/user/")
     :return: None
     """
-    user_dir = normalize_directory(user_dir)
     users = []
 
     # Loop through all the files
@@ -74,27 +72,23 @@ def process_users(user_dir: str = './data/twitter/user/') -> None:
     write(f'{user_dir}/processed/users.json', json_stringify(users))
 
 
-def load_users(user_dir: str = './data/twitter/user/') -> list[ProcessedUser]:
+def load_users() -> list[ProcessedUser]:
     """
     Load processed user data after process_users
 
-    :param user_dir: Download directory of users data, should be the same as the downloads dir in
-     download_user_start. (Default: "./data/twitter/user/")
     :return: List of processed users, sorted descending by popularity.
     """
-    user_dir = normalize_directory(user_dir)
     return [ProcessedUser(*u) for u in json.loads(read(f'{user_dir}/processed/users.json'))]
 
 
-def get_user_popularity_ranking(user: str, user_dir: str = './data/twitter/user/') -> int:
+def get_user_popularity_ranking(user: str) -> int:
     """
     Get a user's popularity ranking. This is not used in data analysis, just for curiosity.
 
     :param user: Username
-    :param user_dir: Download directory
     :return: User's popularity ranking
     """
-    pop = load_users(user_dir)
+    pop = load_users()
     for i in range(len(pop)):
         if pop[i].username == user:
             return i + 1
@@ -110,7 +104,7 @@ class Sample:
     random: list[ProcessedUser]
 
 
-def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
+def select_user_sample() -> None:
     """
     Select our sample of 500 most popular users and 500 random users who meet the criteria. The
     criteria we use is that the user must have at least 150 followers, and must have a number of
@@ -120,10 +114,8 @@ def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
 
     The result will be stored in <user_dir>/processed/sample.json
 
-    :param user_dir: Download directory for users
     :return: None
     """
-    user_dir = normalize_directory(user_dir)
     file = f'{user_dir}/processed/sample.json'
 
     # Exists
@@ -133,7 +125,7 @@ def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
         return
 
     # Load users
-    users = load_users(user_dir)
+    users = load_users()
 
     # Filter by language first
     users = [u for u in users if u.lang is not None and
@@ -154,15 +146,12 @@ def select_user_sample(user_dir: str = './data/twitter/user/') -> None:
     write(file, json_stringify(Sample(most_popular, sample)))
 
 
-def load_user_sample(user_dir: str = './data/twitter/user/') -> Sample:
+def load_user_sample() -> Sample:
     """
     Load the selected sample
 
-    :param user_dir: Download directory for users
     :return: None
     """
-    user_dir = normalize_directory(user_dir)
-
     j = json.loads(read(f'{user_dir}/processed/sample.json'))
     return Sample([ProcessedUser(*u) for u in j['most_popular']],
                   [ProcessedUser(*u) for u in j['random']])
@@ -183,7 +172,7 @@ class Posting(NamedTuple):
     date: datetime
 
 
-def process_tweets(tweets_dir: str = './data/twitter/user-tweets/') -> None:
+def process_tweets() -> None:
     """
     Process tweets, reduce the tweets data to only a few fields defined in the Posting class. These
     include whether or not the tweet is covid-related, how popular is the tweet, if it is a repost,
@@ -191,13 +180,10 @@ def process_tweets(tweets_dir: str = './data/twitter/user-tweets/') -> None:
 
     If a user's tweets is already processed, this function will skip over that user's data.
 
-    This function will save the processed tweets data to <user_dir>/processed/<username>.json
+    This function will save the processed tweets data to <tweets_dir>/processed/<username>.json
 
-    :param tweets_dir: Raw tweets directory (Default: './data/twitter/user-tweets/')
-    :return:
+    :return: None
     """
-    tweets_dir = normalize_directory(tweets_dir)
-
     # Loop through all the files
     for filename in os.listdir(f'{tweets_dir}/user'):
         # Only check json files and ignore macos dot files
@@ -219,11 +205,10 @@ def process_tweets(tweets_dir: str = './data/twitter/user-tweets/') -> None:
             debug(f'Processed: {filename}')
 
 
-def load_tweets(tweets_dir: str, username: str) -> list[Posting]:
+def load_tweets(username: str) -> list[Posting]:
     """
     Load tweets for a specific user
 
-    :param tweets_dir: Tweets directory
     :param username: User's screen name
     :return: User's processed tweets
     """
@@ -257,14 +242,12 @@ def is_covid_related(text: str) -> bool:
     return any(k in text.lower() for k in keywords)
 
 
-def pack_data(data_dir: str = './data/') -> None:
+def pack_data() -> None:
     """
     This function packs processed data and raw data separately.
 
-    :param data_dir: Root directory of all data.
     :return: None
     """
-    data_dir = normalize_directory(data_dir)
     packed_dir = f'{data_dir}/packed'
     Path(packed_dir).mkdir(parents=True, exist_ok=True)
 
