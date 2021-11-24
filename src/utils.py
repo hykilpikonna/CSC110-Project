@@ -77,7 +77,7 @@ def write(file: str, text: str) -> None:
     :param text: Text
     :return: None
     """
-    file = file.replace('\\', '/')
+    file = file.lower().replace('\\', '/')
 
     if '/' in file:
         path = '/'.join(file.split('/')[:-1])
@@ -94,7 +94,7 @@ def read(file: str) -> str:
     :param file: File path
     :return: None
     """
-    with open(file, 'r', encoding='utf-8') as f:
+    with open(file.lower(), 'r', encoding='utf-8') as f:
         return f.read()
 
 
