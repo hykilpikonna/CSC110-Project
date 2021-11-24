@@ -18,6 +18,8 @@ tabulate==0.8.9
 matplotlib==3.5.0
 # Calculate data statistics
 numpy==1.21.4
+# Generate report
+markdown==3.3.6
 
 ####################
 # Data Packing
