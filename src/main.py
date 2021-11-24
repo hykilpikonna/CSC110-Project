@@ -58,8 +58,10 @@ if __name__ == '__main__':
     #####################
     # Data collection - Step C2.3
     # (After step P2) Download all tweets from the news channels we selected.
-    for u in load_user_sample().english_news:
-        download_all_tweets(api, u)
+    # for u in load_user_sample().english_news:
+    #     download_all_tweets(api, u)
+    # Filter out news channels that have been blocked by twitter or don't exist anymore
+    # filter_news_channels()
 
     #####################
     # Data processing - Step P3

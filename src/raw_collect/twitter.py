@@ -87,8 +87,8 @@ def download_all_tweets(api: API, screen_name: str,
         debug(f'- {screen_name}: Unauthorized. Probably a private account, ignoring.')
         return
     except NotFound:
-        debug(f'- {screen_name}: Not found. Probably a deleted account, writing []')
-        tweets = []
+        debug(f'- {screen_name}: Not found. Probably a deleted account, ignoring.')
+        return
 
     # This person has no tweets, done. (By the way, we discovered that @lorde has no tweets but has
     # 7 million followers... wow!)

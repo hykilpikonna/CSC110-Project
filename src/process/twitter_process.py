@@ -184,6 +184,24 @@ def get_english_news_channels() -> list[str]:
     return list(news_channels)
 
 
+def filter_news_channels() -> None:
+    """
+    Filter out news channels that don't exist anymore or have been banned by Twitter.
+
+    Precondition:
+      - Run this after downloading all tweets from the news channels in Step 2.3 in main.
+
+    :return: None
+    """
+    sample = load_user_sample()
+    for u in list(sample.english_news):
+        u = u.lower()
+        if not (os.path.isfile(f'{TWEETS_DIR}/processed/{u}.json')
+                or os.path.isfile(f'{TWEETS_DIR}/users/{u}.json')):
+            sample.english_news.remove(u)
+    write(f'{USER_DIR}/processed/sample.json', json_stringify(sample))
+
+
 def load_user_sample() -> Sample:
     """
     Load the selected sample
