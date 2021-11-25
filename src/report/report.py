@@ -84,13 +84,7 @@ def serve_report() -> None:
         :param path: Path of the resource
         :return: File resource or 404
         """
-        # Prevent path traversal attacks
-        if '..' in path:
-            return Response('Nope.')
-
-        # Send file
-        path = os.path.join(REPORT_DIR, path)
-        return send_from_directory(Path(path).absolute().parent, Path(path).name)
+        return send_from_directory(Path(REPORT_DIR).absolute(), path)
 
     @app.route('/resources/<path:path>')
     def js_res(path: str) -> Response:
@@ -100,12 +94,7 @@ def serve_report() -> None:
         :param path: Path of the resource
         :return: File resource or 404
         """
-        # Prevent path traversal attacks
-        if '..' in path:
-            return Response('Nope.')
-
-        path = os.path.join(src_dir, 'resources', path)
-        return send_from_directory(Path(path).absolute().parent, Path(path).name)
+        return send_from_directory(os.path.join(src_dir, 'resources'), path)
 
     # Run app
     webbrowser.open("http://localhost:5000")

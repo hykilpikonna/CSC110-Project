@@ -73,11 +73,15 @@ After we answered how frequently people posted about COVID-19 and how interested
 
 ## Method
 
-This analysis is separate for each of our samples, just like the previous analysis. However, unlike how tweets are separated for each user in the previous analysis, we combine the tweets of all users in each sample in this analysis. In this analysis, we defined the start of COVID-19 as `2020-01-01` and ignored all posts prior to this date. Then, we calculate the average frequency and popularity ratio for every day since `2020-01-01`. To reduce random variability, instead of using only the data from the day in the calculation, we used the average of the last 7 days for each day, and calculated the frequency and popularity of that interval. This calculation gave us a list of numbers `freqs` and list of dates `dates` where, for every date `dates[i]`,
+This analysis is separate for each of our samples, just like the previous analysis. However, unlike how tweets are separated for each user in the previous analysis, we combine the tweets of all users in each sample in this analysis. In this analysis, we defined the start of COVID-19 as `2020-01-01` and ignored all posts prior to this date. Then, we calculate the average frequency and popularity ratio for every day since `2020-01-01`. To reduce random variability, instead of using only the data from the day in the calculation, we used the average of the last 7 days for each day, and calculated the frequency and popularity of that interval. This calculation gave us a list `freqs` and a list `pops` where, for every date `dates[i]`,
 
 <blockquote>
 $$ \text{freqs}_i = 
 \sum_{j = 0}^{7} \frac{|\text{COVID-posts on dates}_{i - j}|}{|\text{All posts on dates}_{i - j}|} $$
+</blockquote>
+
+<blockquote>
+$$ \text{pops}_i = \sum_{j = 0}^{7} \left(\frac{\sum\text{Popularity of COVID-posts}}{|\text{COVID-posts}|}\right) / \left(\frac{\sum \text{Popularity of all posts}}{|\text{All posts}|}\right) $$
 </blockquote>
 
 **_TODO_**
