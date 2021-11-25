@@ -25,13 +25,18 @@ class UserFloat:
 class Sample:
     name: str
     users: list[str]
-    # Total frequencies for each user (sorted)
+    # Total frequencies of all posts for each user across all dates (sorted)
     user_freqs: list[UserFloat]
-    # Total popularity ratios for each user (sorted)
+    # Total popularity ratios of all posts for each user across all dates (sorted)
     user_pops: list[UserFloat]
     # Tweets by all users in a sample (always sorted by date)
     tweets: list[Posting]
+    # dates[i] = The i-th day since the first tweet
+    dates: list[datetime]
+    # date_freqs[i] = Total frequency of all posts from all users in this sample on date[i]
     date_freqs: list[float]
+    # date_pops[i] = Average popularity ratio of all posts from all users in this sample on date[i]
+    date_pops: list[float]
 
     def __init__(self, name: str, users: list[str]):
         self.name = name
@@ -112,6 +117,67 @@ class Sample:
         self.user_pops = popularity
         self.tweets = all_tweets
         debug('- Done.')
+
+    def calculate_change(self) -> None:
+        """
+
+        Preconditions:
+          - len(self.tweets) > 0
+          - self.tweets != None
+
+        :return: None
+        """
+        # List indicies are days since the first tweet
+        covid_count = [0]
+        covid_popularity = [0]
+        all_count = [0]
+        all_popularity = [0]
+        current_date = self.tweets[0][:10]
+        i = 0
+
+        # Loop through all tweets
+        for tweet in self.tweets:
+            # Move on to the next date
+            tweet_date = tweet.date[:10]
+            if tweet_date != current_date:
+                current_date = tweet_date
+                covid_count.append(0)
+                covid_popularity.append(0)
+                all_count.append(0)
+                all_popularity.append(0)
+                i += 1
+
+            # Add current tweet data
+            all_count[i] += 1
+            all_popularity[i] += tweet.popularity
+            if tweet.covid_related:
+                covid_count[i] += 1
+                covid_popularity[i] += tweet.popularity
+
+        # Calculate frequency and popularity ratio for each date, which will be our y-axis
+        self.date_freqs = divide_zeros(covid_count, all_count)
+        self.date_pops = divide_zeros(divide_zeros(covid_popularity, covid_count),
+                                      divide_zeros(all_popularity, all_count))
+
+        # Convert indicies to dates, which will be our x-axis
+        first_date = parse_date(self.tweets[0].date).replace(hour=0, minute=0, second=0)
+        dates = [first_date + timedelta(days=j) for j in range(len(all_count))]
+
+        # Find suitable n
+        for n in range(1, 20, 3):
+            # Reduce noise by averaging results over 7 day frame
+            b = [1.0 / n] * n
+            a = 1
+            f = scipy.signal.lfilter(b, a, self.date_freqs)
+            p = scipy.signal.lfilter(b, a, self.date_pops)
+
+            # plt.title(f'COVID-posting frequency over time for {sample.name} with IIR n = {n}')
+            # plt.plot(dates, f)
+            # plt.show()
+            plt.title(f'COVID-posting popularity ratio over time for {self.name} with IIR n = {n}')
+            plt.plot(dates, p)
+            plt.savefig(f'{REPORT_DIR}/test/{n}.png')
+            plt.clf()
 
 
 def load_samples() -> list[Sample]:
