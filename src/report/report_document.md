@@ -24,9 +24,23 @@ We might graph the frequencies on a histogram to gain more insight: (You can cli
     <div><img src="/freq/eng-news-hist-outliers.png" alt="hist"></div>
 </div>
 
-However, as you can see, the graphs are not very helpful because the majority of the sample post below 0.1%, and there are many outliers who post very frequently, like 40%. For example, if we sort the samples by their frequency, we have a few outliers who post more than 20% even in the random sample:
+However, as you can see, the graphs are not very helpful because the majority of the sample post below 0.1%, and there are many outliers who post very frequently, like 40%. For example, if we sort the samples by their frequency, we have a few outliers who post more than 20% even in `500-rand`:
 
 @include-cut `/freq/500-rand-top-20.md` 0 10
+
+So, we removed the outliers using the method proposed by Boris Iglewicz and David Hoaglin (1993) [[1]](#ref1) and ignoring everyone who posted below 0.1% and graphed the same histogram again:
+
+<div class="image-row">
+    <div><img src="/freq/500-pop-hist.png" alt="hist"></div>
+    <div><img src="/freq/500-rand-hist.png" alt="hist"></div>
+    <div><img src="/freq/eng-news-hist.png" alt="hist"></div>
+</div>
+
+As expected, the distributions looks right-skewed, with most people posting not very much. One interesting distinction is that, even though the distributions follow similar shapes, the x-axis ticks of `eng-news` is actually ten times larger than the other two, which means that `eng-news` post a lot more about COVID-19 on average than the other two samples. We can calculate some statistics of the samples to further verify this:
+
+@include `/freq/stats.md`
+
+Since there are many outliers, medians will more accurately represent the 
 
 ## COVID-19 Popularity Ratios
 
@@ -39,3 +53,13 @@ Test Include:
 @include `/pop/ignored.md`
 
 @include `/pop/stats-with-outliers.md`
+
+
+## References
+
+<a id="ref1"></a>
+
+[1] Iglewicz, Boris, & David Hoaglin (1993), "Volume 16: How to Detect and
+Handle Outliers", _The ASQC Basic References in Quality Control:
+Statistical Techniques_, Edward F. Mykytka, Ph.D., Editor.
+

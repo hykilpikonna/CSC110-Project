@@ -173,8 +173,11 @@ def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float
 
 class Stats(NamedTuple):
     mean: float
-    median: float
     stddev: float
+    median: float
+    iqr: float
+    q25: float
+    q75: float
 
 
 def get_statistics(points: list[float]) -> Stats:
@@ -184,7 +187,10 @@ def get_statistics(points: list[float]) -> Stats:
     :param points: Input points
     :return: Statistics
     """
-    return Stats(statistics.mean(points), statistics.median(points), statistics.stdev(points))
+    q75, q25 = np.percentile(points, [75, 25])
+    iqr = q75 - q25
+    return Stats(statistics.mean(points), statistics.stdev(points), statistics.median(points),
+                 iqr, q75, q25)
 
 
 def tabulate_stats(stats: list[Stats], percent: bool = False) -> list[list[str]]:
@@ -199,8 +205,12 @@ def tabulate_stats(stats: list[Stats], percent: bool = False) -> list[list[str]]
         return f'{n:.2f}' if not percent else f'{n * 100:.1f}%'
 
     return [['Mean'] + [num(s.mean) for s in stats],
+            ['StdDev'] + [num(s.stddev) for s in stats],
             ['Median'] + [num(s.median) for s in stats],
-            ['StdDev'] + [num(s.stddev) for s in stats]]
+            ['IQR'] + [num(s.iqr) for s in stats],
+            ['Q25%'] + [num(s.q25) for s in stats],
+            ['Q75%'] + [num(s.q75) for s in stats],
+            ]
 
 
 def parse_date(iso: str) -> datetime:
