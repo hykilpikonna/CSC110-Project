@@ -3,6 +3,7 @@ TODO: Module Docstring
 """
 import statistics
 from typing import Any
+from dataclasses import dataclass, field
 
 from matplotlib import pyplot as plt
 from tabulate import tabulate
@@ -39,6 +40,28 @@ class Reporter:
         write(self.file, self.report)
 
 
+@dataclass()
+class UserFloat:
+    """
+    Model for which a floating point data is assigned to each user
+
+    This is used for both COVID tweet frequency and popularity ratio data, because both of these
+    are floating point data.
+    """
+    username: str
+    data: float
+
+
+@dataclass()
+class UserSample:
+    name: str
+    users: list[str]
+    frequencies: list[UserFloat] = field(default_factory=list)
+    popularity_ratios: list[UserFloat] = field(default_factory=list)
+    # Tweets by all users in a sample
+    tweets: list[Posting] = field(default_factory=list)
+
+
 def view_covid_tweets_freq(users: list[str],
                            sample_name: str) -> None:
     """
@@ -50,33 +73,21 @@ def view_covid_tweets_freq(users: list[str],
     :param sample_name: Name of the sample
     :return: None
     """
-    # Load tweets, and get the frequency of covid tweets for each user
-    user_frequency = []
-    for u in users:
-        # Load processed tweet
-        tweets = load_tweets(u)
-        # Get the frequency of COVID-related tweets
-        freq = len([1 for t in tweets if t.covid_related]) / len(tweets)
-        user_frequency.append((u, freq))
-
-    # Sort by frequency
-    user_frequency.sort(key=lambda x: x[1], reverse=True)
-
     # Init reporter
-    r = Reporter(f'{REPORT_DIR}/1-covid-tweet-frequency/{sample_name}.md')
+    r = Reporter(f'{REPORT_DIR}/report.report.1-covid-tweet-frequency/{sample_name}.md')
     r.print(f"In {sample_name} -")
 
     # How many people didn't post about COVID?
     r.print("How many people didn't post about COVID:",
             len([a for a in user_frequency if a[1] == 0]))
     r.print("How many people have less than 1% of their posts about COVID:",
-          len([a for a in user_frequency if a[1] <= 0.01]))
+            len([a for a in user_frequency if a[1] <= 0.01]))
     r.print()
 
     # Top 20
     r.print(f"20 Users of who post COVID-related tweets most frequently:")
     r.print(tabulate([[u[0], f'{u[1] * 100:.1f}%'] for u in user_frequency[:20]],
-                   ['Username', 'Frequency'], tablefmt="github"))
+                     ['Username', 'Frequency'], tablefmt="github"))
 
     # Save report
     r.save()
@@ -86,7 +97,7 @@ def view_covid_tweets_freq(users: list[str],
     plt.xticks(rotation=90)
     plt.tight_layout()
     plt.hist([f[1] for f in user_frequency], bins=100, color='#ffcccc')
-    plt.savefig(f'{REPORT_DIR}/1-covid-tweet-frequency/{sample_name}.png')
+    plt.savefig(f'{REPORT_DIR}/report.report.1-covid-tweet-frequency/{sample_name}.png')
 
 
 def view_covid_tweets_pop(users: list[str],
@@ -113,13 +124,13 @@ def view_covid_tweets_pop(users: list[str],
 
     # How many people are ignored
     r.print("To prevent division by zero, we ignored people who didn't post about COVID or didn't "
-          f"post at all. We ignored {len(users) - len(user_popularity)} people in this list.")
+            f"post at all. We ignored {len(users) - len(user_popularity)} people in this list.")
     r.print()
 
     # Top 20
     r.print(f"20 Users of whose COVID-related posts are the most popular:")
     r.print(tabulate([[u[0], f'{u[1]:.2f}'] for u in user_popularity[:20]],
-                   ['Username', 'Popularity Ratio'], tablefmt="github"))
+                     ['Username', 'Popularity Ratio'], tablefmt="github"))
     r.print()
 
     # Calculate statistics
@@ -152,39 +163,58 @@ def view_covid_tweets_pop(users: list[str],
     plt.savefig(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample_name}.png')
 
 
-def load_covid_tweets_pop(users: list[str]):
+def calculate_sample_data(users: list[str]) -> tuple[list[UserFloat], list[UserFloat], list[Posting]]:
     """
-    Helper function for view_covid_tweets_pop. This function loads and calculates relative
-    popularity of COVID posts by a list of users
+    This function loads and calculates the frequency that a list of user posts about COVID, and
+    also calculates their relative popularity of COVID posts.
+
+    This function also creates a combined list of all users in a sample
 
     :param users: Users in a sample
-    :return: List of users and their relative popularity for COVID posts
+    :return: Frequencies, Popularity ratios, Combined tweets list for the sample
     """
-    user_popularity = []
+    popularity = []
+    frequency = []
+    all_tweets: list[Posting] = []
     for u in users:
         # Load processed tweet
         tweets = load_tweets(u)
         # Ignore retweets
         tweets = [t for t in tweets if not t.repost]
+        all_tweets += tweets
         # Filter covid tweets
         covid = [t for t in tweets if t.covid_related]
-        # To prevent divide by zero, ignore everyone who didn't post about covid or who didn't post
-        # at all.
+
+        # To prevent divide by zero, ignore people who didn't post at all
+        if len(tweets) == 0:
+            continue
+        # Calculate the frequency of COVID-related tweets
+        freq = len(covid) / len(tweets)
+        frequency.append(UserFloat(u, freq))
+
+        # To prevent divide by zero, ignore everyone who didn't post about covid
         if len(covid) == 0 or len(tweets) == 0:
             continue
         # Get the average popularity for COVID-related tweets
         covid_avg = statistics.mean(t.popularity for t in covid)
         global_avg = statistics.mean(t.popularity for t in tweets)
         # Get the relative popularity
-        user_popularity.append((u, covid_avg / global_avg))
+        popularity.append(UserFloat(u, covid_avg / global_avg))
 
-    # Sort by relative popularity
-    user_popularity.sort(key=lambda x: x[1], reverse=True)
-    return user_popularity
+    # Sort by relative popularity or frequency
+    popularity.sort(key=lambda x: x[1], reverse=True)
+    frequency.sort(key=lambda x: x[1], reverse=True)
+
+    # Sort by date, latest first
+    all_tweets.sort(key=lambda x: x.date, reverse=True)
+
+    # Ignore tweets that are earlier than the start of COVID
+    all_tweets = [t for t in all_tweets if t.date > '2020-01-01T01:01:01']
+
+    return frequency, popularity, all_tweets
 
 
 def view_covid_tweets_date(tweets: list[Posting]):
-
     # Graph histogram
     plt.title(f'COVID posting dates')
     plt.xticks(rotation=45)
@@ -195,8 +225,17 @@ def view_covid_tweets_date(tweets: list[Posting]):
 
 
 if __name__ == '__main__':
-    sample = load_user_sample()
-    view_covid_tweets_freq([u.username for u in sample.most_popular], '500-pop')
+    # Load sample, convert format
+    samples = load_user_sample()
+    samples = [UserSample('500-pop', [u.username for u in samples.most_popular]),
+               UserSample('500-rand', [u.username for u in samples.random]),
+               UserSample('eng-news', list(samples.english_news))]
+
+    # Calculate frequencies and popularity ratios
+    for s in samples:
+        s.frequencies, s.popularity_ratios, s.tweets = calculate_sample_data(s.users)
+
+    view_covid_tweets_freq([u.username for u in samples.most_popular], '500-pop')
     # view_covid_tweets_freq(sample.random, '500-rand')
     # view_covid_tweets_pop(sample.most_popular, '500-pop')
     # view_covid_tweets_pop(sample.random, '500-rand')
