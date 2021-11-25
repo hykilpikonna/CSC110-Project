@@ -48,7 +48,6 @@ def generate_report() -> str:
             lines = [lines[ln] for ln in range(len(lines)) if ln in args]
             md[i] = '\n'.join(lines)
 
-
     return '\n'.join(md)
 
 
@@ -75,12 +74,23 @@ def serve_report() -> None:
     @app.route('/<path:path>')
     def res(path: str) -> Response:
         """
-        Resources endpoint
+        Resources endpoint. This maps report queries to the report directory
 
         :param path: Path of the resource
         :return: File resource or 404
         """
         path = os.path.join(REPORT_DIR, path)
+        return send_from_directory(Path(path).absolute().parent, Path(path).name)
+
+    @app.route('/resources/<path:path>')
+    def js_res(path: str) -> Response:
+        """
+        JS Resource endpoint. This maps JS and CSS queries to the resources directory
+
+        :param path: Path of the resource
+        :return: File resource or 404
+        """
+        path = os.path.join(src_dir, 'resources', path)
         return send_from_directory(Path(path).absolute().parent, Path(path).name)
 
     # Run app

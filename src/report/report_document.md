@@ -38,15 +38,15 @@ So, we removed the outliers using the method proposed by Boris Iglewicz and Davi
 
 As expected, the distributions looks right-skewed, with most people posting not very much. One interesting distinction is that, even though the distributions follow similar shapes, the x-axis ticks of `eng-news` is actually ten times larger than the other two, which means that `eng-news` post a lot more about COVID-19 on average than the other two samples. We can calculate some statistics of the samples to further verify this:
 
-@include `/freq/stats.md`
+@include-lines `/freq/stats.md` 0 1 4 5
 
-Since there are many outliers, medians will more accurately represent the 
+Since there are many outliers, medians and IQR will more accurately represent the center and spread of this distribution. As these numbers show, `eng-news` do post much more (6.1% more post3, or a 1220% increase) than the other two samples. Again, this can be explained by the news channels' obligation to report news related to COVID-19 or to promote methods to slow the spread of the pandemic.
 
 ## COVID-19 Popularity Ratios
 
-To prevent division by zero, we ignored people who didn't post about COVID or didn't post at all.
+Then, we analyzed the popularity ratio of COVID-related posts for our three samples. The popularity of a post defines how much other people are interested in the post, measured by the total number of user interactions (likes and comments) on that post. From that data, the relative popularity ratio for COVID-related posts calculates how popular are COVID-related posts compared to all other posts, calculated by the equation, which is a ratio of the average popularity of both: \[(∑Popularity of COVID-posts / # of COVID-posts) / (∑Popularity of all posts / # of posts total)]
 
-Test Include:
+To prevent division by zero, we ignored people who didn't post about COVID or didn't post at all.
 
 @include `/pop/stats.md`
 

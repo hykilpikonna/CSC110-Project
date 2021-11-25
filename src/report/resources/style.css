@@ -1,0 +1,75 @@
+
+#content {
+    margin: auto;
+    padding: 0 20px;
+    max-width: 800px;
+    text-align: justify;
+    text-justify: inter-word;
+
+    font-family: "Microsoft YaHei UI", Avenir, Helvetica, Arial, sans-serif;
+    color: #5b3300;
+}
+
+h1, h2 {
+    border-bottom: 1px solid #5b3300;
+    font-size: 2em;
+    margin-top: 1em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
+code {
+    padding: 1px 5px;
+    background-color: beige;
+}
+
+a {
+    color: coral;
+    text-decoration: none;
+}
+
+table {
+    border-collapse: collapse;
+    border: 2px solid #5b3300;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+th, td {
+    border: 1px solid #5b3300;
+    text-align: center;
+}
+
+.image-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.image-row div {
+    flex: 33.33%;
+}
+
+.image-row img {
+    width: 100%;
+}
+
+img {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+img.clickable {
+    cursor: pointer;
+}
+
+#modal {
+    transition: all 0.25s ease;
+}
+
+#modal.zoom {
+    background-size: contain !important;
+}
