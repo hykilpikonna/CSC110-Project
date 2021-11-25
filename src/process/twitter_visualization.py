@@ -48,12 +48,12 @@ def load_samples() -> list[Sample]:
 
     # Calculate frequencies and popularity ratios
     for s in samples:
-        s.frequencies, s.popularity_ratios, s.tweets = calculate_sample_data(s.users)
+        calculate_sample_data(s)
 
     return samples
 
 
-def calculate_sample_data(users: list[str]) -> tuple[list[UserFloat], list[UserFloat], list[Posting]]:
+def calculate_sample_data(sample: Sample) -> None:
     """
     This function loads and calculates the frequency that a list of user posts about COVID, and
     also calculates their relative popularity of COVID posts.
@@ -73,13 +73,15 @@ def calculate_sample_data(users: list[str]) -> tuple[list[UserFloat], list[UserF
     To prevent divide-by-zero, we ignored everyone who didn't post about covid and who didn't post
     at all.
 
-    :param users: Users in a sample
-    :return: Frequencies, Popularity ratios, Combined tweets list for the sample
+    :param sample: Sample
     """
+    debug(f'Calculating sample tweets data for {sample.name}...')
     popularity = []
     frequency = []
     all_tweets: list[Posting] = []
-    for u in users:
+    for i in range(len(sample.users)):
+        u = sample.users[i]
+
         # Load processed tweet
         tweets = load_tweets(u)
         # Ignore retweets
@@ -96,17 +98,24 @@ def calculate_sample_data(users: list[str]) -> tuple[list[UserFloat], list[UserF
         frequency.append(UserFloat(u, freq))
 
         # To prevent divide by zero, ignore everyone who didn't post about covid
-        if len(covid) == 0 or len(tweets) == 0:
+        if len(covid) == 0:
             continue
         # Get the average popularity for COVID-related tweets
-        covid_avg = statistics.mean(t.popularity for t in covid)
-        global_avg = statistics.mean(t.popularity for t in tweets)
+        covid_avg = sum(t.popularity for t in covid) / len(covid)
+        global_avg = sum(t.popularity for t in tweets) / len(tweets)
+        # To prevent divide by zero, ignore everyone who literally have no likes on any post
+        if global_avg == 0:
+            continue
         # Get the relative popularity
         popularity.append(UserFloat(u, covid_avg / global_avg))
 
+        # Show progress
+        if i != 0 and i % 100 == 0:
+            debug(f'- Calculated {i} users.')
+
     # Sort by relative popularity or frequency
-    popularity.sort(key=lambda x: x[1], reverse=True)
-    frequency.sort(key=lambda x: x[1], reverse=True)
+    popularity.sort(key=lambda x: x.data, reverse=True)
+    frequency.sort(key=lambda x: x.data, reverse=True)
 
     # Sort by date, latest first
     all_tweets.sort(key=lambda x: x.date, reverse=True)
@@ -114,7 +123,11 @@ def calculate_sample_data(users: list[str]) -> tuple[list[UserFloat], list[UserF
     # Ignore tweets that are earlier than the start of COVID
     all_tweets = [t for t in all_tweets if t.date > '2020-01-01T01:01:01']
 
-    return frequency, popularity, all_tweets
+    # Assign to sample
+    sample.frequencies = frequency
+    sample.popularity_ratios = popularity
+    sample.tweets = all_tweets
+    debug('- Done.')
 
 
 def report_top_20_tables(sample: Sample) -> None:
@@ -170,7 +183,8 @@ def report_freq_histogram(sample: Sample) -> None:
     plt.xticks(rotation=90)
     plt.tight_layout()
     plt.hist([f.data for f in sample.frequencies], bins=100, color='#ffcccc')
-    plt.savefig(f'1-frequencies/{sample.name}-hist.png')
+    Path(f'{REPORT_DIR}/1-frequencies').mkdir(parents=True, exist_ok=True)
+    plt.savefig(f'{REPORT_DIR}/1-frequencies/{sample.name}-hist.png')
 
 
 
@@ -223,6 +237,8 @@ def view_covid_tweets_date(tweets: list[Posting]):
 
 
 if __name__ == '__main__':
+    samples = load_samples()
+    report_freq_histogram(samples[0])
     # samples = load_user_sample()
     # combine_tweets_for_sample([u.username for u in samples.most_popular], '500-pop')
     # combine_tweets_for_sample([u.username for u in samples.random], '500-rand')
