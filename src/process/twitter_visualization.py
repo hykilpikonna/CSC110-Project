@@ -1,15 +1,12 @@
 """
 TODO: Module Docstring
 """
-import os
-import statistics
-from typing import Any
+from datetime import timedelta
 from dataclasses import dataclass, field
 
+import scipy.signal
 from matplotlib import pyplot as plt, font_manager
-from tabulate import tabulate
 
-from constants import REPORT_DIR
 from process.twitter_process import *
 
 
@@ -25,14 +22,96 @@ class UserFloat:
     data: float
 
 
-@dataclass()
 class Sample:
     name: str
     users: list[str]
-    frequencies: list[UserFloat] = field(default_factory=list)
-    popularity_ratios: list[UserFloat] = field(default_factory=list)
-    # Tweets by all users in a sample
-    tweets: list[Posting] = field(default_factory=list)
+    # Total frequencies for each user (sorted)
+    user_freqs: list[UserFloat]
+    # Total popularity ratios for each user (sorted)
+    user_pops: list[UserFloat]
+    # Tweets by all users in a sample (always sorted by date)
+    tweets: list[Posting]
+    date_freqs: list[float]
+
+    def __init__(self, name: str, users: list[str]):
+        self.name = name
+        self.users = users
+        self.calculate_sample_data()
+
+    def calculate_sample_data(self) -> None:
+        """
+        This function loads and calculates the frequency that a list of user posts about COVID, and
+        also calculates their relative popularity of COVID posts.
+
+        This function also creates a combined list of all users in a sample.
+
+        Frequency: the frequency that the sampled users post about COVID. For example, someone who
+        posted every single tweet about COVID will have a frequency of 1, and someone who doesn't
+        post about COVID will have a frequency of 0.
+
+        Popularity ratio: the relative popularity of the sampled users' posts about COVID. If one
+        person posted a COVID post and got 1000 likes, while their other posts (including this
+        one) got an average of 1 like, they will have a relative popularity of 1000. If,
+        on the other hand, one person posted a COVID post and got 1 like, while their other posts
+        (including this one) got an average of 1000 likes, they will have a relative popularity
+        of 1/1000.
+
+        To prevent divide-by-zero, we ignored everyone who didn't post about covid and who didn't
+        post at all.
+        """
+        debug(f'Calculating sample tweets data for {self.name}...')
+        popularity = []
+        frequency = []
+        all_tweets: list[Posting] = []
+        for i in range(len(self.users)):
+            u = self.users[i]
+
+            # Show progress
+            if i != 0 and i % 100 == 0:
+                debug(f'- Calculated {i} users.')
+
+            # Load processed tweet
+            tweets = load_tweets(u)
+            # Ignore retweets
+            tweets = [t for t in tweets if not t.repost]
+            all_tweets += tweets
+            # Filter covid tweets
+            covid = [t for t in tweets if t.covid_related]
+
+            # To prevent divide by zero, ignore people who didn't post at all
+            if len(tweets) == 0:
+                continue
+            # Calculate the frequency of COVID-related tweets
+            freq = len(covid) / len(tweets)
+            frequency.append(UserFloat(u, freq))
+
+            # To prevent divide by zero, ignore everyone who didn't post about covid
+            if len(covid) == 0:
+                continue
+            # Get the average popularity for COVID-related tweets
+            covid_avg = sum(t.popularity for t in covid) / len(covid)
+            global_avg = sum(t.popularity for t in tweets) / len(tweets)
+            # To prevent divide by zero, ignore everyone who literally have no likes on any post
+            if global_avg == 0:
+                continue
+            # Get the relative popularity
+            popularity.append(UserFloat(u, covid_avg / global_avg))
+
+        # Sort by relative popularity or frequency
+        popularity.sort(key=lambda x: x.data, reverse=True)
+        frequency.sort(key=lambda x: x.data, reverse=True)
+
+        # Sort by date, latest first
+        all_tweets.sort(key=lambda x: x.date)
+
+        # Ignore tweets that are earlier than the start of COVID
+        all_tweets = [t for t in all_tweets if t.date > '2020-01-01T01:01:01']
+
+        # Assign to sample
+        self.user_freqs = frequency
+        self.user_pops = popularity
+        self.tweets = all_tweets
+        debug('- Done.')
 
 
 def load_samples() -> list[Sample]:
@@ -47,88 +126,7 @@ def load_samples() -> list[Sample]:
                Sample('500-rand', [u.username for u in samples.random]),
                Sample('eng-news', list(samples.english_news))]
 
-    # Calculate frequencies and popularity ratios
-    for s in samples:
-        calculate_sample_data(s)
-
     return samples
-
-
-def calculate_sample_data(sample: Sample) -> None:
-    """
-    This function loads and calculates the frequency that a list of user posts about COVID, and
-    also calculates their relative popularity of COVID posts.
-
-    This function also creates a combined list of all users in a sample.
-
-    Frequency: the frequency that the sampled users post about COVID. For example, someone who
-    posted every single tweet about COVID will have a frequency of 1, and someone who doesn't
-    post about COVID will have a frequency of 0.
-
-    Popularity ratio: the relative popularity of the sampled users' posts about COVID. If one
-    person posted a COVID post and got 1000 likes, while their other posts (including this one) got
-    an average of 1 like, they will have a relative popularity of 1000. If, on the other hand, one
-    person posted a COVID post and got 1 like, while their other posts (including this one) got an
-    average of 1000 likes, they will have a relative popularity of 1/1000.
-
-    To prevent divide-by-zero, we ignored everyone who didn't post about covid and who didn't post
-    at all.
-
-    :param sample: Sample
-    """
-    debug(f'Calculating sample tweets data for {sample.name}...')
-    popularity = []
-    frequency = []
-    all_tweets: list[Posting] = []
-    for i in range(len(sample.users)):
-        u = sample.users[i]
-
-        # Show progress
-        if i != 0 and i % 100 == 0:
-            debug(f'- Calculated {i} users.')
-
-        # Load processed tweet
-        tweets = load_tweets(u)
-        # Ignore retweets
-        tweets = [t for t in tweets if not t.repost]
-        all_tweets += tweets
-        # Filter covid tweets
-        covid = [t for t in tweets if t.covid_related]
-
-        # To prevent divide by zero, ignore people who didn't post at all
-        if len(tweets) == 0:
-            continue
-        # Calculate the frequency of COVID-related tweets
-        freq = len(covid) / len(tweets)
-        frequency.append(UserFloat(u, freq))
-
-        # To prevent divide by zero, ignore everyone who didn't post about covid
-        if len(covid) == 0:
-            continue
-        # Get the average popularity for COVID-related tweets
-        covid_avg = sum(t.popularity for t in covid) / len(covid)
-        global_avg = sum(t.popularity for t in tweets) / len(tweets)
-        # To prevent divide by zero, ignore everyone who literally have no likes on any post
-        if global_avg == 0:
-            continue
-        # Get the relative popularity
-        popularity.append(UserFloat(u, covid_avg / global_avg))
-
-    # Sort by relative popularity or frequency
-    popularity.sort(key=lambda x: x.data, reverse=True)
-    frequency.sort(key=lambda x: x.data, reverse=True)
-
-    # Sort by date, latest first
-    all_tweets.sort(key=lambda x: x.date, reverse=True)
-
-    # Ignore tweets that are earlier than the start of COVID
-    all_tweets = [t for t in all_tweets if t.date > '2020-01-01T01:01:01']
-
-    # Assign to sample
-    sample.frequencies = frequency
-    sample.popularity_ratios = popularity
-    sample.tweets = all_tweets
-    debug('- Done.')
 
 
 def report_top_20_tables(sample: Sample) -> None:
@@ -139,11 +137,11 @@ def report_top_20_tables(sample: Sample) -> None:
     :return: None
     """
     Reporter(f'freq/{sample.name}-top-20.md').table(
-        [[u.name, f'{u.data * 100:.1f}%'] for u in sample.frequencies[:20]],
+        [[u.name, f'{u.data * 100:.1f}%'] for u in sample.user_freqs[:20]],
         ['Username', 'Frequency'])
 
     Reporter(f'pop/{sample.name}-top-20.md').table(
-        [[u.name, f'{u.data * 100:.1f}%'] for u in sample.popularity_ratios[:20]],
+        [[u.name, f'{u.data * 100:.1f}%'] for u in sample.user_pops[:20]],
         ['Username', 'Popularity Ratio'])
 
 
@@ -158,16 +156,16 @@ def report_ignored(samples: list[Sample]) -> None:
     :return: None
     """
     # For frequencies, report who didn't post
-    table = [["Total users"] + [str(len(s.frequencies)) for s in samples],
+    table = [["Total users"] + [str(len(s.user_freqs)) for s in samples],
              ["Users who didn't post at all"] +
-             [str(len([1 for a in s.frequencies if a.data == 0])) for s in samples],
+             [str(len([1 for a in s.user_freqs if a.data == 0])) for s in samples],
              ["Users who posted less than 1%"] +
-             [str(len([1 for a in s.frequencies if a.data < 0.01])) for s in samples]]
+             [str(len([1 for a in s.user_freqs if a.data < 0.01])) for s in samples]]
 
     Reporter('freq/didnt-post.md').table(table, [s.name for s in samples], True)
 
     # For popularity ratio, report ignored
-    table = [["Ignored"] + [str(len(s.users) - len(s.popularity_ratios)) for s in samples]]
+    table = [["Ignored"] + [str(len(s.users) - len(s.user_pops)) for s in samples]]
     Reporter('pop/ignored.md').table(table, [s.name for s in samples], True)
 
 
@@ -231,13 +229,13 @@ def report_histograms(sample: Sample) -> None:
     :param sample: Sample
     :return: None
     """
-    x = [f.data for f in sample.frequencies]
+    x = [f.data for f in sample.user_freqs]
     title = f'COVID-related posting frequency for {sample.name}'
     report_histogram(x, f'freq/{sample.name}-hist-outliers.png', title, False, 100)
     x = [p for p in x if p > 0.001]
     report_histogram(x, f'freq/{sample.name}-hist.png', title, True)
 
-    x = [f.data for f in sample.popularity_ratios]
+    x = [f.data for f in sample.user_pops]
     title = f'Popularity ratio of COVID posts for {sample.name}'
     report_histogram(x, f'pop/{sample.name}-hist-outliers.png', title, False, 100, axvline=[1])
     report_histogram(x, f'pop/{sample.name}-hist.png', title, True, axvline=[1])
@@ -250,7 +248,7 @@ def report_stats(samples: list[Sample]) -> None:
     :param samples: Samples
     :return: None
     """
-    xs = [[d.data for d in s.popularity_ratios] for s in samples]
+    xs = [[d.data for d in s.user_pops] for s in samples]
 
     table = tabulate_stats([get_statistics(x) for x in xs])
     Reporter('pop/stats-with-outliers.md').table(table, [s.name for s in samples], True)
@@ -258,7 +256,7 @@ def report_stats(samples: list[Sample]) -> None:
     table = tabulate_stats([get_statistics(remove_outliers(x)) for x in xs])
     Reporter('pop/stats.md').table(table, [s.name for s in samples], True)
 
-    xs = [[d.data for d in s.frequencies if d.data > 0.0005] for s in samples]
+    xs = [[d.data for d in s.user_freqs if d.data > 0.0005] for s in samples]
     table = tabulate_stats([get_statistics(x) for x in xs], percent=True)
     Reporter('freq/stats.md').table(table, [s.name for s in samples], True)
 
