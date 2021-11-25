@@ -204,6 +204,7 @@ def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool
     fig: plt.Figure
     ax: plt.Axes
     fig, ax = plt.subplots()
+    ax.margins(x=0, y=0)
 
     # Plot
     ax.set_title(title, color=border_color)
@@ -242,25 +243,24 @@ def report_histograms(sample: Sample) -> None:
     report_histogram(x, f'pop/{sample.name}-hist.png', title, True, axvline=[1])
 
 
-def report_pop_stats(samples: list[Sample]) -> None:
+def report_stats(samples: list[Sample]) -> None:
     """
-    Report popularity ratios' statistics
+    Report frequencies and popularity ratios' statistics
 
     :param samples: Samples
     :return: None
     """
     xs = [[d.data for d in s.popularity_ratios] for s in samples]
 
-    def tabulate_stats(stats: list[Stats]):
-        return [['Mean'] + [f'{s.mean:.2f}' for s in stats],
-                ['Median'] + [f'{s.median:.2f}' for s in stats],
-                ['StdDev'] + [f'{s.stddev:.2f}' for s in stats]]
-
     table = tabulate_stats([get_statistics(x) for x in xs])
     Reporter('pop/stats-with-outliers.md').table(table, [s.name for s in samples], True)
 
     table = tabulate_stats([get_statistics(remove_outliers(x)) for x in xs])
     Reporter('pop/stats.md').table(table, [s.name for s in samples], True)
+
+    xs = [[d.data for d in s.frequencies if d.data > 0.0005] for s in samples]
+    table = tabulate_stats([get_statistics(remove_outliers(x)) for x in xs])
+    Reporter('freq/stats.md').table(table, [s.name for s in samples], True)
 
 
 def view_covid_tweets_date(tweets: list[Posting]):

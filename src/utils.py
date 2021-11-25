@@ -187,6 +187,18 @@ def get_statistics(points: list[float]) -> Stats:
     return Stats(statistics.mean(points), statistics.median(points), statistics.stdev(points))
 
 
+def tabulate_stats(stats: list[Stats]) -> list[list[str]]:
+    """
+    Create a table structure from statistics for tabulate
+
+    :param stats: Statistics
+    :return: Table for tabulate
+    """
+    return [['Mean'] + [f'{s.mean:.2f}' for s in stats],
+            ['Median'] + [f'{s.median:.2f}' for s in stats],
+            ['StdDev'] + [f'{s.stddev:.2f}' for s in stats]]
+
+
 def parse_date(iso: str) -> datetime:
     """
     Parse date faster. Running 1,000,000 trials, this parse_date function is 4.03 times faster than
