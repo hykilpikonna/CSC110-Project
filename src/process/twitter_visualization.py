@@ -12,34 +12,6 @@ from constants import REPORT_DIR
 from process.twitter_process import *
 
 
-class Reporter:
-    """
-    Report file creator
-    """
-    report: str
-    file: str
-
-    def __init__(self, file: str) -> None:
-        self.report = ''
-        self.file = file
-
-    def print(self, line: str = '', arg: Any = None) -> None:
-        """
-        Add a line to the report
-
-        :param line: Line content
-        :param arg: Additional argument
-        :return: None
-        """
-        self.report += line
-        if arg is not None:
-            self.report += str(arg)
-        self.report += '\n'
-
-    def save(self) -> None:
-        write(self.file, self.report)
-
-
 @dataclass()
 class UserFloat:
     """
@@ -245,12 +217,6 @@ def view_covid_tweets_date(tweets: list[Posting]):
 
 
 if __name__ == '__main__':
-
-    view_covid_tweets_freq([u.username for u in samples.most_popular], '500-pop')
-    # view_covid_tweets_freq(sample.random, '500-rand')
-    # view_covid_tweets_pop(sample.most_popular, '500-pop')
-    # view_covid_tweets_pop(sample.random, '500-rand')
-
     # samples = load_user_sample()
     # combine_tweets_for_sample([u.username for u in samples.most_popular], '500-pop')
     # combine_tweets_for_sample([u.username for u in samples.random], '500-rand')

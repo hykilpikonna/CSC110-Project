@@ -99,6 +99,34 @@ def read(file: str) -> str:
         return f.read()
 
 
+class Reporter:
+    """
+    Report file creator
+    """
+    report: str
+    file: str
+
+    def __init__(self, file: str) -> None:
+        self.report = ''
+        self.file = file
+
+    def print(self, line: str = '', arg: Any = None) -> None:
+        """
+        Add a line to the report
+
+        :param line: Line content
+        :param arg: Additional argument
+        :return: None
+        """
+        self.report += line
+        if arg is not None:
+            self.report += str(arg)
+        self.report += '\n'
+
+    def save(self) -> None:
+        write(self.file, self.report)
+
+
 def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float]:
     """
     Create list with outliers removed for graphing
