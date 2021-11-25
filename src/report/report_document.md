@@ -10,11 +10,17 @@ Our data come from three samples:
 
 ## COVID-19 Posting Frequency
 
-First, we analyzed how frequently the users in these three datasets are posing about COVID-19. Initially, we were expecting that most people will post about COVID-19 because this pandemic is very relevant to every one of us. However, we found that there are many people in our samples didn't post about COVID-19 at all. The following table shows how many people in each sample didn't post 
+First, we analyzed how frequently the users in these three datasets are posing about COVID-19. Initially, we were expecting that most people will post about COVID-19 because this pandemic is very relevant to every one of us. However, we found that there are many people in our samples didn't post about COVID-19 at all. The following table shows how many people in each sample didn't post or posted less than 1% about COVID-19:
 
 @include `/freq/didnt-post.md`
 
-![](/1-covid-tweet-frequency/500-pop.png)
+The `eng-news` sample has the lowest number of users who didn't have COVID-related posts, the `500-rand` sample has the highest, while `500-pop` sits in between. This large difference between `eng-news` and the rest can be explained by the news channels' obligation to report news, which includes news about new outbreaks, progress of vaccination, new cross-border policies, etc. Also, we observed that `500-pop` has much more users who posted COVID-related content than `500-rand`, while they have similar amounts of users posting less than 1%. This finding might be explained by how influential people have more incentive to express their support toward slowing the spread of the pandemic than regular users, which doesn't require frequent posting like news channels.
+
+<div class="image-row">
+    <div><img src="/freq/500-pop-hist.png" alt="hist"></div>
+    <div><img src="/freq/500-rand-hist.png" alt="hist"></div>
+    <div><img src="/freq/eng-news-hist.png" alt="hist"></div>
+</div>
 
 ## COVID-19 Popularity Ratios
 
@@ -25,6 +31,5 @@ Test Include:
 @include `/pop/stats.md`
 
 @include `/pop/ignored.md`
-
 
 @include `/pop/stats-with-outliers.md`
