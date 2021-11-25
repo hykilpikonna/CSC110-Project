@@ -1,11 +1,12 @@
 """
 TODO: Module Docstring
 """
+import os
 import statistics
 from typing import Any
 from dataclasses import dataclass, field
 
-from matplotlib import pyplot as plt
+from matplotlib import pyplot as plt, font_manager
 from tabulate import tabulate
 
 from constants import REPORT_DIR
@@ -82,6 +83,10 @@ def calculate_sample_data(sample: Sample) -> None:
     for i in range(len(sample.users)):
         u = sample.users[i]
 
+        # Show progress
+        if i != 0 and i % 100 == 0:
+            debug(f'- Calculated {i} users.')
+
         # Load processed tweet
         tweets = load_tweets(u)
         # Ignore retweets
@@ -109,10 +114,6 @@ def calculate_sample_data(sample: Sample) -> None:
         # Get the relative popularity
         popularity.append(UserFloat(u, covid_avg / global_avg))
 
-        # Show progress
-        if i != 0 and i % 100 == 0:
-            debug(f'- Calculated {i} users.')
-
     # Sort by relative popularity or frequency
     popularity.sort(key=lambda x: x.data, reverse=True)
     frequency.sort(key=lambda x: x.data, reverse=True)
@@ -137,11 +138,11 @@ def report_top_20_tables(sample: Sample) -> None:
     :param sample: Sample
     :return: None
     """
-    r = Reporter(f'1-frequencies/{sample.name}-top-20.md')
+    r = Reporter(f'freq/{sample.name}-top-20.md')
     r.print(tabulate([[u.name, f'{u.data * 100:.1f}%'] for u in sample.frequencies[:20]],
                      ['Username', 'Frequency'], tablefmt="github"))
 
-    r = Reporter(f'2-popularity-ratios/{sample.name}-top-20.md')
+    r = Reporter(f'pop/{sample.name}-top-20.md')
     r.print(tabulate([[u.name, f'{u.data * 100:.1f}%'] for u in sample.popularity_ratios[:20]],
                      ['Username', 'Popularity Ratio'], tablefmt="github"))
 
@@ -162,14 +163,51 @@ def report_ignored(samples: list[Sample]) -> None:
              ["Posted less than 1%"] +
              [str(len([1 for a in s.frequencies if a.data < 0.01])) for s in samples]]
 
-    r = Reporter(f'1-frequencies/didnt-post.md')
+    r = Reporter(f'freq/didnt-post.md')
     r.print(tabulate(table, [s.name for s in samples], tablefmt="github"))
 
     # For popularity ratio, report ignored
     table = [["Ignored"] + [str(len(s.users) - len(s.popularity_ratios)) for s in samples]]
-
-    r = Reporter(f'2-popularity-ratios/ignored.md')
+    r = Reporter(f'pop/ignored.md')
     r.print(tabulate(table, [s.name for s in samples], tablefmt="github"))
+
+
+def load_font() -> None:
+    """
+    Load iosevka font for matplotlib
+    """
+    font = Path(os.path.realpath(__file__)).absolute().parent.joinpath('iosevka-ss04-regular.ttf')
+    fe = font_manager.FontEntry(font, 'iosevka')
+    font_manager.fontManager.ttflist.insert(0, fe)
+
+
+def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool = False,
+                     bins: int = 40):
+    if clear_outliers:
+        title = title + ' - No Outliers'
+        x = remove_outliers(x)
+
+    border_color = '#5b3300'
+    plt.rcParams["font.family"] = "iosevka"
+    plt.xticks(rotation=45)
+    plt.yticks(rotation=45)
+    plt.tight_layout()
+
+    # Create fig ax
+    fig: plt.Figure
+    ax: plt.Axes
+    fig, ax = plt.subplots()
+
+    ax.set_title(title, color=border_color)
+    ax.hist(x, bins=bins, color='#ffcccc')
+
+    # Colors
+    ax.tick_params(color=border_color, labelcolor=border_color)
+    for spine in ax.spines.values():
+        spine.set_edgecolor(border_color)
+
+    # Save
+    plt.savefig(os.path.join(REPORT_DIR, path))
 
 
 def report_freq_histogram(sample: Sample) -> None:
@@ -179,13 +217,10 @@ def report_freq_histogram(sample: Sample) -> None:
     :param sample: Sample
     :return: None
     """
-    plt.title(f'COVID-related posting frequency for {sample.name}')
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-    plt.hist([f.data for f in sample.frequencies], bins=100, color='#ffcccc')
-    Path(f'{REPORT_DIR}/1-frequencies').mkdir(parents=True, exist_ok=True)
-    plt.savefig(f'{REPORT_DIR}/1-frequencies/{sample.name}-hist.png')
-
+    x = [f.data for f in sample.frequencies]
+    title = f'COVID-related posting frequency for {sample.name}'
+    report_histogram(x, f'freq/{sample.name}-hist-with-outliers.png', title, False, 100)
+    report_histogram(x, f'freq/{sample.name}-hist.png', title)
 
 
 def view_covid_tweets_pop(sample: Sample) -> None:
@@ -194,7 +229,7 @@ def view_covid_tweets_pop(sample: Sample) -> None:
     :return: None
     """
     # Init reporter
-    r = Reporter(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample.name}.md')
+    r = Reporter(f'{REPORT_DIR}/pop/{sample.name}.md')
 
     # Calculate statistics
     x_list = [f.data for f in sample.popularity_ratios]
@@ -223,7 +258,7 @@ def view_covid_tweets_pop(sample: Sample) -> None:
     plt.tight_layout()
     plt.hist(x_list, bins=40, color='#ffcccc')
     plt.axvline([1], color='lightgray')
-    plt.savefig(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample.name}.png')
+    plt.savefig(f'{REPORT_DIR}/pop/{sample.name}.png')
 
 
 def view_covid_tweets_date(tweets: list[Posting]):
@@ -237,8 +272,18 @@ def view_covid_tweets_date(tweets: list[Posting]):
 
 
 if __name__ == '__main__':
+    load_font()
+
+    Path(f'{REPORT_DIR}/freq').mkdir(parents=True, exist_ok=True)
+    Path(f'{REPORT_DIR}/pop').mkdir(parents=True, exist_ok=True)
+
+    debug('Loading samples...')
     samples = load_samples()
-    report_freq_histogram(samples[0])
+
+    print()
+    debug('Creating histograms...')
+    for s in samples:
+        report_freq_histogram(s)
     # samples = load_user_sample()
     # combine_tweets_for_sample([u.username for u in samples.most_popular], '500-pop')
     # combine_tweets_for_sample([u.username for u in samples.random], '500-rand')
