@@ -44,8 +44,9 @@ def load_samples() -> list[Sample]:
     # Load sample, convert format
     samples = load_user_sample()
     samples = [Sample('500-pop', [u.username for u in samples.most_popular]),
-               Sample('500-rand', [u.username for u in samples.random]),
-               Sample('eng-news', list(samples.english_news))]
+               # Sample('500-rand', [u.username for u in samples.random]),
+               # Sample('eng-news', list(samples.english_news))
+               ]
 
     # Calculate frequencies and popularity ratios
     for s in samples:
@@ -183,7 +184,7 @@ def load_font() -> None:
 
 
 def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool = False,
-                     bins: int = 40) -> None:
+                     bins: int = 40, axvline: Union[list[int], None] = None) -> None:
     """
     Plot a histogram
 
@@ -192,6 +193,7 @@ def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool
     :param title: Title
     :param clear_outliers: Remove outliers or not
     :param bins: Number of bins
+    :param axvline: Vertical line
     :return: None
     """
     if clear_outliers:
@@ -205,8 +207,14 @@ def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool
     ax: plt.Axes
     fig, ax = plt.subplots()
 
+    # Plot
     ax.set_title(title, color=border_color)
     ax.hist(x, bins=bins, color='#ffcccc')
+
+    # Plot lines
+    if axvline:
+        for line in axvline:
+            ax.axvline(line, color='#DACAA9')
 
     # Colors
     ax.tick_params(color=border_color, labelcolor=border_color)
@@ -217,17 +225,21 @@ def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool
     fig.savefig(os.path.join(REPORT_DIR, path))
 
 
-def report_freq_histogram(sample: Sample) -> None:
+def report_histograms(sample: Sample) -> None:
     """
-    Report histogram of COVID posting frequencies
+    Report histograms of COVID posting frequencies and popularity ratios
 
     :param sample: Sample
     :return: None
     """
     x = [f.data for f in sample.frequencies]
     title = f'COVID-related posting frequency for {sample.name}'
-    report_histogram(x, f'freq/{sample.name}-hist-with-outliers.png', title, False, 100)
-    report_histogram(x, f'freq/{sample.name}-hist.png', title)
+    report_histogram(x, f'freq/{sample.name}-hist.png', title, False, 100)
+
+    x = [f.data for f in sample.popularity_ratios]
+    title = f'Popularity ratio of COVID posts for {sample.name}'
+    report_histogram(x, f'pop/{sample.name}-hist-outliers.png', title, False, 100, axvline=[1])
+    report_histogram(x, f'pop/{sample.name}-hist.png', title, axvline=[1])
 
 
 def view_covid_tweets_pop(sample: Sample) -> None:
@@ -259,14 +271,6 @@ def view_covid_tweets_pop(sample: Sample) -> None:
     # Save report
     r.save()
 
-    # Graph histogram
-    plt.title(f'COVID-related popularity ratios for {sample.name}')
-    plt.xticks(rotation=90)
-    plt.tight_layout()
-    plt.hist(x_list, bins=40, color='#ffcccc')
-    plt.axvline([1], color='lightgray')
-    plt.savefig(f'{REPORT_DIR}/pop/{sample.name}.png')
-
 
 def view_covid_tweets_date(tweets: list[Posting]):
     # Graph histogram
@@ -288,9 +292,12 @@ if __name__ == '__main__':
     samples = load_samples()
 
     print()
-    debug('Creating histograms...')
+    debug('Creating reports...')
+
+    report_ignored(samples)
     for s in samples:
-        report_freq_histogram(s)
+        report_top_20_tables(s)
+        report_histograms(s)
     # samples = load_user_sample()
     # combine_tweets_for_sample([u.username for u in samples.most_popular], '500-pop')
     # combine_tweets_for_sample([u.username for u in samples.random], '500-rand')
