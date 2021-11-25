@@ -117,12 +117,25 @@ def calculate_sample_data(users: list[str]) -> tuple[list[UserFloat], list[UserF
     return frequency, popularity, all_tweets
 
 
-def view_covid_tweets_freq(sample: Sample) -> None:
+def report_top_20_tables(sample: Sample) -> None:
     """
+    Get top-20 most frequent or most relatively popular users and store them in a table.
 
     :param sample: Sample
     :return: None
     """
+    r = Reporter(f'1-frequencies/{sample.name}-top-20.md')
+    r.print(tabulate([[u.name, f'{u.data * 100:.1f}%'] for u in sample.frequencies[:20]],
+                     ['Username', 'Frequency'], tablefmt="github"))
+    r.save()
+
+    r = Reporter(f'2-popularity-ratios/{sample.name}-top-20.md')
+    r.print(tabulate([[u.name, f'{u.data * 100:.1f}%'] for u in sample.popularity_ratios[:20]],
+                     ['Username', 'Popularity Ratio'], tablefmt="github"))
+    r.save()
+
+
+def temp(sample: Sample):
     # Init reporter
     r = Reporter(f'{REPORT_DIR}/report.report.1-covid-tweet-frequency/{sample.name}.md')
     r.print(f"In {sample.name} -")
@@ -136,8 +149,6 @@ def view_covid_tweets_freq(sample: Sample) -> None:
 
     # Top 20
     r.print(f"20 Users of who post COVID-related tweets most frequently:")
-    r.print(tabulate([[u.name, f'{u.data * 100:.1f}%'] for u in sample.frequencies[:20]],
-                     ['Username', 'Frequency'], tablefmt="github"))
 
     # Save report
     r.save()
@@ -163,12 +174,6 @@ def view_covid_tweets_pop(sample: Sample) -> None:
     r.print("To prevent division by zero, we ignored people who didn't post about COVID or didn't "
             f"post at all. We ignored {len(sample.users) - len(sample.popularity_ratios)} people "
             f"in this list.")
-    r.print()
-
-    # Top 20
-    r.print(f"20 Users of whose COVID-related posts are the most popular:")
-    r.print(tabulate([[u.name, f'{u.data:.2f}'] for u in sample.popularity_ratios[:20]],
-                     ['Username', 'Popularity Ratio'], tablefmt="github"))
     r.print()
 
     # Calculate statistics
