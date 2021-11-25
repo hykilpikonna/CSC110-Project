@@ -1,4 +1,5 @@
 import os.path
+import webbrowser
 from pathlib import Path
 
 from flask import Flask, send_from_directory, Response
@@ -61,6 +62,8 @@ def serve_report() -> None:
         path = os.path.join(REPORT_DIR, path)
         return send_from_directory(Path(path).absolute().parent, Path(path).name)
 
+    # Run app
+    webbrowser.open("http://localhost:5000")
     app.run()
 
 
