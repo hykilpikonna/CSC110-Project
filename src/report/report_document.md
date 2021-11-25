@@ -1,7 +1,9 @@
 
 # Meta Analysis
 
-This section aims at gaining some insights about our data.
+This section aims at gaining some insights about the differences in our samples and the scode that the results might apply or generalize to. This section also answers the first part of our research question: **how frequently does people post about COVID-related issues, and how interested are people to see COVID-related posts?**
+
+## Demographics
 
 Our data come from three samples:
 * `500-pop`: The list of 500 most followed users on Twitter.
@@ -48,14 +50,24 @@ Then, we analyzed the popularity ratio of COVID-related posts for our three samp
 
 $$\\left(\\frac{\\sum\\text{Popularity of COVID-posts}}{\\text{Number of COVID-posts}}\\right) / \\left(\\frac{\\sum \\text{Popularity of all posts}}{\\text{Total number of posts}}\\right)$$
 
-To prevent division by zero, we ignored people who didn't post about COVID or didn't post at all.
-
-@include `/pop/stats.md`
+There are three divisions in this equation, so there are three possible places where it might divide by zero. So, to prevent division by zero, we ignored people who didn't post about COVID-19 or didn't post anything at all, and we also ignored people who have literally 0 popularity on any of their posts. In our data, we ignored this amount of people for each sample:
 
 @include `/pop/ignored.md`
 
-@include `/pop/stats-with-outliers.md`
+Graphing the results, we find that the *TODO*
 
+<div class="image-row">
+    <div><img src="/pop/500-pop-hist.png" alt="hist"></div>
+    <div><img src="/pop/500-rand-hist.png" alt="hist"></div>
+    <div><img src="/pop/eng-news-hist.png" alt="hist"></div>
+</div>
+
+@include-lines `/pop/stats.md` 0 1 2 3 4 5
+
+
+# Change Analysis
+
+After we answered how frequently people posted about COVID-19 and how interested are people to view these posts, we analyze our data over the posting dates to answer the second part of our research question: **How does posting frequency and people's interests in COVID-19 posts changes from the beginning of the pandemic to now?** 
 
 ## References
 

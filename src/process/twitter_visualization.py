@@ -182,7 +182,7 @@ def load_font() -> None:
 
 
 def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool = False,
-                     bins: int = 40, axvline: Union[list[int], None] = None) -> None:
+                     bins: int = 20, axvline: Union[list[int], None] = None) -> None:
     """
     Plot a histogram
 
