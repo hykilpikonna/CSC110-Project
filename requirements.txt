@@ -18,7 +18,8 @@ tabulate==0.8.9
 matplotlib==3.5.0
 # Calculate data statistics
 numpy==1.21.4
-#
+# For serving the report website
+flask==2.0.2
 
 ####################
 # Data Packing
