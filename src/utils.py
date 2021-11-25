@@ -6,10 +6,12 @@ import statistics
 from dataclasses import dataclass
 from datetime import datetime, date
 from pathlib import Path
-from typing import Union, NamedTuple
+from typing import Union, NamedTuple, Any
 
 import json5
 import numpy as np
+
+from constants import REPORT_DIR
 
 
 @dataclass
@@ -108,20 +110,23 @@ class Reporter:
 
     def __init__(self, file: str) -> None:
         self.report = ''
-        self.file = file
+        self.file = os.path.join(REPORT_DIR, file)
 
-    def print(self, line: str = '', arg: Any = None) -> None:
+    def print(self, line: str = '', arg: Any = None, autosave: bool = True) -> None:
         """
         Add a line to the report
 
         :param line: Line content
         :param arg: Additional argument
-        :return: None
+        :param autosave: Save automatically
+        :return: self (this is for call chaining, this way you can call Reporter.print().save()
         """
         self.report += line
         if arg is not None:
             self.report += str(arg)
         self.report += '\n'
+        if autosave:
+            self.save()
 
     def save(self) -> None:
         write(self.file, self.report)
