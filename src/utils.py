@@ -17,25 +17,26 @@ from constants import REPORT_DIR
 
 @dataclass
 class Config:
+    """
+    Secrets configuration for this program.
+
+    Attributes:
+      - consumer_key: The consumer key from the Twitter application portal
+      - consumer_secret: The consumer secret from the Twitter application portal
+      - access_token: The access token of an app from the Twitter application portal
+      - access_secret: The access secret of an app from the Twitter application portal
+
+    Representation Invariants:
+      - self.consumer_key != ''
+      - self.consumer_secret != ''
+      - self.access_token != ''
+      - self.access_secret != ''
+    """
     # Twitter's official API v1 keys
     consumer_key: str
     consumer_secret: str
     access_token: str
     access_secret: str
-
-    # Twitter's Web API keys
-    # Twitter web authentication token, you can get this by inspecting XHR requests
-    twitter_web_bearer: str
-    # Twitter web cookies file path, you can export cookies using EditThisCookie plugin
-    twitter_web_cookies: str
-    # Twitter request rate: How many requests per second
-    twitter_rate_limit: int
-
-    # Telegram config
-    # Telegram bot token
-    telegram_token: str
-    # Telegram update user id (Who should the bot send updates to?)
-    telegram_userid: int
 
 
 def load_config(path: str = 'config.json5') -> Config:
@@ -105,6 +106,10 @@ def read(file: str) -> str:
 class Reporter:
     """
     Report file creator
+
+    Attributes:
+      - report: The string of the report
+      - file: Where the report is stored
     """
     report: str
     file: str
@@ -171,7 +176,19 @@ def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float
     return [points[v] for v in range(len(x)) if not is_outlier[v]]
 
 
-class Stats(NamedTuple):
+@dataclass()
+class Stats:
+    """
+    Data class storing the statistics of a sample
+
+    Attributes:
+      - mean: The average of the sample
+      - stddev: The standard deviation
+      - median: The median value of the sample, or the 50th percentile
+      - iqr: The interquartile-range (75th percentile - 25th percentile)
+      - q25: The first quartile, or the 25th percentile
+      - q75: The third quartile, or the 75th percentile
+    """
     mean: float
     stddev: float
     median: float
@@ -208,8 +225,8 @@ def tabulate_stats(stats: list[Stats], percent: bool = False) -> list[list[str]]
             ['StdDev'] + [num(s.stddev) for s in stats],
             ['Median'] + [num(s.median) for s in stats],
             ['IQR'] + [num(s.iqr) for s in stats],
-            ['Q25%'] + [num(s.q25) for s in stats],
-            ['Q75%'] + [num(s.q75) for s in stats],
+            ['Q1 (25%)'] + [num(s.q25) for s in stats],
+            ['Q3 (75%)'] + [num(s.q75) for s in stats],
             ]
 
 
