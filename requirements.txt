@@ -18,6 +18,10 @@ tabulate==0.8.9
 matplotlib==3.5.0
 # Calculate data statistics
 numpy==1.21.4
+# Date utility for manipulating dates
+python-dateutil~=2.8.2
+# Scipy for transforming data. We used it for IIR filtering.
+scipy~=1.7.3
 # For serving the report website
 flask==2.0.2
 
