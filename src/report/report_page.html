@@ -9,9 +9,16 @@
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 <script>
-    document.getElementById('content').innerHTML =
-        marked.parse('# Marked in the browser\n\nRendered by **marked**.');
+
+// Python will inject the markdown code here.
+markdown = `
+{{markdown}}
+`
+document.getElementById('content').innerHTML =
+    marked.parse(markdown);
+
 </script>
 </body>
 </html>

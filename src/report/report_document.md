@@ -3,8 +3,8 @@
 
 Test Image:
 
-![]({REPORT_DIR}/1-covid-tweet-frequency/500-pop.png)
+![](/1-covid-tweet-frequency/500-pop.png)
 
 Test Include:
 
-@include `{REPORT_DIR}/1-covid-tweet-frequency/500-pop.md`
+@include `/1-covid-tweet-frequency/500-pop.md`
