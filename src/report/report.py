@@ -23,17 +23,31 @@ def generate_report() -> str:
     # Process @include statements
     for i in range(len(md)):
         line = md[i]
-        if line.startswith('@include'):
-            path = line[line.index('`') + 1:]
-            path = path[:path.index('`')]
-            md[i] = read(REPORT_DIR + path)
+        if not line.startswith('@include'):
+            continue
 
-            if line.startswith('@include-cut'):
-                args = [int(i) for i in line.split()[2:]]
-                if len(args) == 1:
-                    md[i] = '\n'.join(md[i].split('\n')[args[0]:])
-                if len(args) == 2:
-                    md[i] = '\n'.join(md[i].split('\n')[args[0]:args[1]])
+        path = line[line.index('`') + 1:]
+        path = path[:path.index('`')]
+        md[i] = read(REPORT_DIR + path)
+
+        # Cut lines
+        # Format: @include-cut `path` <start, inclusive> [end, not inclusive]
+        if line.startswith('@include-cut'):
+            args = [int(i) for i in line.split()[2:]]
+            if len(args) == 1:
+                md[i] = '\n'.join(md[i].split('\n')[args[0]:])
+            if len(args) == 2:
+                md[i] = '\n'.join(md[i].split('\n')[args[0]:args[1]])
+
+        # Specific lines
+        # Format: @include-lines `path` <...lines>
+        # Example: @include-lines `path` 1 2 5
+        if line.startswith('@include-lines'):
+            args = [int(i) for i in line.split()[2:]]
+            lines = md[i].split('\n')
+            lines = [lines[ln] for ln in range(len(lines)) if ln in args]
+            md[i] = '\n'.join(lines)
+
 
     return '\n'.join(md)
 
