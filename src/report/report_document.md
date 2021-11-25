@@ -24,6 +24,10 @@ We might graph the frequencies on a histogram to gain more insight: (You can cli
     <div><img src="/freq/eng-news-hist-outliers.png" alt="hist"></div>
 </div>
 
+However, as you can see, the graphs are not very helpful because the majority of the sample post below 0.1%, and there are many outliers who post very frequently, like 40%. For example, if we sort the samples by their frequency, we have a few outliers who post more than 20% even in the random sample:
+
+@include-cut `/freq/500-rand-top-20.md` 0 10
+
 ## COVID-19 Popularity Ratios
 
 To prevent division by zero, we ignored people who didn't post about COVID or didn't post at all.

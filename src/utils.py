@@ -187,16 +187,20 @@ def get_statistics(points: list[float]) -> Stats:
     return Stats(statistics.mean(points), statistics.median(points), statistics.stdev(points))
 
 
-def tabulate_stats(stats: list[Stats]) -> list[list[str]]:
+def tabulate_stats(stats: list[Stats], percent: bool = False) -> list[list[str]]:
     """
     Create a table structure from statistics for tabulate
 
     :param stats: Statistics
+    :param percent: Whether the numbers are percentages
     :return: Table for tabulate
     """
-    return [['Mean'] + [f'{s.mean:.2f}' for s in stats],
-            ['Median'] + [f'{s.median:.2f}' for s in stats],
-            ['StdDev'] + [f'{s.stddev:.2f}' for s in stats]]
+    def num(n: float) -> str:
+        return f'{n:.2f}' if not percent else f'{n * 100:.1f}%'
+
+    return [['Mean'] + [num(s.mean) for s in stats],
+            ['Median'] + [num(s.median) for s in stats],
+            ['StdDev'] + [num(s.stddev) for s in stats]]
 
 
 def parse_date(iso: str) -> datetime:

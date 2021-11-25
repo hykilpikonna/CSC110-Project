@@ -234,7 +234,7 @@ def report_histograms(sample: Sample) -> None:
     x = [f.data for f in sample.frequencies]
     title = f'COVID-related posting frequency for {sample.name}'
     report_histogram(x, f'freq/{sample.name}-hist-outliers.png', title, False, 100)
-    x = [p for p in x if p > 0.0005]
+    x = [p for p in x if p > 0.001]
     report_histogram(x, f'freq/{sample.name}-hist.png', title, True)
 
     x = [f.data for f in sample.popularity_ratios]
@@ -259,7 +259,7 @@ def report_stats(samples: list[Sample]) -> None:
     Reporter('pop/stats.md').table(table, [s.name for s in samples], True)
 
     xs = [[d.data for d in s.frequencies if d.data > 0.0005] for s in samples]
-    table = tabulate_stats([get_statistics(remove_outliers(x)) for x in xs])
+    table = tabulate_stats([get_statistics(x) for x in xs], percent=True)
     Reporter('freq/stats.md').table(table, [s.name for s in samples], True)
 
 
@@ -289,7 +289,7 @@ def report_all() -> None:
     debug('Creating reports...')
 
     report_ignored(samples)
-    report_pop_stats(samples)
+    report_stats(samples)
     for s in samples:
         report_top_20_tables(s)
         report_histograms(s)

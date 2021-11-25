@@ -24,9 +24,16 @@ def generate_report() -> str:
     for i in range(len(md)):
         line = md[i]
         if line.startswith('@include'):
-            line = line[line.index('`') + 1:]
-            line = line[:line.index('`')]
-            md[i] = read(REPORT_DIR + line)
+            path = line[line.index('`') + 1:]
+            path = path[:path.index('`')]
+            md[i] = read(REPORT_DIR + path)
+
+            if line.startswith('@include-cut'):
+                args = [int(i) for i in line.split()[2:]]
+                if len(args) == 1:
+                    md[i] = '\n'.join(md[i].split('\n')[args[0]:])
+                if len(args) == 2:
+                    md[i] = '\n'.join(md[i].split('\n')[args[0]:args[1]])
 
     return '\n'.join(md)
 
