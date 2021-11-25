@@ -300,45 +300,6 @@ def is_covid_related(text: str) -> bool:
     return any(k in text.lower() for k in keywords)
 
 
-def combine_tweets_for_sample(sample: list[str], name: str) -> None:
-    """
-    Combine tweets data for every user in a sample
-
-    Preconditions:
-      - name is a valid file name for your OS.
-
-    :param sample: Sample is a list of users' screen names
-    :param name: The name of the sample
-    :return: None
-    """
-    tweets: list[Posting] = []
-    for u in sample:
-        tweets += load_tweets(u)
-
-    # Sort by date, latest first
-    tweets.sort(key=lambda x: x.date, reverse=True)
-
-    # Ignore tweets that are earlier than the start of COVID
-    tweets = [t for t in tweets if t.date > '2020-01-01T01:01:01']
-
-    # Save
-    write(f'{TWEETS_DIR}/sample-combined/{name.replace(" ", "-")}.json', json_stringify(tweets))
-
-
-def load_combined_tweets(sample_name: str) -> list[Posting]:
-    """
-    Load combined tweets data from combine_tweets_for_sample
-
-    Preconditions:
-      - combine_tweets_for_sample has been ran on the specified sample
-
-    :param sample_name: Sample name, the same as combine_tweets_for_sample
-    :return: List of tweets for the sample combined.
-    """
-    data = json.loads(read(f'{TWEETS_DIR}/sample-combined/{sample_name.replace(" ", "-")}.json'))
-    return [Posting(*d) for d in data]
-
-
 def pack_data() -> None:
     """
     This function packs processed data and raw data separately.
