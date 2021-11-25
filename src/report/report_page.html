@@ -70,6 +70,14 @@
         img.clickable {
             cursor: pointer;
         }
+
+        #modal {
+            transition: all 0.25s ease;
+        }
+
+        #modal.zoom {
+            background-size: contain !important;
+        }
     </style>
 </head>
 <body>
@@ -89,7 +97,7 @@ document.getElementById('content').innerHTML =
     marked.parse(markdown);
 
 // Make images clickable
-// Credit: https://stackoverflow.com/a/50430187/7346633
+// Improved from: https://stackoverflow.com/a/50430187/7346633
 body = $('body')
 $('img').addClass('clickable').click(function() {
     const src = $(this).attr('src');
@@ -100,7 +108,7 @@ $('img').addClass('clickable').click(function() {
         body.off('keyup.modal-close');
     }
 
-    modal = $('<div>').css({
+    modal = $('<div id="modal">').css({
         background: 'RGBA(0,0,0,.5) url(' + src + ') no-repeat center',
         backgroundSize: 'auto',
         width: '100vw',
@@ -114,10 +122,14 @@ $('img').addClass('clickable').click(function() {
         removeModal();
     }).appendTo('body');
 
-    //handling ESC
+    // Handling keyboard shortcuts
     body.on('keyup.modal-close', (e) => {
         if (e.key === 'Escape') removeModal();
+        if (e.key === 'e') modal.removeClass('zoom')
     });
+    body.on('keydown.modal-close', (e) => {
+        if (e.key === 'e') modal.addClass('zoom')
+    })
 });
 
 </script>

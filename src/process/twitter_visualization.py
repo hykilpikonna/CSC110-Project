@@ -233,6 +233,7 @@ def report_histograms(sample: Sample) -> None:
     x = [f.data for f in sample.frequencies]
     title = f'COVID-related posting frequency for {sample.name}'
     report_histogram(x, f'freq/{sample.name}-hist-outliers.png', title, False, 100)
+    x = [p for p in x if p > 0.0005]
     report_histogram(x, f'freq/{sample.name}-hist.png', title, True)
 
     x = [f.data for f in sample.popularity_ratios]

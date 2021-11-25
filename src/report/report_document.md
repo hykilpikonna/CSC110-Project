@@ -16,10 +16,12 @@ First, we analyzed how frequently the users in these three datasets are posing a
 
 The `eng-news` sample has the lowest number of users who didn't have COVID-related posts, the `500-rand` sample has the highest, while `500-pop` sits in between. This large difference between `eng-news` and the rest can be explained by the news channels' obligation to report news, which includes news about new outbreaks, progress of vaccination, new cross-border policies, etc. Also, we observed that `500-pop` has much more users who posted COVID-related content than `500-rand`, while they have similar amounts of users posting less than 1%. This finding might be explained by how influential people have more incentive to express their support toward slowing the spread of the pandemic than regular users, which doesn't require frequent posting like news channels.
 
+We might graph the frequencies on a histogram to gain more insight: (You can click on the images to enlarge them, and hold down E to view full screen).
+
 <div class="image-row">
-    <div><img src="/freq/500-pop-hist.png" alt="hist"></div>
-    <div><img src="/freq/500-rand-hist.png" alt="hist"></div>
-    <div><img src="/freq/eng-news-hist.png" alt="hist"></div>
+    <div><img src="/freq/500-pop-hist-outliers.png" alt="hist"></div>
+    <div><img src="/freq/500-rand-hist-outliers.png" alt="hist"></div>
+    <div><img src="/freq/eng-news-hist-outliers.png" alt="hist"></div>
 </div>
 
 ## COVID-19 Popularity Ratios
