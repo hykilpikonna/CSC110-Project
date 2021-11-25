@@ -76,7 +76,7 @@ def view_covid_tweets_freq(users: list[str],
     # Top 20
     r.print(f"20 Users of who post COVID-related tweets most frequently:")
     r.print(tabulate([[u[0], f'{u[1] * 100:.1f}%'] for u in user_frequency[:20]],
-                   ['Username', 'Frequency']))
+                   ['Username', 'Frequency'], tablefmt="github"))
 
     # Save report
     r.save()
@@ -119,7 +119,7 @@ def view_covid_tweets_pop(users: list[str],
     # Top 20
     r.print(f"20 Users of whose COVID-related posts are the most popular:")
     r.print(tabulate([[u[0], f'{u[1]:.2f}'] for u in user_popularity[:20]],
-                   ['Username', 'Popularity Ratio']))
+                   ['Username', 'Popularity Ratio'], tablefmt="github"))
     r.print()
 
     # Calculate statistics
