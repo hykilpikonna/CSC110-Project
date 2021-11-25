@@ -88,6 +88,38 @@ markdown = `
 document.getElementById('content').innerHTML =
     marked.parse(markdown);
 
+// Make images clickable
+// Credit: https://stackoverflow.com/a/50430187/7346633
+body = $('body')
+$('img').addClass('clickable').click(function() {
+    const src = $(this).attr('src');
+    let modal;
+
+    function removeModal() {
+        modal.remove();
+        body.off('keyup.modal-close');
+    }
+
+    modal = $('<div>').css({
+        background: 'RGBA(0,0,0,.5) url(' + src + ') no-repeat center',
+        backgroundSize: 'auto',
+        width: '100vw',
+        height: '100vh',
+        position: 'fixed',
+        zIndex: '100',
+        top: '0',
+        left: '0',
+        cursor: 'zoom-out'
+    }).click(function() {
+        removeModal();
+    }).appendTo('body');
+
+    //handling ESC
+    body.on('keyup.modal-close', (e) => {
+        if (e.key === 'Escape') removeModal();
+    });
+});
+
 </script>
 </body>
 </html>
