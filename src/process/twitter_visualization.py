@@ -42,6 +42,7 @@ class Sample:
         self.name = name
         self.users = users
         self.calculate_sample_data()
+        self.calculate_change_data()
 
     def calculate_sample_data(self) -> None:
         """
@@ -118,9 +119,14 @@ class Sample:
         self.tweets = all_tweets
         debug('- Done.')
 
-    def calculate_change(self) -> None:
+    def calculate_change_data(self) -> None:
         """
+        This function calculates self.date_freqs and self.date_pops, which are lists that stores the
+        frequencies and popularity ratios on each date since the first tweet. This calculation
+        ignores users, but instead combines the tweets of the entire sample in the calculation.
 
+        More details about the calculations can be found in the report, or report_document.md
+        
         Preconditions:
           - len(self.tweets) > 0
           - self.tweets != None
