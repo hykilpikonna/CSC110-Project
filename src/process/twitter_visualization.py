@@ -34,6 +34,89 @@ class Sample:
     tweets: list[Posting] = field(default_factory=list)
 
 
+def load_samples() -> list[Sample]:
+    """
+    Load samples and calculate their data
+
+    :return: Samples
+    """
+    # Load sample, convert format
+    samples = load_user_sample()
+    samples = [Sample('500-pop', [u.username for u in samples.most_popular]),
+               Sample('500-rand', [u.username for u in samples.random]),
+               Sample('eng-news', list(samples.english_news))]
+
+    # Calculate frequencies and popularity ratios
+    for s in samples:
+        s.frequencies, s.popularity_ratios, s.tweets = calculate_sample_data(s.users)
+
+    return samples
+
+
+def calculate_sample_data(users: list[str]) -> tuple[list[UserFloat], list[UserFloat], list[Posting]]:
+    """
+    This function loads and calculates the frequency that a list of user posts about COVID, and
+    also calculates their relative popularity of COVID posts.
+
+    This function also creates a combined list of all users in a sample.
+
+    Frequency: the frequency that the sampled users post about COVID. For example, someone who
+    posted every single tweet about COVID will have a frequency of 1, and someone who doesn't
+    post about COVID will have a frequency of 0.
+
+    Popularity ratio: the relative popularity of the sampled users' posts about COVID. If one
+    person posted a COVID post and got 1000 likes, while their other posts (including this one) got
+    an average of 1 like, they will have a relative popularity of 1000. If, on the other hand, one
+    person posted a COVID post and got 1 like, while their other posts (including this one) got an
+    average of 1000 likes, they will have a relative popularity of 1/1000.
+
+    To prevent divide-by-zero, we ignored everyone who didn't post about covid and who didn't post
+    at all.
+
+    :param users: Users in a sample
+    :return: Frequencies, Popularity ratios, Combined tweets list for the sample
+    """
+    popularity = []
+    frequency = []
+    all_tweets: list[Posting] = []
+    for u in users:
+        # Load processed tweet
+        tweets = load_tweets(u)
+        # Ignore retweets
+        tweets = [t for t in tweets if not t.repost]
+        all_tweets += tweets
+        # Filter covid tweets
+        covid = [t for t in tweets if t.covid_related]
+
+        # To prevent divide by zero, ignore people who didn't post at all
+        if len(tweets) == 0:
+            continue
+        # Calculate the frequency of COVID-related tweets
+        freq = len(covid) / len(tweets)
+        frequency.append(UserFloat(u, freq))
+
+        # To prevent divide by zero, ignore everyone who didn't post about covid
+        if len(covid) == 0 or len(tweets) == 0:
+            continue
+        # Get the average popularity for COVID-related tweets
+        covid_avg = statistics.mean(t.popularity for t in covid)
+        global_avg = statistics.mean(t.popularity for t in tweets)
+        # Get the relative popularity
+        popularity.append(UserFloat(u, covid_avg / global_avg))
+
+    # Sort by relative popularity or frequency
+    popularity.sort(key=lambda x: x[1], reverse=True)
+    frequency.sort(key=lambda x: x[1], reverse=True)
+
+    # Sort by date, latest first
+    all_tweets.sort(key=lambda x: x.date, reverse=True)
+
+    # Ignore tweets that are earlier than the start of COVID
+    all_tweets = [t for t in all_tweets if t.date > '2020-01-01T01:01:01']
+
+    return frequency, popularity, all_tweets
+
+
 def view_covid_tweets_freq(sample: Sample) -> None:
     """
 
@@ -116,89 +199,6 @@ def view_covid_tweets_pop(sample: Sample) -> None:
     plt.hist(x_list, bins=40, color='#ffcccc')
     plt.axvline([1], color='lightgray')
     plt.savefig(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample.name}.png')
-
-
-def load_samples() -> list[Sample]:
-    """
-    Load samples and calculate their data
-
-    :return: Samples
-    """
-    # Load sample, convert format
-    samples = load_user_sample()
-    samples = [Sample('500-pop', [u.username for u in samples.most_popular]),
-               Sample('500-rand', [u.username for u in samples.random]),
-               Sample('eng-news', list(samples.english_news))]
-
-    # Calculate frequencies and popularity ratios
-    for s in samples:
-        s.frequencies, s.popularity_ratios, s.tweets = calculate_sample_data(s.users)
-
-    return samples
-
-
-def calculate_sample_data(users: list[str]) -> tuple[list[UserFloat], list[UserFloat], list[Posting]]:
-    """
-    This function loads and calculates the frequency that a list of user posts about COVID, and
-    also calculates their relative popularity of COVID posts.
-
-    This function also creates a combined list of all users in a sample.
-
-    Frequency: the frequency that the sampled users post about COVID. For example, someone who
-    posted every single tweet about COVID will have a frequency of 1, and someone who doesn't
-    post about COVID will have a frequency of 0.
-
-    Popularity ratio: the relative popularity of the sampled users' posts about COVID. If one
-    person posted a COVID post and got 1000 likes, while their other posts (including this one) got
-    an average of 1 like, they will have a relative popularity of 1000. If, on the other hand, one
-    person posted a COVID post and got 1 like, while their other posts (including this one) got an
-    average of 1000 likes, they will have a relative popularity of 1/1000.
-
-    To prevent divide-by-zero, we ignored everyone who didn't post about covid and who didn't post
-    at all.
-
-    :param users: Users in a sample
-    :return: Frequencies, Popularity ratios, Combined tweets list for the sample
-    """
-    popularity = []
-    frequency = []
-    all_tweets: list[Posting] = []
-    for u in users:
-        # Load processed tweet
-        tweets = load_tweets(u)
-        # Ignore retweets
-        tweets = [t for t in tweets if not t.repost]
-        all_tweets += tweets
-        # Filter covid tweets
-        covid = [t for t in tweets if t.covid_related]
-
-        # To prevent divide by zero, ignore people who didn't post at all
-        if len(tweets) == 0:
-            continue
-        # Calculate the frequency of COVID-related tweets
-        freq = len(covid) / len(tweets)
-        frequency.append(UserFloat(u, freq))
-
-        # To prevent divide by zero, ignore everyone who didn't post about covid
-        if len(covid) == 0 or len(tweets) == 0:
-            continue
-        # Get the average popularity for COVID-related tweets
-        covid_avg = statistics.mean(t.popularity for t in covid)
-        global_avg = statistics.mean(t.popularity for t in tweets)
-        # Get the relative popularity
-        popularity.append(UserFloat(u, covid_avg / global_avg))
-
-    # Sort by relative popularity or frequency
-    popularity.sort(key=lambda x: x[1], reverse=True)
-    frequency.sort(key=lambda x: x[1], reverse=True)
-
-    # Sort by date, latest first
-    all_tweets.sort(key=lambda x: x.date, reverse=True)
-
-    # Ignore tweets that are earlier than the start of COVID
-    all_tweets = [t for t in all_tweets if t.date > '2020-01-01T01:01:01']
-
-    return frequency, popularity, all_tweets
 
 
 def view_covid_tweets_date(tweets: list[Posting]):
