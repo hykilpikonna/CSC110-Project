@@ -20,7 +20,7 @@ class UserFloat:
     This is used for both COVID tweet frequency and popularity ratio data, because both of these
     are floating point data.
     """
-    username: str
+    name: str
     data: float
 
 
@@ -46,14 +46,14 @@ def view_covid_tweets_freq(sample: Sample) -> None:
 
     # How many people didn't post about COVID?
     r.print("How many people didn't post about COVID:",
-            len([a for a in user_frequency if a[1] == 0]))
+            len([a for a in sample.frequencies if a.data == 0]))
     r.print("How many people have less than 1% of their posts about COVID:",
-            len([a for a in user_frequency if a[1] <= 0.01]))
+            len([a for a in sample.frequencies if a.data <= 0.01]))
     r.print()
 
     # Top 20
     r.print(f"20 Users of who post COVID-related tweets most frequently:")
-    r.print(tabulate([[u[0], f'{u[1] * 100:.1f}%'] for u in user_frequency[:20]],
+    r.print(tabulate([[u.name, f'{u.data * 100:.1f}%'] for u in sample.frequencies[:20]],
                      ['Username', 'Frequency'], tablefmt="github"))
 
     # Save report
@@ -63,38 +63,33 @@ def view_covid_tweets_freq(sample: Sample) -> None:
     plt.title(f'COVID-related posting frequency for {sample.name}')
     plt.xticks(rotation=90)
     plt.tight_layout()
-    plt.hist([f[1] for f in user_frequency], bins=100, color='#ffcccc')
+    plt.hist([f.data for f in sample.frequencies], bins=100, color='#ffcccc')
     plt.savefig(f'{REPORT_DIR}/report.report.1-covid-tweet-frequency/{sample.name}.png')
 
 
-def view_covid_tweets_pop(users: list[str],
-                          sample_name: str) -> None:
+def view_covid_tweets_pop(sample: Sample) -> None:
     """
-
-
-    :param users: Sample users
-    :param sample_name: Name of the sample
+    :param sample: Sample
     :return: None
     """
-    user_popularity = load_covid_tweets_pop(users)
-
     # Init reporter
-    r = Reporter(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample_name}.md')
-    r.print(f"In {sample_name} -")
+    r = Reporter(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample.name}.md')
+    r.print(f"In {sample.name} -")
 
     # How many people are ignored
     r.print("To prevent division by zero, we ignored people who didn't post about COVID or didn't "
-            f"post at all. We ignored {len(users) - len(user_popularity)} people in this list.")
+            f"post at all. We ignored {len(sample.users) - len(sample.popularity_ratios)} people "
+            f"in this list.")
     r.print()
 
     # Top 20
     r.print(f"20 Users of whose COVID-related posts are the most popular:")
-    r.print(tabulate([[u[0], f'{u[1]:.2f}'] for u in user_popularity[:20]],
+    r.print(tabulate([[u.name, f'{u.data:.2f}'] for u in sample.popularity_ratios[:20]],
                      ['Username', 'Popularity Ratio'], tablefmt="github"))
     r.print()
 
     # Calculate statistics
-    x_list = [f[1] for f in user_popularity]
+    x_list = [f.data for f in sample.popularity_ratios]
     s = get_statistics(x_list)
     r.print(f'With outliers, ')
     r.print(f'- mean: {s.mean:.2f}, median: {s.median:.2f}, stddev: {s.stddev:.2f}')
@@ -115,12 +110,12 @@ def view_covid_tweets_pop(users: list[str],
     r.save()
 
     # Graph histogram
-    plt.title(f'COVID-related popularity ratios for {sample_name}')
+    plt.title(f'COVID-related popularity ratios for {sample.name}')
     plt.xticks(rotation=90)
     plt.tight_layout()
     plt.hist(x_list, bins=40, color='#ffcccc')
     plt.axvline([1], color='lightgray')
-    plt.savefig(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample_name}.png')
+    plt.savefig(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample.name}.png')
 
 
 def load_samples() -> list[Sample]:
