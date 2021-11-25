@@ -82,8 +82,7 @@ def write(file: str, text: str) -> None:
     file = file.lower().replace('\\', '/')
 
     if '/' in file:
-        path = '/'.join(file.split('/')[:-1])
-        Path(path).mkdir(parents=True, exist_ok=True)
+        Path(file).parent.mkdir(parents=True, exist_ok=True)
 
     with open(file, 'w', encoding='utf-8') as f:
         f.write(text)
