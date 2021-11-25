@@ -53,7 +53,7 @@ class UserFloat:
 
 
 @dataclass()
-class UserSample:
+class Sample:
     name: str
     users: list[str]
     frequencies: list[UserFloat] = field(default_factory=list)
@@ -62,20 +62,15 @@ class UserSample:
     tweets: list[Posting] = field(default_factory=list)
 
 
-def view_covid_tweets_freq(users: list[str],
-                           sample_name: str) -> None:
+def view_covid_tweets_freq(sample: Sample) -> None:
     """
-    Visualize the frequency that the sampled users post about COVID. For example, someone who
-    posted every single tweet about COVID will have a frequency of 1, and someone who doesn't
-    post about COVID will have a frequency of 0.
 
-    :param users: Sample users
-    :param sample_name: Name of the sample
+    :param sample: Sample
     :return: None
     """
     # Init reporter
-    r = Reporter(f'{REPORT_DIR}/report.report.1-covid-tweet-frequency/{sample_name}.md')
-    r.print(f"In {sample_name} -")
+    r = Reporter(f'{REPORT_DIR}/report.report.1-covid-tweet-frequency/{sample.name}.md')
+    r.print(f"In {sample.name} -")
 
     # How many people didn't post about COVID?
     r.print("How many people didn't post about COVID:",
@@ -93,24 +88,17 @@ def view_covid_tweets_freq(users: list[str],
     r.save()
 
     # Graph histogram
-    plt.title(f'COVID-related posting frequency for {sample_name}')
+    plt.title(f'COVID-related posting frequency for {sample.name}')
     plt.xticks(rotation=90)
     plt.tight_layout()
     plt.hist([f[1] for f in user_frequency], bins=100, color='#ffcccc')
-    plt.savefig(f'{REPORT_DIR}/report.report.1-covid-tweet-frequency/{sample_name}.png')
+    plt.savefig(f'{REPORT_DIR}/report.report.1-covid-tweet-frequency/{sample.name}.png')
 
 
 def view_covid_tweets_pop(users: list[str],
                           sample_name: str) -> None:
     """
-    Visualize the relative popularity of the sampled users' posts about COVID. For example, if one
-    person posted a COVID post and got 1000 likes, while their other posts (including this one) got
-    an average of 1 like, they will have a relative popularity of 1000. If, on the other hand, one
-    person posted a COVID post and got 1 like, while their other posts (including this one) got an
-    average of 1000 likes, they will have a relative popularity of 1/1000.
 
-    To prevent divide-by-zero, we ignored everyone who didn't post about covid and who didn't post
-    at all.
 
     :param users: Sample users
     :param sample_name: Name of the sample
@@ -163,12 +151,44 @@ def view_covid_tweets_pop(users: list[str],
     plt.savefig(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample_name}.png')
 
 
+def load_samples() -> list[Sample]:
+    """
+    Load samples and calculate their data
+
+    :return: Samples
+    """
+    # Load sample, convert format
+    samples = load_user_sample()
+    samples = [Sample('500-pop', [u.username for u in samples.most_popular]),
+               Sample('500-rand', [u.username for u in samples.random]),
+               Sample('eng-news', list(samples.english_news))]
+
+    # Calculate frequencies and popularity ratios
+    for s in samples:
+        s.frequencies, s.popularity_ratios, s.tweets = calculate_sample_data(s.users)
+
+    return samples
+
+
 def calculate_sample_data(users: list[str]) -> tuple[list[UserFloat], list[UserFloat], list[Posting]]:
     """
     This function loads and calculates the frequency that a list of user posts about COVID, and
     also calculates their relative popularity of COVID posts.
 
-    This function also creates a combined list of all users in a sample
+    This function also creates a combined list of all users in a sample.
+
+    Frequency: the frequency that the sampled users post about COVID. For example, someone who
+    posted every single tweet about COVID will have a frequency of 1, and someone who doesn't
+    post about COVID will have a frequency of 0.
+
+    Popularity ratio: the relative popularity of the sampled users' posts about COVID. If one
+    person posted a COVID post and got 1000 likes, while their other posts (including this one) got
+    an average of 1 like, they will have a relative popularity of 1000. If, on the other hand, one
+    person posted a COVID post and got 1 like, while their other posts (including this one) got an
+    average of 1000 likes, they will have a relative popularity of 1/1000.
+
+    To prevent divide-by-zero, we ignored everyone who didn't post about covid and who didn't post
+    at all.
 
     :param users: Users in a sample
     :return: Frequencies, Popularity ratios, Combined tweets list for the sample
@@ -225,15 +245,6 @@ def view_covid_tweets_date(tweets: list[Posting]):
 
 
 if __name__ == '__main__':
-    # Load sample, convert format
-    samples = load_user_sample()
-    samples = [UserSample('500-pop', [u.username for u in samples.most_popular]),
-               UserSample('500-rand', [u.username for u in samples.random]),
-               UserSample('eng-news', list(samples.english_news))]
-
-    # Calculate frequencies and popularity ratios
-    for s in samples:
-        s.frequencies, s.popularity_ratios, s.tweets = calculate_sample_data(s.users)
 
     view_covid_tweets_freq([u.username for u in samples.most_popular], '500-pop')
     # view_covid_tweets_freq(sample.random, '500-rand')

@@ -99,7 +99,7 @@ def get_user_popularity_ranking(user: str) -> int:
 
 
 @dataclass()
-class Sample:
+class UserSample:
     """
     This is a data class storing our different samples.
     """
@@ -147,7 +147,7 @@ def select_user_sample() -> None:
     sample = random.sample(filtered, 500)
 
     # Save
-    write(file, json_stringify(Sample(most_popular, sample, get_english_news_channels())))
+    write(file, json_stringify(UserSample(most_popular, sample, get_english_news_channels())))
 
 
 def get_english_news_channels() -> list[str]:
@@ -202,16 +202,16 @@ def filter_news_channels() -> None:
     write(f'{USER_DIR}/processed/sample.json', json_stringify(sample))
 
 
-def load_user_sample() -> Sample:
+def load_user_sample() -> UserSample:
     """
     Load the selected sample
 
     :return: None
     """
     j = json.loads(read(f'{USER_DIR}/processed/sample.json'))
-    return Sample([ProcessedUser(*u) for u in j['most_popular']],
-                  [ProcessedUser(*u) for u in j['random']],
-                  j['english_news'])
+    return UserSample([ProcessedUser(*u) for u in j['most_popular']],
+                      [ProcessedUser(*u) for u in j['random']],
+                      j['english_news'])
 
 
 class Posting(NamedTuple):
