@@ -44,7 +44,9 @@ Since there are many outliers, medians and IQR will more accurately represent th
 
 ## COVID-19 Popularity Ratios
 
-Then, we analyzed the popularity ratio of COVID-related posts for our three samples. The popularity of a post defines how much other people are interested in the post, measured by the total number of user interactions (likes and comments) on that post. From that data, the relative popularity ratio for COVID-related posts calculates how popular are COVID-related posts compared to all other posts, calculated by the equation, which is a ratio of the average popularity of both: \[(∑Popularity of COVID-posts / # of COVID-posts) / (∑Popularity of all posts / # of posts total)]
+Then, we analyzed the popularity ratio of COVID-related posts for our three samples. The popularity of a post defines how much other people are interested in the post, measured by the total number of user interactions (likes and comments) on that post. From that data, the relative popularity ratio for COVID-related posts calculates how popular are COVID-related posts compared to all other posts, calculated by the equation, which is a ratio of the average popularity of both: 
+
+$$\\left(\\frac{\\sum\\text{Popularity of COVID-posts}}{\\text{Number of COVID-posts}}\\right) / \\left(\\frac{\\sum \\text{Popularity of all posts}}{\\text{Total number of posts}}\\right)$$
 
 To prevent division by zero, we ignored people who didn't post about COVID or didn't post at all.
 
