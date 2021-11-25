@@ -1,7 +1,7 @@
 import os.path
 from pathlib import Path
 
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, Response
 
 from constants import REPORT_DIR
 from utils import read
@@ -41,13 +41,23 @@ def serve_report() -> None:
 
     @app.route('/')
     def root() -> str:
-        # Generate report, put report into HTML
+        """
+        Generate report, put the report into the HTML template
+
+        :return: HTML report
+        """
         html = read(str(src_dir.joinpath('report_page.html'))) \
             .replace('{{markdown}}', generate_report().replace('`', '\\`'))
         return html
 
     @app.route('/<path:path>')
-    def res(path: str):
+    def res(path: str) -> Response:
+        """
+        Resources endpoint
+
+        :param path: Path of the resource
+        :return: File resource or 404
+        """
         path = os.path.join(REPORT_DIR, path)
         return send_from_directory(Path(path).absolute().parent, Path(path).name)
 
