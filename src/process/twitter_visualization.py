@@ -44,9 +44,8 @@ def load_samples() -> list[Sample]:
     # Load sample, convert format
     samples = load_user_sample()
     samples = [Sample('500-pop', [u.username for u in samples.most_popular]),
-               # Sample('500-rand', [u.username for u in samples.random]),
-               # Sample('eng-news', list(samples.english_news))
-               ]
+               Sample('500-rand', [u.username for u in samples.random]),
+               Sample('eng-news', list(samples.english_news))]
 
     # Calculate frequencies and popularity ratios
     for s in samples:
@@ -164,12 +163,12 @@ def report_ignored(samples: list[Sample]) -> None:
              ["Posted less than 1%"] +
              [str(len([1 for a in s.frequencies if a.data < 0.01])) for s in samples]]
 
-    r = Reporter(f'freq/didnt-post.md')
+    r = Reporter('freq/didnt-post.md')
     r.print(tabulate(table, [s.name for s in samples], tablefmt="github"))
 
     # For popularity ratio, report ignored
     table = [["Ignored"] + [str(len(s.users) - len(s.popularity_ratios)) for s in samples]]
-    r = Reporter(f'pop/ignored.md')
+    r = Reporter('pop/ignored.md')
     r.print(tabulate(table, [s.name for s in samples], tablefmt="github"))
 
 
@@ -242,34 +241,27 @@ def report_histograms(sample: Sample) -> None:
     report_histogram(x, f'pop/{sample.name}-hist.png', title, axvline=[1])
 
 
-def view_covid_tweets_pop(sample: Sample) -> None:
+def report_pop_stats(samples: list[Sample]) -> None:
     """
-    :param sample: Sample
+    Report popularity ratios' statistics
+
+    :param samples: Samples
     :return: None
     """
-    # Init reporter
-    r = Reporter(f'{REPORT_DIR}/pop/{sample.name}.md')
+    xs = [[d.data for d in s.popularity_ratios] for s in samples]
 
-    # Calculate statistics
-    x_list = [f.data for f in sample.popularity_ratios]
-    s = get_statistics(x_list)
-    r.print(f'With outliers, ')
-    r.print(f'- mean: {s.mean:.2f}, median: {s.median:.2f}, stddev: {s.stddev:.2f}')
-    r.print()
+    def tabulate_stats(stats: list[Stats]):
+        return [['Mean'] + [f'{s.mean:.2f}' for s in stats],
+                ['Median'] + [f'{s.median:.2f}' for s in stats],
+                ['StdDev'] + [f'{s.stddev:.2f}' for s in stats]]
 
-    # Remove outliers
-    r.print('As there are many outliers in the popularity ratio, they are removed in graphing.')
-    r.print()
-    x_list = remove_outliers(x_list)
+    table = tabulate_stats([get_statistics(x) for x in xs])
+    Reporter('pop/stats-with-outliers.md').print(
+        tabulate(table, [s.name for s in samples], tablefmt='github'))
 
-    # Calculate statistics without outliers
-    s = get_statistics(x_list)
-    r.print(f'Without outliers, ')
-    r.print(f'- mean: {s.mean:.2f}, median: {s.median:.2f}, stddev: {s.stddev:.2f}')
-    r.print()
-
-    # Save report
-    r.save()
+    table = tabulate_stats([get_statistics(remove_outliers(x)) for x in xs])
+    Reporter('pop/stats.md').print(
+        tabulate(table, [s.name for s in samples], tablefmt='github'))
 
 
 def view_covid_tweets_date(tweets: list[Posting]):
@@ -282,7 +274,10 @@ def view_covid_tweets_date(tweets: list[Posting]):
     plt.show()
 
 
-if __name__ == '__main__':
+def report_all() -> None:
+    """
+    Generate all reports
+    """
     load_font()
 
     Path(f'{REPORT_DIR}/freq').mkdir(parents=True, exist_ok=True)
@@ -295,9 +290,14 @@ if __name__ == '__main__':
     debug('Creating reports...')
 
     report_ignored(samples)
+    report_pop_stats(samples)
     for s in samples:
         report_top_20_tables(s)
         report_histograms(s)
+
+
+if __name__ == '__main__':
+    report_all()
     # samples = load_user_sample()
     # combine_tweets_for_sample([u.username for u in samples.most_popular], '500-pop')
     # combine_tweets_for_sample([u.username for u in samples.random], '500-rand')
