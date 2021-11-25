@@ -1,6 +1,8 @@
+import os.path
+
 import markdown
 
-from constants import SRC_DIR
+from constants import SRC_DIR, REPORT_DIR
 from utils import read
 
 
@@ -10,7 +12,18 @@ def generate_report() -> str:
 
     :return: HTML
     """
-    return markdown.markdown(read(f'{SRC_DIR}/report_document.md'))
+    # Load markdown
+    md = read(f'{SRC_DIR}/report_document.md').replace('\r\n', '\n').split('\n')
+
+    # Process @include statements
+    for i in range(len(md)):
+        line = md[i]
+        if line.startswith('@include'):
+            line = line[line.index('`') + 1:]
+            line = line[:line.index('`')]
+            md[i] = read(os.path.join(REPORT_DIR, line))
+
+    return markdown.markdown('\n'.join(md))
 
 
 if __name__ == '__main__':
