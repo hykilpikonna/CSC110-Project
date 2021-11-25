@@ -246,6 +246,28 @@ def parse_date(iso: str) -> datetime:
                     int(iso[11:13]), int(iso[14:16]), int(iso[17:19]))
 
 
+def divide_zeros(numerator: list[float], denominator: list[float]) -> list[float]:
+    """
+    Divide two lists of floats, ignoring zeros (anything dividing by zero will produce zero)
+
+    Preconditions:
+      - len(numerator) == len(denominator)
+
+    :param numerator: Numerator
+    :param denominator: Denominator
+    :return: A list where list[i] = numerator[i] / denominator[i]
+    """
+    output = np.zeros(len(numerator), float)
+    for i in range(len(numerator)):
+        if denominator[i] == 0:
+            output[i] = 0
+        else:
+            output[i] = numerator[i] / denominator[i]
+    # This marks it as incorrect type but it's actually not incorrect type, just because numpy
+    # doesn't specify its return types
+    return output.tolist()
+
+
 class EnhancedJSONEncoder(json.JSONEncoder):
     def default(self, o):
 
