@@ -21,9 +21,9 @@ def generate_report() -> str:
         if line.startswith('@include'):
             line = line[line.index('`') + 1:]
             line = line[:line.index('`')]
-            md[i] = read(os.path.join(REPORT_DIR, line))
+            md[i] = read(line)
 
-    return markdown.markdown('\n'.join(md))
+    return markdown.markdown('\n'.join(md), extensions=['tables'])
 
 
 if __name__ == '__main__':
