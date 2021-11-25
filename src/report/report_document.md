@@ -12,6 +12,10 @@ Our data come from three samples:
 
 ![](/1-covid-tweet-frequency/500-pop.png)
 
+## COVID-19 Popularity Ratios
+
+To prevent division by zero, we ignored people who didn't post about COVID or didn't post at all.
+
 Test Include:
 
 @include `/1-covid-tweet-frequency/500-pop.md`

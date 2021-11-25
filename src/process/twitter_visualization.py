@@ -133,21 +133,29 @@ def report_top_20_tables(sample: Sample) -> None:
                      ['Username', 'Popularity Ratio'], tablefmt="github"))
 
 
-def report_freq_didnt_post(samples: list[Sample]) -> None:
+def report_ignored(samples: list[Sample]) -> None:
     """
     Report how many people didn't post about covid or posted less than 1% about COVID across
     different samples.
 
+    And for popularity ratios, report how many people are ignored because they didn't post.
+
     :param samples: Samples
     :return: None
     """
-    # Create table
+    # For frequencies, report who didn't post
     table = [["Didn't post at all"] +
              [str(len([1 for a in s.frequencies if a.data == 0])) for s in samples],
              ["Posted less than 1%"] +
              [str(len([1 for a in s.frequencies if a.data < 0.01])) for s in samples]]
 
-    r = Reporter(f'1-frequencies/didnt_post.md')
+    r = Reporter(f'1-frequencies/didnt-post.md')
+    r.print(tabulate(table, [s.name for s in samples], tablefmt="github"))
+
+    # For popularity ratio, report ignored
+    table = [["Ignored"] + [str(len(s.users) - len(s.popularity_ratios)) for s in samples]]
+
+    r = Reporter(f'2-popularity-ratios/ignored.md')
     r.print(tabulate(table, [s.name for s in samples], tablefmt="github"))
 
 
@@ -165,6 +173,7 @@ def report_freq_histogram(sample: Sample) -> None:
     plt.savefig(f'1-frequencies/{sample.name}-hist.png')
 
 
+
 def view_covid_tweets_pop(sample: Sample) -> None:
     """
     :param sample: Sample
@@ -172,13 +181,6 @@ def view_covid_tweets_pop(sample: Sample) -> None:
     """
     # Init reporter
     r = Reporter(f'{REPORT_DIR}/2-covid-tweet-popularity/{sample.name}.md')
-    r.print(f"In {sample.name} -")
-
-    # How many people are ignored
-    r.print("To prevent division by zero, we ignored people who didn't post about COVID or didn't "
-            f"post at all. We ignored {len(sample.users) - len(sample.popularity_ratios)} people "
-            f"in this list.")
-    r.print()
 
     # Calculate statistics
     x_list = [f.data for f in sample.popularity_ratios]
