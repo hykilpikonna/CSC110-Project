@@ -54,7 +54,7 @@ There are three divisions in this equation, so there are three possible places w
 
 @include `/pop/ignored.md`
 
-Graphing the results, we find that the *TODO*
+Graphing the results, we find that the ***TODO***
 
 <div class="image-row">
     <div><img src="/pop/500-pop-hist.png" alt="hist"></div>
@@ -68,6 +68,8 @@ Graphing the results, we find that the *TODO*
 # Change Analysis
 
 After we answered how frequently people posted about COVID-19 and how interested are people to view these posts, we analyze our data over the posting dates to answer the second part of our research question: **How does posting frequency and people's interests in COVID-19 posts changes from the beginning of the pandemic to now?** 
+
+**_TODO_**
 
 ## References
 

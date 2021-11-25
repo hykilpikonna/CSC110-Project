@@ -79,6 +79,11 @@ def serve_report() -> None:
         :param path: Path of the resource
         :return: File resource or 404
         """
+        # Prevent path traversal attacks
+        if '..' in path:
+            return Response('Nope.')
+
+        # Send file
         path = os.path.join(REPORT_DIR, path)
         return send_from_directory(Path(path).absolute().parent, Path(path).name)
 
@@ -90,6 +95,10 @@ def serve_report() -> None:
         :param path: Path of the resource
         :return: File resource or 404
         """
+        # Prevent path traversal attacks
+        if '..' in path:
+            return Response('Nope.')
+
         path = os.path.join(src_dir, 'resources', path)
         return send_from_directory(Path(path).absolute().parent, Path(path).name)
 
