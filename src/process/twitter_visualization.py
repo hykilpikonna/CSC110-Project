@@ -179,19 +179,26 @@ def load_font() -> None:
     font = Path(os.path.realpath(__file__)).absolute().parent.joinpath('iosevka-ss04-regular.ttf')
     fe = font_manager.FontEntry(font, 'iosevka')
     font_manager.fontManager.ttflist.insert(0, fe)
+    plt.rcParams["font.family"] = "iosevka"
 
 
 def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool = False,
-                     bins: int = 40):
+                     bins: int = 40) -> None:
+    """
+    Plot a histogram
+
+    :param x: X axis data
+    :param path: Output image path (should end in .png)
+    :param title: Title
+    :param clear_outliers: Remove outliers or not
+    :param bins: Number of bins
+    :return: None
+    """
     if clear_outliers:
         title = title + ' - No Outliers'
         x = remove_outliers(x)
 
     border_color = '#5b3300'
-    plt.rcParams["font.family"] = "iosevka"
-    plt.xticks(rotation=45)
-    plt.yticks(rotation=45)
-    plt.tight_layout()
 
     # Create fig ax
     fig: plt.Figure
@@ -207,7 +214,7 @@ def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool
         spine.set_edgecolor(border_color)
 
     # Save
-    plt.savefig(os.path.join(REPORT_DIR, path))
+    fig.savefig(os.path.join(REPORT_DIR, path))
 
 
 def report_freq_histogram(sample: Sample) -> None:
