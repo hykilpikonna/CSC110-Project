@@ -10,6 +10,10 @@ Our data come from three samples:
 
 ## COVID-19 Posting Frequency
 
+First, we analyzed how frequently the users in these three datasets are posing about COVID-19. Initially, we were expecting that most people will post about COVID-19 because this pandemic is very relevant to every one of us. However, we found that there are many people in our samples didn't post about COVID-19 at all. The following table shows how many people in each sample didn't post 
+
+@include `/freq/didnt-post.md`
+
 ![](/1-covid-tweet-frequency/500-pop.png)
 
 ## COVID-19 Popularity Ratios
@@ -18,4 +22,9 @@ To prevent division by zero, we ignored people who didn't post about COVID or di
 
 Test Include:
 
-@include `/1-covid-tweet-frequency/500-pop.md`
+@include `/pop/stats.md`
+
+@include `/pop/ignored.md`
+
+
+@include `/pop/stats-with-outliers.md`

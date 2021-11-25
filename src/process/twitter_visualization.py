@@ -138,13 +138,13 @@ def report_top_20_tables(sample: Sample) -> None:
     :param sample: Sample
     :return: None
     """
-    r = Reporter(f'freq/{sample.name}-top-20.md')
-    r.print(tabulate([[u.name, f'{u.data * 100:.1f}%'] for u in sample.frequencies[:20]],
-                     ['Username', 'Frequency'], tablefmt="github"))
+    Reporter(f'freq/{sample.name}-top-20.md').table(
+        [[u.name, f'{u.data * 100:.1f}%'] for u in sample.frequencies[:20]],
+        ['Username', 'Frequency'])
 
-    r = Reporter(f'pop/{sample.name}-top-20.md')
-    r.print(tabulate([[u.name, f'{u.data * 100:.1f}%'] for u in sample.popularity_ratios[:20]],
-                     ['Username', 'Popularity Ratio'], tablefmt="github"))
+    Reporter(f'pop/{sample.name}-top-20.md').table(
+        [[u.name, f'{u.data * 100:.1f}%'] for u in sample.popularity_ratios[:20]],
+        ['Username', 'Popularity Ratio'])
 
 
 def report_ignored(samples: list[Sample]) -> None:
@@ -158,18 +158,17 @@ def report_ignored(samples: list[Sample]) -> None:
     :return: None
     """
     # For frequencies, report who didn't post
-    table = [["Didn't post at all"] +
+    table = [["Total users"] + [str(len(s.frequencies)) for s in samples],
+             ["Users who didn't post at all"] +
              [str(len([1 for a in s.frequencies if a.data == 0])) for s in samples],
-             ["Posted less than 1%"] +
+             ["Users who posted less than 1%"] +
              [str(len([1 for a in s.frequencies if a.data < 0.01])) for s in samples]]
 
-    r = Reporter('freq/didnt-post.md')
-    r.print(tabulate(table, [s.name for s in samples], tablefmt="github"))
+    Reporter('freq/didnt-post.md').table(table, [s.name for s in samples], True)
 
     # For popularity ratio, report ignored
     table = [["Ignored"] + [str(len(s.users) - len(s.popularity_ratios)) for s in samples]]
-    r = Reporter('pop/ignored.md')
-    r.print(tabulate(table, [s.name for s in samples], tablefmt="github"))
+    Reporter('pop/ignored.md').table(table, [s.name for s in samples], True)
 
 
 def load_font() -> None:
@@ -233,12 +232,13 @@ def report_histograms(sample: Sample) -> None:
     """
     x = [f.data for f in sample.frequencies]
     title = f'COVID-related posting frequency for {sample.name}'
-    report_histogram(x, f'freq/{sample.name}-hist.png', title, False, 100)
+    report_histogram(x, f'freq/{sample.name}-hist-outliers.png', title, False, 100)
+    report_histogram(x, f'freq/{sample.name}-hist.png', title, True)
 
     x = [f.data for f in sample.popularity_ratios]
     title = f'Popularity ratio of COVID posts for {sample.name}'
     report_histogram(x, f'pop/{sample.name}-hist-outliers.png', title, False, 100, axvline=[1])
-    report_histogram(x, f'pop/{sample.name}-hist.png', title, axvline=[1])
+    report_histogram(x, f'pop/{sample.name}-hist.png', title, True, axvline=[1])
 
 
 def report_pop_stats(samples: list[Sample]) -> None:
@@ -256,12 +256,10 @@ def report_pop_stats(samples: list[Sample]) -> None:
                 ['StdDev'] + [f'{s.stddev:.2f}' for s in stats]]
 
     table = tabulate_stats([get_statistics(x) for x in xs])
-    Reporter('pop/stats-with-outliers.md').print(
-        tabulate(table, [s.name for s in samples], tablefmt='github'))
+    Reporter('pop/stats-with-outliers.md').table(table, [s.name for s in samples], True)
 
     table = tabulate_stats([get_statistics(remove_outliers(x)) for x in xs])
-    Reporter('pop/stats.md').print(
-        tabulate(table, [s.name for s in samples], tablefmt='github'))
+    Reporter('pop/stats.md').table(table, [s.name for s in samples], True)
 
 
 def view_covid_tweets_date(tweets: list[Posting]):

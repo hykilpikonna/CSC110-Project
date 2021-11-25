@@ -10,6 +10,7 @@ from typing import Union, NamedTuple, Any
 
 import json5
 import numpy as np
+from tabulate import tabulate
 
 from constants import REPORT_DIR
 
@@ -130,6 +131,19 @@ class Reporter:
 
     def save(self) -> None:
         write(self.file, self.report)
+
+    def table(self, table: list[list[str]], headers: list[str], header_code: bool = False) -> None:
+        """
+        Report a table
+
+        :param table: Table data
+        :param headers: Headers
+        :param header_code: Whether the headers should be code-formatted
+        :return: None
+        """
+        if header_code:
+            headers = [f'`{s}`' for s in headers]
+        self.print(tabulate(table, headers, tablefmt='github'))
 
 
 def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float]:
