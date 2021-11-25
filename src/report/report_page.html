@@ -21,7 +21,7 @@ markdown = `
 {{markdown}}
 `
 document.getElementById('content').innerHTML =
-    marked.parse(markdown);
+    marked.parse(atob(markdown));
 
 // Make images clickable
 // Improved from: https://stackoverflow.com/a/50430187/7346633

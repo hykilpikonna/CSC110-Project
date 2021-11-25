@@ -18,7 +18,7 @@ First, we analyzed how frequently the users in these three datasets are posing a
 
 The `eng-news` sample has the lowest number of users who didn't have COVID-related posts, the `500-rand` sample has the highest, while `500-pop` sits in between. This large difference between `eng-news` and the rest can be explained by the news channels' obligation to report news, which includes news about new outbreaks, progress of vaccination, new cross-border policies, etc. Also, we observed that `500-pop` has much more users who posted COVID-related content than `500-rand`, while they have similar amounts of users posting less than 1%. This finding might be explained by how influential people have more incentive to express their support toward slowing the spread of the pandemic than regular users, which doesn't require frequent posting like news channels.
 
-We might graph the frequencies on a histogram to gain more insight: (You can click on the images to enlarge them, and hold down E to view full screen).
+We calculated frequency by dividing the total number of tweets by the number of COVID-related tweets. We might graph the frequencies on a histogram to gain more insight: (You can click on the images to enlarge them, and hold down E to view full screen).
 
 <div class="image-row">
     <div><img src="/freq/500-pop-hist-outliers.png" alt="hist"></div>
@@ -48,7 +48,7 @@ Since there are many outliers, medians and IQR will more accurately represent th
 
 Then, we analyzed the popularity ratio of COVID-related posts for our three samples. The popularity of a post defines how much other people are interested in the post, measured by the total number of user interactions (likes and comments) on that post. From that data, the relative popularity ratio for COVID-related posts calculates how popular are COVID-related posts compared to all other posts, calculated by the equation, which is a ratio of the average popularity of both: 
 
-$$\\left(\\frac{\\sum\\text{Popularity of COVID-posts}}{\\text{Number of COVID-posts}}\\right) / \\left(\\frac{\\sum \\text{Popularity of all posts}}{\\text{Total number of posts}}\\right)$$
+$$\left(\frac{\sum\text{Popularity of COVID-posts}}{\text{Number of COVID-posts}}\right) / \left(\frac{\sum \text{Popularity of all posts}}{\text{Total number of posts}}\right)$$
 
 There are three divisions in this equation, so there are three possible places where it might divide by zero. So, to prevent division by zero, we ignored people who didn't post about COVID-19 or didn't post anything at all, and we also ignored people who have literally 0 popularity on any of their posts. In our data, we ignored this amount of people for each sample:
 
@@ -67,7 +67,13 @@ Graphing the results, we find that the ***TODO***
 
 # Change Analysis
 
-After we answered how frequently people posted about COVID-19 and how interested are people to view these posts, we analyze our data over the posting dates to answer the second part of our research question: **How does posting frequency and people's interests in COVID-19 posts changes from the beginning of the pandemic to now?** 
+After we answered how frequently people posted about COVID-19 and how interested are people to view these posts, we analyze our data over the posting dates to answer the second part of our research question: **How does posting frequency and people's interests in COVID-19 posts changes from the beginning of the pandemic to now?**
+
+## Method
+
+In this analysis, we defined the start of COVID-19 as `2020-01-01` and ignored all posts prior to this date. Then, we split the dataset into intervals of 7-days for every day since `2020-01-01`, and calculated the frequency and popularity of that interval, which gave us a list of numbers `x` where:
+
+
 
 **_TODO_**
 

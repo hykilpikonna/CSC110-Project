@@ -1,3 +1,4 @@
+import base64
 import os.path
 import webbrowser
 from pathlib import Path
@@ -67,8 +68,12 @@ def serve_report() -> None:
 
         :return: HTML report
         """
+        # Generate markdown report and b64 encode it (this is to prevent interpretation by JS code)
+        md_b64 = base64.b64encode(generate_report().encode('utf-8')).decode('utf-8')
+        # Inject into HTML
         html = read(str(src_dir.joinpath('report_page.html'))) \
-            .replace('{{markdown}}', generate_report().replace('`', '\\`'))
+            .replace('{{markdown}}', md_b64)
+        # Return
         return html
 
     @app.route('/<path:path>')
