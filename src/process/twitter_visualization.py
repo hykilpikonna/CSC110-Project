@@ -127,38 +127,42 @@ def report_top_20_tables(sample: Sample) -> None:
     r = Reporter(f'1-frequencies/{sample.name}-top-20.md')
     r.print(tabulate([[u.name, f'{u.data * 100:.1f}%'] for u in sample.frequencies[:20]],
                      ['Username', 'Frequency'], tablefmt="github"))
-    r.save()
 
     r = Reporter(f'2-popularity-ratios/{sample.name}-top-20.md')
     r.print(tabulate([[u.name, f'{u.data * 100:.1f}%'] for u in sample.popularity_ratios[:20]],
                      ['Username', 'Popularity Ratio'], tablefmt="github"))
-    r.save()
 
 
-def temp(sample: Sample):
-    # Init reporter
-    r = Reporter(f'{REPORT_DIR}/report.report.1-covid-tweet-frequency/{sample.name}.md')
-    r.print(f"In {sample.name} -")
+def report_freq_didnt_post(samples: list[Sample]) -> None:
+    """
+    Report how many people didn't post about covid or posted less than 1% about COVID across
+    different samples.
 
-    # How many people didn't post about COVID?
-    r.print("How many people didn't post about COVID:",
-            len([a for a in sample.frequencies if a.data == 0]))
-    r.print("How many people have less than 1% of their posts about COVID:",
-            len([a for a in sample.frequencies if a.data <= 0.01]))
-    r.print()
+    :param samples: Samples
+    :return: None
+    """
+    # Create table
+    table = [["Didn't post at all"] +
+             [str(len([1 for a in s.frequencies if a.data == 0])) for s in samples],
+             ["Posted less than 1%"] +
+             [str(len([1 for a in s.frequencies if a.data < 0.01])) for s in samples]]
 
-    # Top 20
-    r.print(f"20 Users of who post COVID-related tweets most frequently:")
+    r = Reporter(f'1-frequencies/didnt_post.md')
+    r.print(tabulate(table, [s.name for s in samples], tablefmt="github"))
 
-    # Save report
-    r.save()
 
-    # Graph histogram
+def report_freq_histogram(sample: Sample) -> None:
+    """
+    Report histogram of COVID posting frequencies
+
+    :param sample: Sample
+    :return: None
+    """
     plt.title(f'COVID-related posting frequency for {sample.name}')
     plt.xticks(rotation=90)
     plt.tight_layout()
     plt.hist([f.data for f in sample.frequencies], bins=100, color='#ffcccc')
-    plt.savefig(f'{REPORT_DIR}/report.report.1-covid-tweet-frequency/{sample.name}.png')
+    plt.savefig(f'1-frequencies/{sample.name}-hist.png')
 
 
 def view_covid_tweets_pop(sample: Sample) -> None:
