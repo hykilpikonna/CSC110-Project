@@ -30,6 +30,10 @@ a {
     text-decoration: none;
 }
 
+span.highlight {
+    background-color: beige;
+}
+
 table {
     border-collapse: collapse;
     border: 2px solid #5b3300;

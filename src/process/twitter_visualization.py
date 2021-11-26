@@ -178,6 +178,9 @@ class Sample:
         self.date_freqs = []
         self.date_pops = []
 
+        # Average popularity ratio results over 7 days
+        seven_days_user_prs = []
+
         # Loop through all dates from the start of COVID to when the data is obtained
         for (ds, dt) in daterange('2020-01-01', '2021-11-25'):
             self.dates.append(dt)
@@ -191,20 +194,25 @@ class Sample:
             # Calculate date covid popularity ratio
             users_posted_today = [u for u in self.users if u in self.user_date_covid_pop_avg and
                                   ds in self.user_date_covid_pop_avg[u]]
-            if len(users_posted_today) != 0:
-                user_pop_ratio_sum = sum(self.user_date_covid_pop_avg[u][ds] /
-                                         self.user_all_pop_avg[u] for u in users_posted_today
-                                         if self.user_all_pop_avg[u] != 0)
-                pops_i = user_pop_ratio_sum / len(users_posted_today)
-
-                if pops_i > 20:
-                    print('Date: ', ds)
-                    for u in users_posted_today:
-                        if self.user_all_pop_avg[u] != 0:
-                            print('-', u, self.user_date_covid_pop_avg[u][ds] /
-                                  self.user_all_pop_avg[u])
+            if len(users_posted_today) == 0:
+                seven_days_user_prs.append([])
             else:
+                user_prs = [self.user_date_covid_pop_avg[u][ds] / self.user_all_pop_avg[u]
+                            for u in users_posted_today if self.user_all_pop_avg[u] != 0]
+                seven_days_user_prs.append(user_prs)
+
+            # Average over seven days
+            seven_days_count = sum(len(user_prs) for user_prs in seven_days_user_prs)
+            if seven_days_count == 0:
                 pops_i = 1
+            else:
+                user_pop_ratio_sum = sum(sum(user_prs) for user_prs in seven_days_user_prs)
+                pops_i = user_pop_ratio_sum / seven_days_count
+
+            # More than seven days, remove one
+            if len(seven_days_user_prs) == 7:
+                seven_days_user_prs.pop(0)
+
             self.date_pops.append(pops_i)
 
 
@@ -318,8 +326,8 @@ def graph_histogram(x: list[float], path: str, title: str, clear_outliers: bool 
     plt.close(fig)
 
 
-def graph_line_plot(x: list[datetime], y: list[float], path: str, title: str, freq: bool,
-                    n: int = 0) -> None:
+def graph_line_plot(x: list[datetime], y: Union[list[float], list[list[float]]], path: str,
+                    title: str, freq: bool, n: int = 0) -> None:
     """
     Plot a line plot, and reduce noise using an IIR filter
 
@@ -347,34 +355,37 @@ def graph_line_plot(x: list[datetime], y: list[float], path: str, title: str, fr
 
     # Date format
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d\n%Y'))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%m\n%Y'))
+    ax.xaxis.set_minor_locator(mdates.MonthLocator(interval=1))
+    ax.xaxis.set_minor_formatter(mdates.DateFormatter('%m'))
 
     # Plot
     ax.set_title(title, color=border_color)
-    ax.plot(x, y, color='#d4b595')
 
-    if freq:
-        # Color below curve
-        ax.fill_between(x, y, color='#d4b595')
+    # Plotting single data line
+    if isinstance(y[0], float):
+        ax.plot(x, y, color='#d4b595')
 
+        if freq:
+            # Color below curve
+            ax.fill_between(x, y, color='#d4b595')
+
+        else:
+            ax.axhline(1, color=border_color)
+            ax.set_ylim(0, 2)
+
+    # Plotting multiple data lines
     else:
-        ax.axhline(1, color=border_color)
-
-        # # Color by y-value
-        # upper = 1.5
-        # lower = 0.5
-        #
-        # y = np.array(y)
-        # y_up = np.ma.masked_where(y < upper, y)
-        # y_low = np.ma.masked_where(y > lower, y)
-        # y_middle = np.ma.masked_where((y < lower) | (y > upper), y)
-        #
-        # ax.plot(x, y_up, color='green')
-        # ax.plot(x, y_middle, color='yellow')
-        # ax.plot(x, y_low, color='red')
+        fig.set_size_inches(16, 9)
+        for y in y:
+            ax.plot(x, y)
+        if not freq:
+            ax.axhline(1, color=border_color)
+            ax.set_ylim(0, 2)
 
     # Colors
     ax.tick_params(color=border_color, labelcolor=border_color)
+    ax.tick_params(which='minor', color='#9d5800')
     for spine in ax.spines.values():
         spine.set_edgecolor(border_color)
 
@@ -432,7 +443,7 @@ def report_change_different_n(sample: Sample) -> None:
     :param sample: Sample
     :return: None
     """
-    for n in range(1, 15, 3):
+    for n in range(5, 16, 5):
         graph_line_plot(sample.dates, sample.date_pops, f'change/n/{n}.png',
                         f'COVID-posting popularity ratio over time for {sample.name} IIR(n={n})',
                         False, n)
@@ -470,6 +481,11 @@ def report_all() -> None:
         report_histograms(s)
         report_change_graphs(s)
     report_change_different_n(samples[0])
+
+    graph_line_plot(samples[0].dates, [s.date_pops for s in samples], 'change/comb/pop.png',
+                    'COVID-posting popularity ratio over time for all samples - IIR(10)', False, 10)
+    graph_line_plot(samples[0].dates, [s.date_freqs for s in samples], 'change/comb/freq.png',
+                    'COVID-posting frequency over time for all samples - IIR(10)', True, 10)
 
 
 if __name__ == '__main__':
