@@ -73,16 +73,24 @@ After we answered how frequently people posted about COVID-19 and how interested
 
 ## Method
 
-This analysis is separate for each of our samples, just like the previous analysis. However, unlike how tweets are separated for each user in the previous analysis, we combine the tweets of all users in each sample in this analysis. In this analysis, we defined the start of COVID-19 as `2020-01-01` and ignored all posts prior to this date. Then, we calculate the average frequency and popularity ratio for every day since `2020-01-01`. To reduce random variability, instead of using only the data from the day in the calculation, we used the average of the last 7 days for each day, and calculated the frequency and popularity of that interval. This calculation gave us a list `freqs` and a list `pops` where, for every date `dates[i]`,
+This analysis is separate for each of our samples, just like the previous analysis. However, unlike how tweets are separated for each user in the previous analysis, we combine the tweets of all users in each sample in this analysis. In this analysis, we defined the start of COVID-19 as _2020-01-01_ and ignored all posts prior to this date. Then, we calculate the average frequency and popularity ratio for every day since _2020-01-01_. This calculation gave us a list `freqs` and a list `pops` where, for every date `dates[i]`,
 
 <blockquote>
-$$ \text{freqs}_i = 
-\sum_{j = 0}^{7} \frac{|\text{COVID-posts on dates}_{i - j}|}{|\text{All posts on dates}_{i - j}|} $$
+$$ \text{freqs}_i = \frac{|\text{COVID-posts on date}_{i}|}{|\text{All posts on date}_{i}|} $$
 </blockquote>
 
 <blockquote>
-$$ \text{pops}_i = \sum_{j = 0}^{7} \left(\frac{\sum\text{Popularity of COVID-posts}}{|\text{COVID-posts}|}\right) / \left(\frac{\sum \text{Popularity of all posts}}{|\text{All posts}|}\right) $$
+$$ \text{pops}_i = \left(\frac{\sum\text{Popularity of COVID-posts on date}_i}{|\text{COVID-posts on date}_i|}\right) / \left(\frac{\sum \text{Popularity of all posts on date}_i}{|\text{All posts on date}_i|}\right) $$
 </blockquote>
+
+After calculation, we decided to plot line charts of `freqs` or `pops` against `dates`. When we plot the graph without a filter, we found that the graph is actually very noisy as shown in the first graph below. So, we experimented with different filters from the `scipy` library and different parameter values, and chose to use an IIR filter with `n = 10`.
+
+<div class="image-row">
+    <div><img src="/change/n/1.png" alt="hist"></div>
+    <div><img src="/change/n/4.png" alt="hist"></div>
+    <div><img src="/change/n/10.png" alt="hist"></div>
+</div>
+
 
 **_TODO_**
 

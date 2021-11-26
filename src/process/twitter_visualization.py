@@ -279,6 +279,8 @@ def graph_histogram(x: list[float], path: str, title: str, clear_outliers: bool 
 
     # Save
     fig.savefig(os.path.join(REPORT_DIR, path))
+    fig.clf()
+    plt.close(fig)
 
 
 def graph_line_plot(x: list[datetime], y: list[float], path: str, title: str, freq: bool,
@@ -345,6 +347,8 @@ def graph_line_plot(x: list[datetime], y: list[float], path: str, title: str, fr
     path = Path(os.path.join(REPORT_DIR, path))
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(str(path))
+    fig.clf()
+    plt.close(fig)
 
 
 def report_histograms(sample: Sample) -> None:
@@ -409,6 +413,15 @@ def report_change_different_n(sample: Sample) -> None:
                         False, n)
 
 
+def report_change_graphs(sample: Sample) -> None:
+    graph_line_plot(sample.dates, sample.date_pops, f'change/pop/{sample.name}.png',
+                    f'COVID-posting popularity ratio over time for {sample.name} IIR(10)',
+                    False, 10)
+    graph_line_plot(sample.dates, sample.date_freqs, f'change/freq/{sample.name}.png',
+                    f'COVID-posting frequency over time for {sample.name} IIR(10)',
+                    True, 10)
+
+
 def report_all() -> None:
     """
     Generate all reports
@@ -429,6 +442,7 @@ def report_all() -> None:
     for s in samples:
         report_top_20_tables(s)
         report_histograms(s)
+        report_change_graphs(s)
     report_change_different_n(samples[0])
 
 
