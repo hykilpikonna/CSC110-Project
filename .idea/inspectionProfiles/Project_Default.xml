@@ -33,5 +33,12 @@
       <option name="myAdditionalJavadocTags" value="date" />
     </inspection_tool>
     <inspection_tool class="JpaDataSourceORMInspection" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="bins" />
+        </list>
+      </option>
+    </inspection_tool>
   </profile>
 </component>

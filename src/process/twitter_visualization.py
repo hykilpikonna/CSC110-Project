@@ -126,7 +126,7 @@ class Sample:
         ignores users, but instead combines the tweets of the entire sample in the calculation.
 
         More details about the calculations can be found in the report, or report_document.md
-        
+
         Preconditions:
           - len(self.tweets) > 0
           - self.tweets != None
@@ -167,23 +167,7 @@ class Sample:
 
         # Convert indicies to dates, which will be our x-axis
         first_date = parse_date(self.tweets[0].date).replace(hour=0, minute=0, second=0)
-        dates = [first_date + timedelta(days=j) for j in range(len(all_count))]
-
-        # Find suitable n
-        for n in range(1, 20, 3):
-            # Reduce noise by averaging results over 7 day frame
-            b = [1.0 / n] * n
-            a = 1
-            f = scipy.signal.lfilter(b, a, self.date_freqs)
-            p = scipy.signal.lfilter(b, a, self.date_pops)
-
-            # plt.title(f'COVID-posting frequency over time for {sample.name} with IIR n = {n}')
-            # plt.plot(dates, f)
-            # plt.show()
-            plt.title(f'COVID-posting popularity ratio over time for {self.name} with IIR n = {n}')
-            plt.plot(dates, p)
-            plt.savefig(f'{REPORT_DIR}/test/{n}.png')
-            plt.clf()
+        self.dates = [first_date + timedelta(days=j) for j in range(len(all_count))]
 
 
 def load_samples() -> list[Sample]:
@@ -241,7 +225,7 @@ def report_ignored(samples: list[Sample]) -> None:
     Reporter('pop/ignored.md').table(table, [s.name for s in samples], True)
 
 
-def load_font() -> None:
+def graph_load_font() -> None:
     """
     Load iosevka font for matplotlib
     """
@@ -251,8 +235,8 @@ def load_font() -> None:
     plt.rcParams["font.family"] = "iosevka"
 
 
-def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool = False,
-                     bins: int = 20, axvline: Union[list[int], None] = None) -> None:
+def graph_histogram(x: list[float], path: str, title: str, clear_outliers: bool = False,
+                    bins: int = 20, axvline: Union[list[int], None] = None) -> None:
     """
     Plot a histogram
 
@@ -294,6 +278,47 @@ def report_histogram(x: list[float], path: str, title: str, clear_outliers: bool
     fig.savefig(os.path.join(REPORT_DIR, path))
 
 
+def graph_line_plot(x: Union[list[float], list[datetime]], y: list[float], path: str, title: str,
+                    n: int = 0) -> None:
+    """
+    Plot a line plot, and reduce noise using an IIR filter
+
+    :param x: X axis data
+    :param y: Y axis data
+    :param n: IIR filter parameter (Ignored if n <= 0)
+    :param path: Output image path (should end in .png)
+    :param title: Title
+    :return: None
+    """
+    # Filter
+    if n > 0:
+        b = [1.0 / n] * n
+        a = 1
+        y = scipy.signal.lfilter(b, a, y)
+
+    border_color = '#5b3300'
+
+    # Create fig ax
+    fig: plt.Figure
+    ax: plt.Axes
+    fig, ax = plt.subplots()
+    ax.margins(x=0, y=0)
+
+    # Plot
+    ax.set_title(title, color=border_color)
+    ax.plot(x, y, color='#d4b595')
+
+    # Colors
+    ax.tick_params(color=border_color, labelcolor=border_color)
+    for spine in ax.spines.values():
+        spine.set_edgecolor(border_color)
+
+    # Save
+    path = Path(os.path.join(REPORT_DIR, path))
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(str(path))
+
+
 def report_histograms(sample: Sample) -> None:
     """
     Report histograms of COVID posting frequencies and popularity ratios
@@ -303,14 +328,14 @@ def report_histograms(sample: Sample) -> None:
     """
     x = [f.data for f in sample.user_freqs]
     title = f'COVID-related posting frequency for {sample.name}'
-    report_histogram(x, f'freq/{sample.name}-hist-outliers.png', title, False, 100)
+    graph_histogram(x, f'freq/{sample.name}-hist-outliers.png', title, False, 100)
     x = [p for p in x if p > 0.001]
-    report_histogram(x, f'freq/{sample.name}-hist.png', title, True)
+    graph_histogram(x, f'freq/{sample.name}-hist.png', title, True)
 
     x = [f.data for f in sample.user_pops]
     title = f'Popularity ratio of COVID posts for {sample.name}'
-    report_histogram(x, f'pop/{sample.name}-hist-outliers.png', title, False, 100, axvline=[1])
-    report_histogram(x, f'pop/{sample.name}-hist.png', title, True, axvline=[1])
+    graph_histogram(x, f'pop/{sample.name}-hist-outliers.png', title, False, 100, axvline=[1])
+    graph_histogram(x, f'pop/{sample.name}-hist.png', title, True, axvline=[1])
 
 
 def report_stats(samples: list[Sample]) -> None:
@@ -343,11 +368,23 @@ def view_covid_tweets_date(tweets: list[Posting]):
     plt.show()
 
 
+def report_change_different_n(sample: Sample) -> None:
+    """
+    Experiment wth different n values for IIR filter
+
+    :param sample: Sample
+    :return: None
+    """
+    for n in range(1, 15, 3):
+        graph_line_plot(sample.dates, sample.date_pops, f'{REPORT_DIR}/change/n/{n}.png',
+                        f'COVID-posting popularity ratio over time for {sample.name} IIR(n={n})', n)
+
+
 def report_all() -> None:
     """
     Generate all reports
     """
-    load_font()
+    graph_load_font()
 
     Path(f'{REPORT_DIR}/freq').mkdir(parents=True, exist_ok=True)
     Path(f'{REPORT_DIR}/pop').mkdir(parents=True, exist_ok=True)
@@ -363,6 +400,7 @@ def report_all() -> None:
     for s in samples:
         report_top_20_tables(s)
         report_histograms(s)
+    report_change_different_n(samples[0])
 
 
 if __name__ == '__main__':
