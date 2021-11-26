@@ -4,8 +4,11 @@ TODO: Module Docstring
 from datetime import timedelta
 from dataclasses import dataclass, field
 
+import numpy as np
 import scipy.signal
 from matplotlib import pyplot as plt, font_manager
+import matplotlib.dates as mdates
+from matplotlib import cm
 
 from process.twitter_process import *
 
@@ -278,7 +281,7 @@ def graph_histogram(x: list[float], path: str, title: str, clear_outliers: bool 
     fig.savefig(os.path.join(REPORT_DIR, path))
 
 
-def graph_line_plot(x: Union[list[float], list[datetime]], y: list[float], path: str, title: str,
+def graph_line_plot(x: list[datetime], y: list[float], path: str, title: str, freq: bool,
                     n: int = 0) -> None:
     """
     Plot a line plot, and reduce noise using an IIR filter
@@ -287,6 +290,7 @@ def graph_line_plot(x: Union[list[float], list[datetime]], y: list[float], path:
     :param y: Y axis data
     :param n: IIR filter parameter (Ignored if n <= 0)
     :param path: Output image path (should end in .png)
+    :param freq: Whether you are graphing frequencies data instead of popularity ratios
     :param title: Title
     :return: None
     """
@@ -304,9 +308,33 @@ def graph_line_plot(x: Union[list[float], list[datetime]], y: list[float], path:
     fig, ax = plt.subplots()
     ax.margins(x=0, y=0)
 
+    # Date format
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d\n%Y'))
+
     # Plot
     ax.set_title(title, color=border_color)
     ax.plot(x, y, color='#d4b595')
+
+    if freq:
+        # Color below curve
+        ax.fill_between(x, y, color='#d4b595')
+
+    else:
+        ax.axhline(1, color=border_color)
+
+        # # Color by y-value
+        # upper = 1.5
+        # lower = 0.5
+        #
+        # y = np.array(y)
+        # y_up = np.ma.masked_where(y < upper, y)
+        # y_low = np.ma.masked_where(y > lower, y)
+        # y_middle = np.ma.masked_where((y < lower) | (y > upper), y)
+        #
+        # ax.plot(x, y_up, color='green')
+        # ax.plot(x, y_middle, color='yellow')
+        # ax.plot(x, y_low, color='red')
 
     # Colors
     ax.tick_params(color=border_color, labelcolor=border_color)
@@ -376,8 +404,9 @@ def report_change_different_n(sample: Sample) -> None:
     :return: None
     """
     for n in range(1, 15, 3):
-        graph_line_plot(sample.dates, sample.date_pops, f'{REPORT_DIR}/change/n/{n}.png',
-                        f'COVID-posting popularity ratio over time for {sample.name} IIR(n={n})', n)
+        graph_line_plot(sample.dates, sample.date_pops, f'change/n/{n}.png',
+                        f'COVID-posting popularity ratio over time for {sample.name} IIR(n={n})',
+                        False, n)
 
 
 def report_all() -> None:
