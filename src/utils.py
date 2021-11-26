@@ -4,9 +4,9 @@ import json
 import os
 import statistics
 from dataclasses import dataclass
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from pathlib import Path
-from typing import Union, NamedTuple, Any
+from typing import Union, NamedTuple, Any, Generator
 
 import json5
 import numpy as np
@@ -230,7 +230,7 @@ def tabulate_stats(stats: list[Stats], percent: bool = False) -> list[list[str]]
             ]
 
 
-def parse_date(iso: str) -> datetime:
+def parse_date_time(iso: str) -> datetime:
     """
     Parse date faster. Running 1,000,000 trials, this parse_date function is 4.03 times faster than
     python's built-in dateutil.parser.isoparse() function.
@@ -244,6 +244,34 @@ def parse_date(iso: str) -> datetime:
     """
     return datetime(int(iso[:4]), int(iso[5:7]), int(iso[8:10]),
                     int(iso[11:13]), int(iso[14:16]), int(iso[17:19]))
+
+
+def parse_date_only(iso: str) -> datetime:
+    """
+    Parse date faster.
+
+    Preconditions:
+      - iso is in the format of "YYYY-MM-DD" (e.g. "2021-10-20")
+      - iso is a valid date (this function does not check for the validity of the input)
+
+    :param iso: Input date
+    :return: Datetime object
+    """
+    return datetime(int(iso[:4]), int(iso[5:7]), int(iso[8:10]))
+
+
+def daterange(start_date: str, end_date: str) -> Generator[tuple[str, datetime], None, None]:
+    """
+    Date range for looping
+
+    :param start_date: Start date in "YYYY-MM-DD" format
+    :param end_date: End date in "YYYY-MM-DD" format
+    :return: Generator for looping through the dates one day at a time.
+    """
+    start = parse_date_only(start_date)
+    for n in range(int((parse_date_only(end_date) - start).days)):
+        dt = start + timedelta(n)
+        yield dt.strftime('%Y-%m-%d'), dt
 
 
 def divide_zeros(numerator: list[float], denominator: list[float]) -> list[float]:

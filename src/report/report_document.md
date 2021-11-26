@@ -12,7 +12,7 @@ Our data come from three samples:
 
 ## COVID-19 Posting Frequency
 
-First, we analyzed how frequently the users in these three datasets are posing about COVID-19. Initially, we were expecting that most people will post about COVID-19 because this pandemic is very relevant to every one of us. However, we found that there are many people in our samples didn't post about COVID-19 at all. The following table shows how many people in each sample didn't post or posted less than 1% about COVID-19:
+First, we analyzed how frequently the users in these three datasets are posing about COVID-19 (ignoring retweets). Initially, we were expecting that most people will post about COVID-19 because this pandemic is very relevant to every one of us. However, we found that there are many people in our samples didn't post about COVID-19 at all. The following table shows how many people in each sample didn't post or posted less than 1% about COVID-19:
 
 @include `/freq/didnt-post.md`
 
@@ -80,7 +80,7 @@ $$ \text{freqs}_i = \frac{|\text{COVID-posts on date}_{i}|}{|\text{All posts on 
 </blockquote>
 
 <blockquote>
-$$ \text{pops}_i = \left(\frac{\sum\text{Popularity of COVID-posts on date}_i}{|\text{COVID-posts on date}_i|}\right) / \left(\frac{\sum \text{Popularity of all posts on date}_i}{|\text{All posts on date}_i|}\right) $$
+$$ \text{pops}_i = \frac{ \sum_{u \in \text{Users}} \left(\frac{\sum\text{Popularity of u's COVID-posts on date}_i}{(\text{Average popularity of all u's posts}) \cdot |\text{u's COVID-posts on date}_i|}\right)}{(\text{Number of users posted on date}_i)} $$
 </blockquote>
 
 After calculation, we decided to plot line charts of `freqs` or `pops` against `dates`. When we plot the graph without a filter, we found that the graph is actually very noisy as shown in the first graph below. So, we experimented with different filters from the `scipy` library and different parameter values, and chose to use an IIR filter with `n = 10`.

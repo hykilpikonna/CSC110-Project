@@ -32,11 +32,16 @@ class Sample:
     user_freqs: list[UserFloat]
     # Total popularity ratios of all posts for each user across all dates (sorted)
     user_pops: list[UserFloat]
-    # Tweets by all users in a sample (always sorted by date)
-    tweets: list[Posting]
+    # Average popularity of all u's posts
+    user_all_pop_avg: dict[str, float]
+    # Average popularity of COVID tweets by a specific user on a specific date
+    # user_covid_tweets_pop[user][date] = Average popularity of COVID-posts by {user} on {date}
+    user_date_covid_pop_avg: dict[str, dict[str, float]]
+    # Total COVID-tweets frequency on a specific date for all users.
+    date_covid_freq: dict[str, float]
     # dates[i] = The i-th day since the first tweet
     dates: list[datetime]
-    # date_freqs[i] = Total frequency of all posts from all users in this sample on date[i]
+    # date_freqs[i] = COVID frequency of all posts from all users in this sample on date[i]
     date_freqs: list[float]
     # date_pops[i] = Average popularity ratio of all posts from all users in this sample on date[i]
     date_pops: list[float]
@@ -67,11 +72,17 @@ class Sample:
 
         To prevent divide-by-zero, we ignored everyone who didn't post about covid and who didn't
         post at all.
+
+        Precondition:
+          - Downloaded tweets data are sorted by date
         """
         debug(f'Calculating sample tweets data for {self.name}...')
         popularity = []
         frequency = []
-        all_tweets: list[Posting] = []
+        date_covid_count = dict()
+        date_all_count = dict()
+        self.user_all_pop_avg = dict()
+        self.user_date_covid_pop_avg = dict()
         for i in range(len(self.users)):
             u = self.users[i]
 
@@ -81,45 +92,72 @@ class Sample:
 
             # Load processed tweet
             tweets = load_tweets(u)
-            # Ignore retweets
-            tweets = [t for t in tweets if not t.repost]
-            all_tweets += tweets
+            # Ignore retweets, and ignore tweets that are earlier than the start of COVID
+            tweets = [t for t in tweets if not t.repost and t.date > '2020-01-01T01:01:01']
             # Filter covid tweets
             covid = [t for t in tweets if t.covid_related]
 
             # To prevent divide by zero, ignore people who didn't post at all
             if len(tweets) == 0:
+                frequency.append(UserFloat(u, 0))
                 continue
             # Calculate the frequency of COVID-related tweets
             freq = len(covid) / len(tweets)
             frequency.append(UserFloat(u, freq))
 
+            # Calculate date fields
+            # Assume tweets are sorted
+            # tweets.sort(key=lambda x: x.date)
+            # Calculate popularity by date
+            date_cp_sum = dict()
+            date_cp_count = dict()
+            for t in tweets:
+                d = t.date[:10]
+
+                # For covid popularity on date
+                if t.covid_related:
+                    if d not in date_cp_sum:
+                        date_cp_sum[d] = 0
+                        date_cp_count[d] = 0
+                    date_cp_sum[d] += t.popularity
+                    date_cp_count[d] += 1
+
+                # For frequency on date
+                if d not in date_covid_count:
+                    date_covid_count[d] = 0
+                    date_all_count[d] = 0
+                if t.covid_related:
+                    date_covid_count[d] += 1
+                date_all_count[d] += 1
+
+            self.user_date_covid_pop_avg[u] = \
+                {d: date_cp_sum[d] / date_cp_count[d] for d in date_cp_sum}
+
+            # Calculate total popularity ratio for a user
             # To prevent divide by zero, ignore everyone who didn't post about covid
             if len(covid) == 0:
                 continue
             # Get the average popularity for COVID-related tweets
-            covid_avg = sum(t.popularity for t in covid) / len(covid)
-            global_avg = sum(t.popularity for t in tweets) / len(tweets)
+            covid_pop_avg = sum(t.popularity for t in covid) / len(covid)
+            all_pop_avg = sum(t.popularity for t in tweets) / len(tweets)
+            # Save global_avg
+            self.user_all_pop_avg[u] = all_pop_avg
             # To prevent divide by zero, ignore everyone who literally have no likes on any post
-            if global_avg == 0:
+            if all_pop_avg == 0:
                 continue
             # Get the relative popularity
-            popularity.append(UserFloat(u, covid_avg / global_avg))
+            popularity.append(UserFloat(u, covid_pop_avg / all_pop_avg))
+
+        # Calculate frequency on date
+        self.date_covid_freq = {d: date_covid_count[d] / date_all_count[d] for d in date_covid_count}
 
         # Sort by relative popularity or frequency
         popularity.sort(key=lambda x: x.data, reverse=True)
         frequency.sort(key=lambda x: x.data, reverse=True)
 
-        # Sort by date, latest first
-        all_tweets.sort(key=lambda x: x.date)
-
-        # Ignore tweets that are earlier than the start of COVID
-        all_tweets = [t for t in all_tweets if t.date > '2020-01-01T01:01:01']
-
         # Assign to sample
         self.user_freqs = frequency
         self.user_pops = popularity
-        self.tweets = all_tweets
         debug('- Done.')
 
     def calculate_change_data(self) -> None:
@@ -136,41 +174,38 @@ class Sample:
 
         :return: None
         """
-        # List indicies are days since the first tweet
-        covid_count = [0]
-        covid_popularity = [0]
-        all_count = [0]
-        all_popularity = [0]
-        current_date = self.tweets[0][:10]
-        i = 0
+        self.dates = []
+        self.date_freqs = []
+        self.date_pops = []
 
-        # Loop through all tweets
-        for tweet in self.tweets:
-            # Move on to the next date
-            tweet_date = tweet.date[:10]
-            if tweet_date != current_date:
-                current_date = tweet_date
-                covid_count.append(0)
-                covid_popularity.append(0)
-                all_count.append(0)
-                all_popularity.append(0)
-                i += 1
+        # Loop through all dates from the start of COVID to when the data is obtained
+        for (ds, dt) in daterange('2020-01-01', '2021-11-25'):
+            self.dates.append(dt)
 
-            # Add current tweet data
-            all_count[i] += 1
-            all_popularity[i] += tweet.popularity
-            if tweet.covid_related:
-                covid_count[i] += 1
-                covid_popularity[i] += tweet.popularity
+            # Convert date covid freq format
+            if ds in self.date_covid_freq:
+                self.date_freqs.append(self.date_covid_freq[ds])
+            else:
+                self.date_freqs.append(0)
 
-        # Calculate frequency and popularity ratio for each date, which will be our y-axis
-        self.date_freqs = divide_zeros(covid_count, all_count)
-        self.date_pops = divide_zeros(divide_zeros(covid_popularity, covid_count),
-                                      divide_zeros(all_popularity, all_count))
+            # Calculate date covid popularity ratio
+            users_posted_today = [u for u in self.users if u in self.user_date_covid_pop_avg and
+                                  ds in self.user_date_covid_pop_avg[u]]
+            if len(users_posted_today) != 0:
+                user_pop_ratio_sum = sum(self.user_date_covid_pop_avg[u][ds] /
+                                         self.user_all_pop_avg[u] for u in users_posted_today
+                                         if self.user_all_pop_avg[u] != 0)
+                pops_i = user_pop_ratio_sum / len(users_posted_today)
 
-        # Convert indicies to dates, which will be our x-axis
-        first_date = parse_date(self.tweets[0].date).replace(hour=0, minute=0, second=0)
-        self.dates = [first_date + timedelta(days=j) for j in range(len(all_count))]
+                if pops_i > 20:
+                    print('Date: ', ds)
+                    for u in users_posted_today:
+                        if self.user_all_pop_avg[u] != 0:
+                            print('-', u, self.user_date_covid_pop_avg[u][ds] /
+                                  self.user_all_pop_avg[u])
+            else:
+                pops_i = 1
+            self.date_pops.append(pops_i)
 
 
 def load_samples() -> list[Sample]:
@@ -215,7 +250,7 @@ def report_ignored(samples: list[Sample]) -> None:
     :return: None
     """
     # For frequencies, report who didn't post
-    table = [["Total users"] + [str(len(s.user_freqs)) for s in samples],
+    table = [["Total users"] + [str(len(s.users)) for s in samples],
              ["Users who didn't post at all"] +
              [str(len([1 for a in s.user_freqs if a.data == 0])) for s in samples],
              ["Users who posted less than 1%"] +
@@ -390,16 +425,6 @@ def report_stats(samples: list[Sample]) -> None:
     Reporter('freq/stats.md').table(table, [s.name for s in samples], True)
 
 
-def view_covid_tweets_date(tweets: list[Posting]):
-    # Graph histogram
-    plt.title(f'COVID posting dates')
-    plt.xticks(rotation=45)
-    plt.yticks(rotation=45)
-    plt.tight_layout()
-    plt.hist([parse_date(t.date) for t in tweets if t.covid_related], bins=40, color='#ffcccc')
-    plt.show()
-
-
 def report_change_different_n(sample: Sample) -> None:
     """
     Experiment wth different n values for IIR filter
@@ -420,6 +445,7 @@ def report_change_graphs(sample: Sample) -> None:
     graph_line_plot(sample.dates, sample.date_freqs, f'change/freq/{sample.name}.png',
                     f'COVID-posting frequency over time for {sample.name} IIR(10)',
                     True, 10)
+    print(sum(sample.date_pops) / len(sample.dates))
 
 
 def report_all() -> None:
