@@ -1,11 +1,13 @@
 
-# TODO: TITLE
+# Shifting Interest in COVID-19 Twitter Posts
 
 ## Introduction
 
 We have observed that there have been increasingly more voices talking about COVID-19 since the start of the pandemic. However, different groups of people might view the importance of discussing the pandemic differently. For example, we don't know whether the most popular people on Twitter will be more or less inclined to post COVID-related content than the average Twitter user. Also, while some audience finds these content interesting, others quickly scroll through them. **So, we aim to compare people's interests in posting coronavirus content and the audience's interests in viewing them between different groups.** Also, with recent developments and policy changes toward COVID-19, it is unclear how people's discussions would react. Some people might believe that the pandemic is starting to end so that discussing it would seem increasingly like an unnecessary effort, while others might find these policy changes controversial and want to voice their opinions even more. Also, even though COVID-related topics are almost always on the news, some news outlets might intentionally cover them more frequently than others. For the people watching the news, some people might find these news reports interesting, while others can't help but switch channels. So, how people's interest in listening or discussing COVID-related topics changes over time is not very clear. **Our second goal is to analyze how people's interest in COVID-related topics changes and how frequently people have discussed COVID-related issues in the two years since the pandemic started.**
 
 # Method
+
+## Demographics
 
 Our data come from three samples:
 
@@ -23,13 +25,15 @@ We also counted the number of people speaking each language:
 
 2. Tweets (ignoring retweets) **TODO**
 
-## Computation
+## Computation & Filtering
 
 To analyze the frequencies and relative popularity of COVID-related posting either for all posts from a specific user, or for a sample across many users for a specific date, we defined several formulas. First, we need to define many terms we will use in the following sections:
 
 * **Frequency**: The percentage of COVID-related posts compared to all posts, showing how frequent COVID-related content are posted.
 * **Popularity**: The integer value representing the popularity of a post, measured by the total number of user interactions on a post, which is the number of likes and comments on a tweet combined.
 * **Popularity Ratio**: The relative popularity between 0 and infinity calculating how popular are a user's COVID-posts compared to all the user's posts, which is a ratio of the average popularity of COVID-posts over all posts. If COVID-posts are more popular, then this value should be greater than 1, and if they are less popular, this value should be less than 1. Since follower count and interaction rate differs wildly between users, we cannot assume that popularity is comparable between users, so popularity is only compared within a user, while popularity ratio can be compared across users.
+
+### 1. Computation - User Analysis
 
 In the first section, we used the following formulas to calculate statistical distributions of the frequencies and popularity ratios of users in a sample:
 
@@ -41,25 +45,11 @@ $$ \text{freq}_{u} = \frac{|\text{COVID-posts by } u|}{|\text{All posts by } u|}
 $$ \text{pop_ratio}_{u} = \left(\frac{\sum\text{Popularity of COVID-posts by } u}{|\text{COVID-posts by } u|}\right) / \left(\frac{\sum \text{Popularity of all posts by } u}{|\text{All posts by } u|}\right) $$
 </blockquote>
 
-In the second section, we used the following formulas to calculate frequencies and popularity ratios for each date across many users in one sample:
+The frequency equation can divide by zero if the user has zero posts, and it is logical to assign the frequency to 0 when the user didn't post anything. However, it is not sensible to assign the popularity ratio to zero when the pop_ratio equation divides by zero. There are three divisions in the pop_ratio equation, so there are three possible places where it might divide by zero. To prevent division by zero, people who didn't post about COVID-19, who didn't post anything at all, and who have literally 0 popularity on any of their posts are ignored. In our data, this amount of people are ignored for each sample:
 
-**TODO**
+@include `/pop/ignored.md`
 
-# Meta Analysis
-
-This section ignores date and focuses on user differences within our samples, which will answer the first part of our research question: **how frequently does people post about COVID-related issues, and how interested are people to see COVID-related posts?**
-
-## Method & Results - COVID-19 Posting Frequency
-
-**TODO: Separate method from results**
-
-First, we analyzed how frequently the users in these three datasets are posing about COVID-19 (ignoring retweets). Initially, we were expecting that most people will post about COVID-19 because this pandemic is very relevant to every one of us. However, we found that there are many people in our samples didn't post about COVID-19 at all. The following table shows how many people in each sample didn't post or posted less than 1% about COVID-19:
-
-@include `/freq/didnt-post.md`
-
-The `eng-news` sample has the lowest number of users who didn't have COVID-related posts, the `500-rand` sample has the highest, while `500-pop` sits in between. This large difference between `eng-news` and the rest can be explained by the news channels' obligation to report news, which includes news about new outbreaks, progress of vaccination, new cross-border policies, etc. Also, we observed that `500-pop` has much more users who posted COVID-related content than `500-rand`, while they have similar amounts of users posting less than 1%. This finding might be explained by how influential people have more incentive to express their support toward slowing the spread of the pandemic than regular users, which doesn't require frequent posting like news channels.
-
-We calculated frequency by dividing the total number of tweets by the number of COVID-related tweets. We might graph the frequencies on a histogram to gain more insight: (You can click on the images to enlarge them, and hold down E to view full screen).
+Then, the users' results are graphed in one histogram for each sample to gain some insights about the distribution of user frequencies. However, there are many outliers and more than half who posted below 0.1% for two of our samples, making the graphs unreadable: (You can click on the images to enlarge them, and hold down E to view full screen)
 
 <div class="image-row">
     <div><img src="/freq/500-pop-hist-outliers.png" alt="hist"></div>
@@ -67,64 +57,25 @@ We calculated frequency by dividing the total number of tweets by the number of 
     <div><img src="/freq/eng-news-hist-outliers.png" alt="hist"></div>
 </div>
 
-However, as you can see, the graphs are not very helpful because the majority of the sample post below 0.1%, and there are many outliers who post very frequently, like 40%. For example, if we sort the samples by their frequency, we have a few outliers who post more than 20% even in `500-rand`:
+For example, even though most of `500-rand` are concentrated below 10%, the x-axis scale is stretched to 50% by many outliers who post more than 40%:
 
-@include-cut `/freq/500-rand-top-20.md` 0 10
+@include-cut `/freq/500-rand-top-20.md` 0 8
 
-So, we removed the outliers using the method proposed by Boris Iglewicz and David Hoaglin (1993) [[2]](#ref2) and ignoring everyone who posted below 0.1% and graphed the same histogram again:
+To resolve this, the outliers are removed both for frequencies and popularity ratios using the method proposed by Boris Iglewicz and David Hoaglin (1993) [[2]](#ref2), and for frequencies, everyone who posted below 0.1% are ignored when graphing histograms. They are not ignored in statistic calculations.
 
-<div class="image-row">
-    <div><img src="/freq/500-pop-hist.png" alt="hist"></div>
-    <div><img src="/freq/500-rand-hist.png" alt="hist"></div>
-    <div><img src="/freq/eng-news-hist.png" alt="hist"></div>
-</div>
+### 2. Computation - Change Analysis
 
-As expected, the distributions looks right-skewed, with most people posting not very much. One interesting distinction is that, even though the distributions follow similar shapes, the x-axis ticks of `eng-news` is actually ten times larger than the other two, which means that `eng-news` post a lot more about COVID-19 on average than the other two samples. We can calculate some statistics of the samples to further verify this:
-
-@include-lines `/freq/stats.md` 0 1 4 5
-
-Since there are many outliers, medians and IQR will more accurately represent the center and spread of this distribution. As these numbers show, `eng-news` do post much more (a 6.1% increment in post frequency, or a 406.7% increase) than the other two samples. Again, this can be explained by the news channels' obligation to report news related to COVID-19 or to promote methods to slow the spread of the pandemic.
-
-## Results - COVID-19 Popularity Ratios
-
-Then, we analyzed the popularity ratio of COVID-related posts for our three samples. The popularity of a post defines how much other people are interested in the post, measured by the total number of user interactions (likes and comments) on that post. From that data, the relative popularity ratio for COVID-related posts calculates how popular are COVID-related posts compared to all other posts, calculated by the equation, which is a ratio of the average popularity of both:
+The second section analyzes data separate for each of our samples, just like the first section. However, unlike how calculations are separated for each user in the first section, the second section separates calculation by date and combines users in a sample. We defined the start of COVID-19 as _2020-01-01_ and ignored all posts prior to this date. Then, the average frequency and popularity ratio are calculated for every day since _2020-01-01_. This calculation gave us a list `freqs` and a list `pops` where, for every date `dates[i]`,
 
 <blockquote>
-$$ pop_{user} = \left(\frac{\sum\text{Popularity of COVID-posts}}{|\text{COVID-posts}|}\right) / \left(\frac{\sum \text{Popularity of all posts}}{|\text{All posts}|}\right)$$
-</blockquote>
-
-There are three divisions in this equation, so there are three possible places where it might divide by zero. So, to prevent division by zero, we ignored people who didn't post about COVID-19 or didn't post anything at all, and we also ignored people who have literally 0 popularity on any of their posts. In our data, we ignored this amount of people for each sample:
-
-@include `/pop/ignored.md`
-
-Graphing the results, we find that the ***TODO***
-
-<div class="image-row">
-    <div><img src="/pop/500-pop-hist.png" alt="hist"></div>
-    <div><img src="/pop/500-rand-hist.png" alt="hist"></div>
-    <div><img src="/pop/eng-news-hist.png" alt="hist"></div>
-</div>
-
-@include-lines `/pop/stats.md` 0 1 2 3 4 5
-
-
-# Change Analysis
-
-After we answered how frequently people posted about COVID-19 and how interested are people to view these posts, we analyze our data over the posting dates to answer the second part of our research question: **How does posting frequency and people's interests in COVID-19 posts changes from the beginning of the pandemic to now?**
-
-## Method
-
-The second section analyzes data separate for each of our samples, just like the previous analysis. However, unlike how calculations are separated for each user in the first section, the second section separates calculation by date and combines users in a sample. We defined the start of COVID-19 as _2020-01-01_ and ignored all posts prior to this date. Then, we calculate the average frequency and popularity ratio for every day since _2020-01-01_. This calculation gave us a list `freqs` and a list `pops` where, for every date `dates[i]`,
-
-<blockquote>
-$$ \text{freqs}_i = \frac{|\text{COVID-posts on date}_{i}|}{|\text{All posts on date}_{i}|} $$
+$$ \text{freq}_i = \frac{|\text{COVID-posts on date}_{i}|}{|\text{All posts on date}_{i}|} $$
 </blockquote>
 
 <blockquote>
-$$ \text{pops}_i = \frac{ \sum_{u \in \text{Users}} \left(\frac{\sum\text{Popularity of u's COVID-posts on date}_i}{(\text{Average popularity of all u's posts}) \cdot |\text{u's COVID-posts on date}_i|}\right)}{(\text{Number of users posted on date}_i)} $$
+$$ \text{pop_ratio}_i = \frac{ \sum_{u \in \text{Users}} \left(\frac{\sum\text{Popularity of u's COVID-posts on date}_i}{|\text{u's COVID-posts on date}_i| \cdot (\text{Average popularity of all u's posts})}\right)}{(\text{Number of users posted on date}_i)} $$
 </blockquote>
 
-After calculation, we decided to plot line charts of `freqs` or `pops` against `dates`. Initially, we are seeing graphs with very high peaks such as the graph below. After some investigation, we found that these peaks are caused by not having enough tweets on each day to average out the random error of one single popular tweet. For example, in the graph below, we adjusted the program to print different users' popularity ratios when we found an average popularity ratio of greater than 20, which produced the output on the right. As it turns out, on 2020-07-11, the user @juniorbachchan posted that he and his father tested positive, and that single post is 163.84 times more popular than the average of all his posts. (The post is linked [here](https://twitter.com/juniorbachchan/status/1282018653215395840), it has 235k likes, 25k comments, and 32k retweets). Even though these data points are outliers, there isn't an effective way of removing them since we don't have enough tweets data from each user to calculate their range (for example, someone's COVID-related post might be the only one they've posted). So, we've decided to limit the viewing window to `y = [0, 2]` as shown in the graph on the right.
+After calculation, `freqs` and `pops` are plotted in line graphs against `dates`. Initially, we are seeing graphs with very high peaks such as the graph below. After some investigation, we found that these peaks are caused by not having enough tweets on each day to average out the random error of one single popular tweet. For example, in the graph below, we adjusted the program to print different users' popularity ratios when we found an average popularity ratio of greater than 20, which produced the output on the right. As it turns out, on 2020-07-11, the user @juniorbachchan posted that he and his father tested positive, and that single post is 163.84 times more popular than the average of all his posts. (The post is linked [here](https://twitter.com/juniorbachchan/status/1282018653215395840), it has 235k likes, 25k comments, and 32k retweets). Even though these data points are outliers, there isn't an effective way of removing them since we don't have enough tweets data from each user to calculate their range (for example, someone's COVID-related post might be the only one they've posted). So, we've decided to limit the viewing window to `y = [0, 2]` as shown in the graph on the right.
 
 <div class="image-row">
     <div><img src="resources/peak-1.png" alt="graph"></div>
@@ -147,6 +98,51 @@ Then, we encountered the issue of noise. When we plot the graph without a filter
     <div><img src="/change/n/10.png" alt="graph"></div>
     <div><img src="/change/n/15.png" alt="graph"></div>
 </div>
+
+# Results
+
+## User Analysis
+
+This section ignores date and focuses on user differences within our samples, which will answer the first part of our research question: **how frequently does people post about COVID-related issues, and how interested are people to see COVID-related posts?**
+
+### 1. User Posting Frequency
+
+First, the users' COVID-related posting frequency in these three datasets are analyzed. Initially, we were expecting that most people will post coronavirus content because this pandemic is very relevant to everyone. However, there are many people in our samples didn't post about COVID-19 at all. The following table shows how many people in each sample didn't post or posted less than 1% about COVID-19:
+
+@include `/freq/didnt-post.md`
+
+The `eng-news` sample has the lowest number of users who didn't have COVID-related posts, the `500-rand` sample has the highest, while `500-pop` sits in between. This large difference between `eng-news` and the rest can be explained by the news channels' obligation to report news, which includes news about new outbreaks, progress of vaccination, new cross-border policies, etc. Also, `500-pop` has much more users who posted COVID-related content than `500-rand`, while they have similar amounts of users posting less than 1%. This finding might be explained by how influential people have more incentive to express their support toward slowing the spread of the pandemic than regular users, which doesn't require frequent posting like news channels.
+
+Then, the calculated frequency data for each user in a sample are graphed in histograms:
+
+<div class="image-row">
+    <div><img src="/freq/500-pop-hist.png" alt="hist"></div>
+    <div><img src="/freq/500-rand-hist.png" alt="hist"></div>
+    <div><img src="/freq/eng-news-hist.png" alt="hist"></div>
+</div>
+
+As expected, the distributions looks right-skewed, with most people posting not very much. One interesting distinction is that, even though the distributions follow similar shapes, the x-axis ticks of `eng-news` is actually ten times larger than the other two, which means that `eng-news` post a lot more about COVID-19 on average than the other two samples. Statistics of the samples are calculated to further verify these insights:
+
+@include-lines `/freq/stats.md` 0 1 4 5
+
+Since there are many outliers, medians and IQR will more accurately represent the center and spread of this distribution. As these numbers show, `eng-news` do post much more (a 6.1% increment in post frequency, or a 406.7% increase) than the other two samples. Again, this can be explained by the news channels' obligation to report news related to COVID-19 or to promote methods to slow the spread of the pandemic. These means also shows that 50% of average Twitter users dedicate below 1.5% of their timeline to COVID-related posts.
+
+## Results - COVID-19 Popularity Ratios
+
+Similar histograms and statistics are calculated for user's popularity ratios in their sample:
+
+<div class="image-row">
+    <div><img src="/pop/500-pop-hist.png" alt="hist"></div>
+    <div><img src="/pop/500-rand-hist.png" alt="hist"></div>
+    <div><img src="/pop/eng-news-hist.png" alt="hist"></div>
+</div>
+
+@include-lines `/pop/stats.md` 0 1 2 3 4 5
+
+
+# Change Analysis
+
+After we answered how frequently people posted about COVID-19 and how interested are people to view these posts, we analyze our data over the posting dates to answer the second part of our research question: **How does posting frequency and people's interests in COVID-19 posts changes from the beginning of the pandemic to now?**
 
 ## Results - Posting Frequency Over Time
 
