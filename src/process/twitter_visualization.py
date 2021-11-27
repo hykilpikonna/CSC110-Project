@@ -292,17 +292,17 @@ def graph_load_font() -> None:
     plt.rcParams["font.family"] = "iosevka"
 
 
-def graph_histogram(x: list[float], path: str, title: str, clear_outliers: bool = False,
-                    bins: int = 20, axvline: Union[list[int], None] = None) -> None:
+def graph_histogram(x: list[float], path: str, title: str, freq: bool, clear_outliers: bool = False,
+                    bins: int = 20) -> None:
     """
     Plot a histogram
 
     :param x: X axis data
     :param path: Output image path (should end in .png)
     :param title: Title
+    :param freq: Whether we are graphing frequencies data instead of popularity ratios
     :param clear_outliers: Remove outliers or not
     :param bins: Number of bins
-    :param axvline: Vertical line
     :return: None
     """
     if clear_outliers:
@@ -321,10 +321,10 @@ def graph_histogram(x: list[float], path: str, title: str, clear_outliers: bool 
     ax.set_title(title, color=border_color)
     ax.hist(x, bins=bins, color='#ffcccc')
 
-    # Plot lines
-    if axvline:
-        for line in axvline:
-            ax.axvline(line, color='#DACAA9')
+    if freq:
+        ax.xaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1))
+    else:
+        ax.axvline(1, color='#DACAA9')
 
     # Colors
     ax.tick_params(color=border_color, labelcolor=border_color)
@@ -440,14 +440,13 @@ def report_histograms(sample: Sample) -> None:
     """
     x = [f.data for f in sample.user_freqs]
     title = f'COVID-related posting frequency for {sample.name}'
-    graph_histogram(x, f'freq/{sample.name}-hist-outliers.png', title, False, 100)
+    graph_histogram(x, f'freq/{sample.name}-hist-outliers.png', title, True, False, 100)
     x = [p for p in x if p > 0.001]
-    graph_histogram(x, f'freq/{sample.name}-hist.png', title, True)
+    graph_histogram(x, f'freq/{sample.name}-hist.png', title, True, True)
 
     x = [f.data for f in sample.user_pops]
     title = f'Popularity ratio of COVID posts for {sample.name}'
-    graph_histogram(x, f'pop/{sample.name}-hist-outliers.png', title, False, 100, axvline=[1])
-    graph_histogram(x, f'pop/{sample.name}-hist.png', title, True, axvline=[1])
+    graph_histogram(x, f'pop/{sample.name}-hist.png', title, False, True)
 
 
 def report_stats(samples: list[Sample]) -> None:
