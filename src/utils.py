@@ -207,7 +207,7 @@ def get_statistics(points: list[float]) -> Stats:
     q75, q25 = np.percentile(points, [75, 25])
     iqr = q75 - q25
     return Stats(statistics.mean(points), statistics.stdev(points), statistics.median(points),
-                 iqr, q75, q25)
+                 iqr, q25, q75)
 
 
 def tabulate_stats(stats: list[Stats], percent: bool = False) -> list[list[str]]:

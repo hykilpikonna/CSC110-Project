@@ -123,13 +123,13 @@ Then, the calculated frequency data for each user in a sample are graphed in his
 
 As expected, the distributions looks right-skewed, with most people posting not very much. One interesting distinction is that, even though the distributions follow similar shapes, the x-axis ticks of `eng-news` is actually ten times larger than the other two, which means that `eng-news` post a lot more about COVID-19 on average than the other two samples. Statistics of the samples are calculated to further verify these insights:
 
-@include-lines `/freq/stats.md` 0 1 4 5
+@include-lines `/freq/stats.md` 0 1 4 5 6 7
 
 Since there are many outliers, medians and IQR will more accurately represent the center and spread of this distribution. As these numbers show, `eng-news` do post much more (a 6.1% increment in post frequency, or a 406.7% increase) than the other two samples. Again, this can be explained by the news channels' obligation to report news related to COVID-19 or to promote methods to slow the spread of the pandemic. These means also shows that 50% of average Twitter users dedicate below 1.5% of their timeline to COVID-related posts.
 
 ## Results - COVID-19 Popularity Ratios
 
-Similar histograms and statistics are calculated for user's popularity ratios in their sample:
+Similar histograms are graphed and statistics are calculated for user's popularity ratios in their sample, calculated using the formula described in the methods section:
 
 <div class="image-row">
     <div><img src="/pop/500-pop-hist.png" alt="hist"></div>
@@ -137,7 +137,9 @@ Similar histograms and statistics are calculated for user's popularity ratios in
     <div><img src="/pop/eng-news-hist.png" alt="hist"></div>
 </div>
 
-@include-lines `/pop/stats.md` 0 1 2 3 4 5
+Looking at the histograms, while `eng-news` is roughly symmetric, the other two distributions are right skewed. 
+
+@include-lines `/pop/stats.md` 0 1 4 5 6 7
 
 
 # Change Analysis
@@ -181,19 +183,7 @@ _**TODO**_: A conclusion
 * Why are these findings important? What do they reveal?
 * Connect to larger theme?
 
-## Scratch pad (TODO)
-
-For the posting frequency, it is surprising that all three of our samples have posting frequencies dropped significantly after June 2020, as if everyone silently agreed to talk less about it.
-
-Possible reasons:
-
-* There might not be as many "breaking news" or new information anymore, as three months is probably enough that everyone are aware of the virus.
-* People realized that COVID-19 is not going to be a disaster that fade away quickly and got used to it, so people paid less attention because our attention is very limited. (**TODO**: Possible psychological explanation? -- Look into how long people have paid attention to an unexpected disaster on average. Compare attention with historical disasters like 911?)
-* ~~Chinese people might be relieved because new daily cases are already controlled to two digits since April.~~ (Doesn't explain why `eng-news` declined)
-* ~~Reopening in China around June.~~ (Doesn't explain why `eng-news` declined)
-* ~~The first time cases seem to decline in U.S.~~ (Cases went back to increasing one month later but the posting frequency didn't go back up.)
-
-**_TODO_**
+## TODO
 
 * [ ] Frequency/time: Maybe there's a reason to the May 2021 peak?
 * [ ] Followers (x) vs COVID-related posts (y) scatter plot, each point is a user
