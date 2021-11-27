@@ -7,12 +7,14 @@ from typing import Optional
 
 import matplotlib.ticker
 import numpy as np
+import requests
 import scipy.signal
 from matplotlib import pyplot as plt, font_manager
 import matplotlib.dates as mdates
 from matplotlib import cm
 
 from process.twitter_process import *
+from raw_collect.others import get_covid_cases_us
 
 
 @dataclass()
@@ -177,7 +179,6 @@ class Sample:
         :return: None
         """
         self.dates = []
-        self.date_freqs = []
         self.date_pops = []
 
         # Average popularity ratio results over 7 days
@@ -186,12 +187,6 @@ class Sample:
         # Loop through all dates from the start of COVID to when the data is obtained
         for (ds, dt) in daterange('2020-01-01', '2021-11-25'):
             self.dates.append(dt)
-
-            # Convert date covid freq format
-            if ds in self.date_covid_freq:
-                self.date_freqs.append(self.date_covid_freq[ds])
-            else:
-                self.date_freqs.append(0)
 
             # Calculate date covid popularity ratio
             users_posted_today = [u for u in self.users if u in self.user_date_covid_pop_avg and
@@ -212,10 +207,15 @@ class Sample:
                 pops_i = user_pop_ratio_sum / seven_days_count
 
             # More than seven days, remove one
-            if len(seven_days_user_prs) == 7:
+            if len(seven_days_user_prs) == 20:
                 seven_days_user_prs.pop(0)
 
             self.date_pops.append(pops_i)
+
+        # Date frequencies
+        self.date_freqs = map_to_dates(self.date_covid_freq,
+                                       [x.isoformat()[:10] for x in self.dates])
+        self.date_freqs = filter_days_avg(self.date_freqs, 3)
 
 
 def load_samples() -> list[Sample]:
@@ -390,7 +390,21 @@ def graph_line_plot(x: list[datetime], y: Union[list[float], list[list[float]]],
             if len(labels) > i:
                 line.set_label(labels[i])
                 ax.legend()
-        if not freq:
+
+        # Plotting frequency, add in the COVID cases data
+        if freq:
+            cases = get_covid_cases_us()
+            c = map_to_dates(cases.cases, [d.isoformat()[:10] for d in x])
+            # c = scipy.signal.savgol_filter(c, 45, 2)
+            c = filter_days_avg(c, 7)
+            c = scipy.signal.lfilter([1.0 / n] * n, 1, c)
+
+            twin: plt.Axes = ax.twinx()
+            twin.plot(x, c, color='#d4b595', label='US COVID-19 Cases')
+            twin.set_ylim(bottom=0)
+
+        # Plotting popularity
+        else:
             ax.axhline(1, color=border_color)
             ax.set_ylim(0, 2)
 

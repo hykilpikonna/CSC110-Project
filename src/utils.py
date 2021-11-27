@@ -274,6 +274,43 @@ def daterange(start_date: str, end_date: str) -> Generator[tuple[str, datetime],
         yield dt.strftime('%Y-%m-%d'), dt
 
 
+def map_to_dates(y: dict[str, Union[int, float]], dates: list[str],
+                 default: float = 0) -> list[float]:
+    """
+    Map y axis to date
+
+    Preconditions:
+      - The date in dates must be in the same format as the dates in the keys of y
+
+    :param y: Y axis data (in the format y[date] = value)
+    :param dates: Dates
+    :param default: Default data if y doesn't exist on that date
+    :return: A list of y data, one over each day in dates
+    """
+    return [y[d] if d in y else default for d in dates]
+
+
+def filter_days_avg(y: list[float], n: int) -> list[float]:
+    """
+    Filter y by taking an average over a n-days window. If n = 0, then return y without processing.
+
+    Precondition:
+      - n % 2 == 1
+
+    :param y: Values
+    :param n: Number of days, must be odd
+    :return: Averaged data
+    """
+    results = []
+    buffer = []
+    for i in range(len(y)):
+        buffer.append(y[i])
+        results.append(sum(buffer) / len(buffer))
+        if len(buffer) > n:
+            buffer.pop(0)
+    return results
+
+
 def divide_zeros(numerator: list[float], denominator: list[float]) -> list[float]:
     """
     Divide two lists of floats, ignoring zeros (anything dividing by zero will produce zero)

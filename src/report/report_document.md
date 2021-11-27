@@ -117,13 +117,25 @@ We graphed the posting frequencies of our three samples in line graphs with the 
     <div><img src="/change/freq/eng-news.png" alt="graph"></div>
 </div>
 
-For all three samples, the posting rates were almost zero during the first month when COVID-19 first started, which is expected because no one knew how devastating it will be at that time. Then, all three samples had a peak in posting frequencies from March 2020 to June 2020. After June 2020, 
+Looking at three graphs individually, the posting rates were almost zero during the first two month when COVID-19 first started for all three samples, which is expected because no one knew how devastating it will be at that time. Then, all three samples had a peak in posting frequencies from March to June 2020. After June 2020, the posting rate for `500-rand` started steadily declining, while the rate for `eng-news` stayed roughly level with a few peaks, and with `500-pop` having many peaks as high as the posting rate during from March to June 2020. In an effort to interpret the different peaks, we overlapped the three charts with the COVID-19 cases data from New York Times [[2]](#ref2), which gave us the following graph: 
 
 <div class="image-row">
     <div><img src="/change/comb/freq.png" alt="graph" class="large"></div>
 </div>
 
 For `500-rand` and `eng-nes`, 
+
+## Scratch pad (TODO)
+
+For the posting frequency, it is surprising that all three of our samples have posting frequencies dropped significantly after June 2020, as if everyone silently agreed to talk less about it.
+
+Possible reasons: 
+
+* There might not be as many "breaking news" or new information anymore, as three months is probably enough that everyone are aware of the virus.
+* People realized that COVID-19 is not going to be a disaster that fade away quickly and got used to it, so people paied less attention because our attention is very limited. (**TODO**: Possible psychological explanation? -- Look into how long people have paid attention to an unexpected disaster on average. Compare attention with historical disasters like 911?)
+* Chinese people might be relieved because new daily cases are already controlled to two digits since April.
+* Reopening in China around June.
+* ~~The first time cases seem to decline in U.S.~~ (Cases went back to increasing one month later but the posting frequency didn't go back up.)
 
 **_TODO_**
 
@@ -135,3 +147,10 @@ For `500-rand` and `eng-nes`,
 Handle Outliers", _The ASQC Basic References in Quality Control:
 Statistical Techniques_, Edward F. Mykytka, Ph.D., Editor.
 
+<a id="ref2"></a>
+
+[2] The New York Times. (2021). Coronavirus (Covid-19) Data in the United States. Retrieved November 27, 2021, from https://github.com/nytimes/covid-19-data.
+
+<a id="ref3"></a>
+
+[3] WHO. (n.d.) _Listings of WHO's Response to COVID-19._ World Health Organization. Retrieved November 27, 2021, from https://www.who.int/news/item/29-06-2020-covidtimeline.
