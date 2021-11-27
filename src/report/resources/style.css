@@ -70,6 +70,10 @@ img.clickable {
     cursor: pointer;
 }
 
+img.large {
+    background-size: contain !important;
+}
+
 #modal {
     transition: all 0.25s ease;
 }

@@ -109,7 +109,7 @@ Then, we encountered the issue of noise. When we plot the graph without a filter
 
 ## Results - Posting Frequency
 
-We graphed the posting frequencies of our three samples in line graphs with the x-axis being the date, which gave us the following graphs:
+We graphed the posting frequencies of our three samples in line graphs with the x-axis being the date with labels representing the month, which gave us the following graphs:
 
 <div class="image-row">
     <div><img src="/change/freq/500-pop.png" alt="graph"></div>
@@ -117,7 +117,11 @@ We graphed the posting frequencies of our three samples in line graphs with the 
     <div><img src="/change/freq/eng-news.png" alt="graph"></div>
 </div>
 
-For all three samples, the posting rates were almost zero during the first month when COVID-19 first started, which is expected because no one knew how devastating it will be at that time. Then, all three samples had a peak in posting frequencies from 
+For all three samples, the posting rates were almost zero during the first month when COVID-19 first started, which is expected because no one knew how devastating it will be at that time. Then, all three samples had a peak in posting frequencies from March 2020 to June 2020. After June 2020, 
+
+<div class="image-row">
+    <div><img src="/change/comb/freq.png" alt="graph" class="large"></div>
+</div>
 
 For `500-rand` and `eng-nes`, 
 

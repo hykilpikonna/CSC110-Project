@@ -3,7 +3,9 @@ TODO: Module Docstring
 """
 from datetime import timedelta
 from dataclasses import dataclass, field
+from typing import Optional
 
+import matplotlib.ticker
 import numpy as np
 import scipy.signal
 from matplotlib import pyplot as plt, font_manager
@@ -327,16 +329,17 @@ def graph_histogram(x: list[float], path: str, title: str, clear_outliers: bool 
 
 
 def graph_line_plot(x: list[datetime], y: Union[list[float], list[list[float]]], path: str,
-                    title: str, freq: bool, n: int = 0) -> None:
+                    title: str, freq: bool, n: int = 0, labels: Optional[list[str]] = None) -> None:
     """
     Plot a line plot, and reduce noise using an IIR filter
 
     :param x: X axis data
-    :param y: Y axis data
+    :param y: Y axis data (or Y axis data lines)
     :param n: IIR filter parameter (Ignored if n <= 0)
     :param path: Output image path (should end in .png)
     :param freq: Whether you are graphing frequencies data instead of popularity ratios
     :param title: Title
+    :param labels: Labels or none
     :return: None
     """
     # Filter
@@ -359,6 +362,10 @@ def graph_line_plot(x: list[datetime], y: Union[list[float], list[list[float]]],
     ax.xaxis.set_minor_locator(mdates.MonthLocator(interval=1))
     ax.xaxis.set_minor_formatter(mdates.DateFormatter('%m'))
 
+    if freq:
+        # Y axis percent format
+        ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1))
+
     # Plot
     ax.set_title(title, color=border_color)
 
@@ -377,15 +384,19 @@ def graph_line_plot(x: list[datetime], y: Union[list[float], list[list[float]]],
     # Plotting multiple data lines
     else:
         fig.set_size_inches(16, 9)
-        for y in y:
-            ax.plot(x, y)
+        plt.tight_layout()
+        for i in range(len(y)):
+            line, = ax.plot(x, y[i])
+            if len(labels) > i:
+                line.set_label(labels[i])
+                ax.legend()
         if not freq:
             ax.axhline(1, color=border_color)
             ax.set_ylim(0, 2)
 
     # Colors
     ax.tick_params(color=border_color, labelcolor=border_color)
-    ax.tick_params(which='minor', color='#9d5800')
+    ax.tick_params(which='minor', colors='#e1ad6b', labelcolor='#e1ad6b')
     for spine in ax.spines.values():
         spine.set_edgecolor(border_color)
 
@@ -483,9 +494,11 @@ def report_all() -> None:
     report_change_different_n(samples[0])
 
     graph_line_plot(samples[0].dates, [s.date_pops for s in samples], 'change/comb/pop.png',
-                    'COVID-posting popularity ratio over time for all samples - IIR(10)', False, 10)
+                    'COVID-posting popularity ratio over time for all samples - IIR(10)', False, 10,
+                    labels=[s.name for s in samples])
     graph_line_plot(samples[0].dates, [s.date_freqs for s in samples], 'change/comb/freq.png',
-                    'COVID-posting frequency over time for all samples - IIR(10)', True, 10)
+                    'COVID-posting frequency over time for all samples - IIR(10)', True, 10,
+                    labels=[s.name for s in samples])
 
 
 if __name__ == '__main__':

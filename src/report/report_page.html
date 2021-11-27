@@ -37,7 +37,7 @@ $('img').addClass('clickable').click(function() {
 
     modal = $('<div id="modal">').css({
         background: 'RGBA(0,0,0,.5) url(' + src + ') no-repeat center',
-        backgroundSize: 'auto',
+        backgroundSize: $(this).hasClass('large') ? 'contain' : 'auto',
         width: '100vw',
         height: '100vh',
         position: 'fixed',
