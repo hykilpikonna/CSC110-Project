@@ -10,7 +10,7 @@
     color: #5b3300;
 }
 
-h1, h2 {
+h1, h2, h3 {
     border-bottom: 1px solid #5b3300;
     font-size: 2em;
     margin-top: 1em;
@@ -18,6 +18,10 @@ h1, h2 {
 
 h2 {
     font-size: 1.5em;
+}
+
+h3 {
+    font-size: 1.2em;
 }
 
 code {
