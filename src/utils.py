@@ -296,16 +296,26 @@ def filter_days_avg(y: list[float], n: int) -> list[float]:
 
     Precondition:
       - n % 2 == 1
+      - len(y) > 0
 
     :param y: Values
     :param n: Number of days, must be odd
     :return: Averaged data
     """
+    if n <= 1:
+        return y
+    if n % 2 != 1:
+        ValueError(f'n must be odd (you entered {n})')
+
+    # Calculate
     results = []
-    buffer = []
+    buffer = [y[0] * n // 2]
+
     for i in range(len(y)):
         buffer.append(y[i])
         results.append(sum(buffer) / len(buffer))
+
+        # Queue longer than n days, remove first
         if len(buffer) > n:
             buffer.pop(0)
     return results

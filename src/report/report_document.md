@@ -1,16 +1,24 @@
 
-# Meta Analysis
+# TODO: TITLE
 
-This section aims at gaining some insights about the differences in our samples and the scode that the results might apply or generalize to. This section also answers the first part of our research question: **how frequently does people post about COVID-related issues, and how interested are people to see COVID-related posts?**
+## Introduction
+
+We have observed that there have been increasingly more voices talking about COVID-19 since the start of the pandemic. However, different groups of people might view the importance of discussing the pandemic differently. For example, we don't know whether the most popular people on Twitter will be more or less inclined to post COVID-related content than the average Twitter user. Also, while some audience finds these content interesting, others quickly scroll through them. **So, we aim to compare people's interests in posting coronavirus content and the audience's interests in viewing them between different groups.** Also, with recent developments and policy changes toward COVID-19, it is unclear how people’s discussions would react. Some people might believe that the pandemic is starting to end so that discussing it would seem increasingly like an unnecessary effort, while others might find these policy changes controversial and want to voice their opinions even more. Also, even though COVID-related topics are almost always on the news, some news outlets might intentionally cover them more frequently than others. For the people watching the news, some people might find these news reports interesting, while others can’t help but switch channels. So, how people’s interest in listening or discussing COVID-related topics changes over time is not very clear. **Our second goal is to analyze how people's interest in COVID-related topics changes and how frequently people have discussed COVID-related issues in the two years since the pandemic started.**
 
 ## Demographics
 
 Our data come from three samples:
 * `500-pop`: The list of 500 most followed users on Twitter.
 * `500-rand`: A sample of 500 random users on Twitter who speaks English, Chinese, or Japanese with at least 1000 posts and at least 150 followers.
-* `eng-news`: [Top 100 most influential news Twitter accounts by Nur Bremmen](https://memeburn.com/2010/09/the-100-most-influential-news-media-twitter-accounts/), combined with all news accounts which TwitterNews reposted.
+* `eng-news`: A list of 100 top news Twitter accounts by Nur Bremmen [[1]](#ref1), combined with all news accounts which TwitterNews reposted.
 
-## COVID-19 Posting Frequency
+# Meta Analysis
+
+This section aims at gaining some insights about the differences in our samples and the scode that the results might apply or generalize to. This section also answers the first part of our research question: **how frequently does people post about COVID-related issues, and how interested are people to see COVID-related posts?**
+
+## Method & Results - COVID-19 Posting Frequency
+
+**TODO: Separate method from results**
 
 First, we analyzed how frequently the users in these three datasets are posing about COVID-19 (ignoring retweets). Initially, we were expecting that most people will post about COVID-19 because this pandemic is very relevant to every one of us. However, we found that there are many people in our samples didn't post about COVID-19 at all. The following table shows how many people in each sample didn't post or posted less than 1% about COVID-19:
 
@@ -30,7 +38,7 @@ However, as you can see, the graphs are not very helpful because the majority of
 
 @include-cut `/freq/500-rand-top-20.md` 0 10
 
-So, we removed the outliers using the method proposed by Boris Iglewicz and David Hoaglin (1993) [[1]](#ref1) and ignoring everyone who posted below 0.1% and graphed the same histogram again:
+So, we removed the outliers using the method proposed by Boris Iglewicz and David Hoaglin (1993) [[2]](#ref2) and ignoring everyone who posted below 0.1% and graphed the same histogram again:
 
 <div class="image-row">
     <div><img src="/freq/500-pop-hist.png" alt="hist"></div>
@@ -42,9 +50,9 @@ As expected, the distributions looks right-skewed, with most people posting not 
 
 @include-lines `/freq/stats.md` 0 1 4 5
 
-Since there are many outliers, medians and IQR will more accurately represent the center and spread of this distribution. As these numbers show, `eng-news` do post much more (6.1% more post3, or a 1220% increase) than the other two samples. Again, this can be explained by the news channels' obligation to report news related to COVID-19 or to promote methods to slow the spread of the pandemic.
+Since there are many outliers, medians and IQR will more accurately represent the center and spread of this distribution. As these numbers show, `eng-news` do post much more (a 6.1% increment in post frequency, or a 406.7% increase) than the other two samples. Again, this can be explained by the news channels' obligation to report news related to COVID-19 or to promote methods to slow the spread of the pandemic.
 
-## COVID-19 Popularity Ratios
+## Results - COVID-19 Popularity Ratios
 
 Then, we analyzed the popularity ratio of COVID-related posts for our three samples. The popularity of a post defines how much other people are interested in the post, measured by the total number of user interactions (likes and comments) on that post. From that data, the relative popularity ratio for COVID-related posts calculates how popular are COVID-related posts compared to all other posts, calculated by the equation, which is a ratio of the average popularity of both:
 
@@ -107,7 +115,7 @@ Then, we encountered the issue of noise. When we plot the graph without a filter
     <div><img src="/change/n/15.png" alt="graph"></div>
 </div>
 
-## Results - Posting Frequency
+## Results - Posting Frequency Over Time
 
 We graphed the posting frequencies of our three samples in line graphs with the x-axis being the date with labels representing the month, which gave us the following graphs:
 
@@ -117,40 +125,66 @@ We graphed the posting frequencies of our three samples in line graphs with the 
     <div><img src="/change/freq/eng-news.png" alt="graph"></div>
 </div>
 
-Looking at three graphs individually, the posting rates were almost zero during the first two month when COVID-19 first started for all three samples, which is expected because no one knew how devastating it will be at that time. Then, all three samples had a peak in posting frequencies from March to June 2020. After June 2020, the posting rate for `500-rand` started steadily declining, while the rate for `eng-news` stayed roughly level with a few peaks, and with `500-pop` having many peaks as high as the posting rate during from March to June 2020. In an effort to interpret the different peaks, we overlapped the three charts with the COVID-19 cases data from New York Times [[2]](#ref2), which gave us the following graph: 
+Looking at three graphs individually, the posting rates were almost zero during the first two month when COVID-19 first started for all three samples, which is expected because no one knew how devastating it will be at that time. Then, all three samples had a peak in posting frequencies from March to June 2020. After June 2020, the posting rate for both `500-rand` and `eng-news` declined to around 1/3 of the peak, with `500-pop` declining slightly as well. While the reason to this decline is unclear, we speculate that it might be caused by people's loss of interest in the topic as they realize COVID-19 isn't going to be a disaster that fades away quickly, or as the news became less "breaking" and information started to repeat. Like the selective attention theory of cognitive psychology, people's attention to one thing comes at the expense of others since our attention is very limited. So people might have chosen to direct more attention to living rather than paying attention to the coronavirus that didn't seem to go away soon. Also, similar to how people will unconsciously learn to ignore repeated background noise after moving to a new environment (in a process called habituation), they might have learned to ignore the repeated information about COVID-19, which will lead to less COVID-related posting. Further research can determine whether this three-month attention span can generalize to other long-term disaster other than COVID-19.
+
+After June 2020, `500-rand` continued declining steadily without major peaks, while `eng-news` had a smaller peak around Dec 2020 and a trough after June 2021, and `500-top` had many peaks and toughs after. In an effort to interpret these peaks, we overlapped the three charts with the data of new COVID-19 cases in the U.S. published by New York Times [[3]](#ref3), which gave us the following graph: 
 
 <div class="image-row">
     <div><img src="/change/comb/freq.png" alt="graph" class="large"></div>
 </div>
 
-For `500-rand` and `eng-nes`, 
+In this graph, we can see that the peak around Dec 2020 and the trough around Jun 2021 in `eng-news` and `500-pop` actually correspond very closely with the rise and fall of new cases in the U.S., which is reasonable because there are more sensational news to report and more COVID-related events happening to popular individuals when cases are high. However, even though the first peak in cases around August 2020 did correlate with a peak in `500-rand`, the rise and fall of cases in the U.S. doesn't seem to affect `500-rand` overall. This is possibly because we included three languages in the population of our random sample, which means that `500-rand` isn't limited to English-speaking accounts that mostly target the U.S. audience like `eng-news`.
+
+## Results - Popularity Ratio Over Time
+
+We graphed a similar graph with popularity ratio being the y-axis over date as the x-axis, as shown below:
+
+<div class="image-row">
+    <div><img src="/change/comb/pop.png" alt="graph" class="large"></div>
+</div>
+
+Despite efforts to filter out noise or normalize the graph discussed in the [method](#method) section, we did not find any patterns in the resulting graph. The peaks and troughs of each line seems random, and the three lines did not have common peaks or troughs that might reveal meaningful insights. The raw data looks very much like random noise as well. This lack of meaningful information is possibly because our sample size is comparatively small—even though we have 500 users in our `500-pop` sample, the sample size for tweets by these users on one specific day is very small. For example, there are only 6 users in `500-pop` who posted on `2020-07-11`. This lack of samples amplified the effect of randomness, and more data may be needed to reduce the effect of one tweet on the popularity ratio for the specified date. Unfortunately, we have to reach a conclusion that more data is needed to reveal interesting findings.
+
+# Conclusion
+
+_**TODO**_: A conclusion
+
+* Why are these findings important? What do they reveal?
+* Connect to larger theme?
 
 ## Scratch pad (TODO)
 
 For the posting frequency, it is surprising that all three of our samples have posting frequencies dropped significantly after June 2020, as if everyone silently agreed to talk less about it.
 
-Possible reasons: 
+Possible reasons:
 
 * There might not be as many "breaking news" or new information anymore, as three months is probably enough that everyone are aware of the virus.
-* People realized that COVID-19 is not going to be a disaster that fade away quickly and got used to it, so people paied less attention because our attention is very limited. (**TODO**: Possible psychological explanation? -- Look into how long people have paid attention to an unexpected disaster on average. Compare attention with historical disasters like 911?)
-* Chinese people might be relieved because new daily cases are already controlled to two digits since April.
-* Reopening in China around June.
+* People realized that COVID-19 is not going to be a disaster that fade away quickly and got used to it, so people paid less attention because our attention is very limited. (**TODO**: Possible psychological explanation? -- Look into how long people have paid attention to an unexpected disaster on average. Compare attention with historical disasters like 911?)
+* ~~Chinese people might be relieved because new daily cases are already controlled to two digits since April.~~ (Doesn't explain why `eng-news` declined)
+* ~~Reopening in China around June.~~ (Doesn't explain why `eng-news` declined)
 * ~~The first time cases seem to decline in U.S.~~ (Cases went back to increasing one month later but the posting frequency didn't go back up.)
 
 **_TODO_**
+
+* [ ] Frequency/time: Maybe there's a reason to the May 2021 peak?
+* [ ] Followers (x) vs COVID-related posts (y) scatter plot, each point is a user
 
 ## References
 
 <a id="ref1"></a>
 
-[1] Iglewicz, Boris, & David Hoaglin (1993), "Volume 16: How to Detect and
-Handle Outliers", _The ASQC Basic References in Quality Control:
-Statistical Techniques_, Edward F. Mykytka, Ph.D., Editor.
+[1] Bremmen, N. (2010, September 3). The 100 most influential news media twitter accounts. _Memeburn_. Retrieved November 27, 2021, from https://memeburn.com/2010/09/the-100-most-influential-news-media-twitter-accounts/.
 
 <a id="ref2"></a>
 
-[2] The New York Times. (2021). Coronavirus (Covid-19) Data in the United States. Retrieved November 27, 2021, from https://github.com/nytimes/covid-19-data.
+[2] Iglewicz, Boris, & David Hoaglin (1993), "Volume 16: How to Detect and
+Handle Outliers", _The ASQC Basic References in Quality Control:
+Statistical Techniques_, Edward F. Mykytka, Ph.D., Editor.
 
 <a id="ref3"></a>
 
-[3] WHO. (n.d.) _Listings of WHO's Response to COVID-19._ World Health Organization. Retrieved November 27, 2021, from https://www.who.int/news/item/29-06-2020-covidtimeline.
+[3] The New York Times. (2021). Coronavirus (Covid-19) Data in the United States. Retrieved November 27, 2021, from https://github.com/nytimes/covid-19-data.
+
+<a id="ref4"></a>
+
+[4] WHO. (n.d.) _Listings of WHO's Response to COVID-19._ World Health Organization. Retrieved November 27, 2021, from https://www.who.int/news/item/29-06-2020-covidtimeline.
