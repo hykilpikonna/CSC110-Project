@@ -220,15 +220,24 @@ class Sample:
 
 def load_samples() -> list[Sample]:
     """
-    Load samples and calculate their data
+    Load samples, and report demographics
 
     :return: Samples
     """
     # Load sample, convert format
-    samples = load_user_sample()
-    samples = [Sample('500-pop', [u.username for u in samples.most_popular]),
-               Sample('500-rand', [u.username for u in samples.random]),
-               Sample('eng-news', list(samples.english_news))]
+    users = load_user_sample()
+    samples = [Sample('500-pop', [u.username for u in users.most_popular]),
+               Sample('500-rand', [u.username for u in users.random]),
+               Sample('eng-news', list(users.english_news))]
+
+    # Report demographics
+    keys = ['en', 'zh', 'ja']
+    pop_lang = [u.lang for u in users.most_popular]
+    rand_lang = [u.lang for u in users.random]
+    Reporter('sample-demographics.md')\
+        .table([['`500-pop`'] + [str(len(pop_lang))] + [str(pop_lang.count(k)) for k in keys],
+                ['`500-rand`'] + [str(len(rand_lang))] + [str(rand_lang.count(k)) for k in keys]],
+               ['Total', 'English', 'Chinese', 'Japanese'], False)
 
     return samples
 
@@ -481,7 +490,6 @@ def report_change_graphs(sample: Sample) -> None:
     graph_line_plot(sample.dates, sample.date_freqs, f'change/freq/{sample.name}.png',
                     f'COVID-posting frequency over time for {sample.name} IIR(10)',
                     True, 10)
-    print(sum(sample.date_pops) / len(sample.dates))
 
 
 def report_all() -> None:

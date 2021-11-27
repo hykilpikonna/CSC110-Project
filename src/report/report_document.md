@@ -3,18 +3,51 @@
 
 ## Introduction
 
-We have observed that there have been increasingly more voices talking about COVID-19 since the start of the pandemic. However, different groups of people might view the importance of discussing the pandemic differently. For example, we don't know whether the most popular people on Twitter will be more or less inclined to post COVID-related content than the average Twitter user. Also, while some audience finds these content interesting, others quickly scroll through them. **So, we aim to compare people's interests in posting coronavirus content and the audience's interests in viewing them between different groups.** Also, with recent developments and policy changes toward COVID-19, it is unclear how people’s discussions would react. Some people might believe that the pandemic is starting to end so that discussing it would seem increasingly like an unnecessary effort, while others might find these policy changes controversial and want to voice their opinions even more. Also, even though COVID-related topics are almost always on the news, some news outlets might intentionally cover them more frequently than others. For the people watching the news, some people might find these news reports interesting, while others can’t help but switch channels. So, how people’s interest in listening or discussing COVID-related topics changes over time is not very clear. **Our second goal is to analyze how people's interest in COVID-related topics changes and how frequently people have discussed COVID-related issues in the two years since the pandemic started.**
+We have observed that there have been increasingly more voices talking about COVID-19 since the start of the pandemic. However, different groups of people might view the importance of discussing the pandemic differently. For example, we don't know whether the most popular people on Twitter will be more or less inclined to post COVID-related content than the average Twitter user. Also, while some audience finds these content interesting, others quickly scroll through them. **So, we aim to compare people's interests in posting coronavirus content and the audience's interests in viewing them between different groups.** Also, with recent developments and policy changes toward COVID-19, it is unclear how people's discussions would react. Some people might believe that the pandemic is starting to end so that discussing it would seem increasingly like an unnecessary effort, while others might find these policy changes controversial and want to voice their opinions even more. Also, even though COVID-related topics are almost always on the news, some news outlets might intentionally cover them more frequently than others. For the people watching the news, some people might find these news reports interesting, while others can't help but switch channels. So, how people's interest in listening or discussing COVID-related topics changes over time is not very clear. **Our second goal is to analyze how people's interest in COVID-related topics changes and how frequently people have discussed COVID-related issues in the two years since the pandemic started.**
 
-## Demographics
+# Method
 
 Our data come from three samples:
-* `500-pop`: The list of 500 most followed users on Twitter.
-* `500-rand`: A sample of 500 random users on Twitter who speaks English, Chinese, or Japanese with at least 1000 posts and at least 150 followers.
-* `eng-news`: A list of 100 top news Twitter accounts by Nur Bremmen [[1]](#ref1), combined with all news accounts which TwitterNews reposted.
+
+* `500-pop`: The list of 500 most followed users on Twitter who post in English, Chinese, or Japanese.
+* `500-rand`: A sample of 500 random users on Twitter who post in English, Chinese, or Japanese with at least 1000 posts and at least 150 followers.
+* `eng-news`: A list of 100 top news Twitter accounts by Nur Bremmen [[1]](#ref1), combined with all news accounts which TwitterNews reposted. All of them post in English, and most of them target audience in North America.
+
+We also counted the number of people speaking each language:
+
+@include `/sample-demographics.md`
+
+## Data Collection
+
+1. To create our samples, we collected a wide range of Twitter users using Twitter's get friends list API endpoint [(documentation)](https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list) and the follows-chaining technique. We specified one single user as the starting point, obtained the user's friends list, then we picked 3 random users and 3 most followed users from the friend list, add them to the queue, and start the process again from each of them. Because of Twitter's rate limiting on the get friends list endpoint, we can only obtain a maximum of 200 users per minute, with many of them being duplicates. We ran the program for one day and obtained 224,619 users (852.3 MB decompressed). However, only the username, popularity, post count, and language data are kept after processing (filtering). The processed user dataset `data/twitter/user/processed/users.json` is 7.9 MB in total. We selected our samples by filtering the results first based on language, selected the top 500 most followed users as `500-pop`, filtered the list again based on post count (>1000) and followers (>150), then selected a random sample of 500 users as `500-rand`.
+
+2. Tweets (ignoring retweets) **TODO**
+
+## Computation
+
+To analyze the frequencies and relative popularity of COVID-related posting either for all posts from a specific user, or for a sample across many users for a specific date, we defined several formulas. First, we need to define many terms we will use in the following sections:
+
+* **Frequency**: The percentage of COVID-related posts compared to all posts, showing how frequent COVID-related content are posted.
+* **Popularity**: The integer value representing the popularity of a post, measured by the total number of user interactions on a post, which is the number of likes and comments on a tweet combined.
+* **Popularity Ratio**: The relative popularity between 0 and infinity calculating how popular are a user's COVID-posts compared to all the user's posts, which is a ratio of the average popularity of COVID-posts over all posts. If COVID-posts are more popular, then this value should be greater than 1, and if they are less popular, this value should be less than 1. Since follower count and interaction rate differs wildly between users, we cannot assume that popularity is comparable between users, so popularity is only compared within a user, while popularity ratio can be compared across users.
+
+In the first section, we used the following formulas to calculate statistical distributions of the frequencies and popularity ratios of users in a sample:
+
+<blockquote>
+$$ \text{freq}_{u} = \frac{|\text{COVID-posts by } u|}{|\text{All posts by } u|} $$
+</blockquote>
+
+<blockquote>
+$$ \text{pop_ratio}_{u} = \left(\frac{\sum\text{Popularity of COVID-posts by } u}{|\text{COVID-posts by } u|}\right) / \left(\frac{\sum \text{Popularity of all posts by } u}{|\text{All posts by } u|}\right) $$
+</blockquote>
+
+In the second section, we used the following formulas to calculate frequencies and popularity ratios for each date across many users in one sample:
+
+**TODO**
 
 # Meta Analysis
 
-This section aims at gaining some insights about the differences in our samples and the scode that the results might apply or generalize to. This section also answers the first part of our research question: **how frequently does people post about COVID-related issues, and how interested are people to see COVID-related posts?**
+This section ignores date and focuses on user differences within our samples, which will answer the first part of our research question: **how frequently does people post about COVID-related issues, and how interested are people to see COVID-related posts?**
 
 ## Method & Results - COVID-19 Posting Frequency
 
@@ -81,7 +114,7 @@ After we answered how frequently people posted about COVID-19 and how interested
 
 ## Method
 
-This analysis is separate for each of our samples, just like the previous analysis. However, unlike how tweets are separated for each user in the previous analysis, we combine the tweets of all users in each sample in this analysis. In this analysis, we defined the start of COVID-19 as _2020-01-01_ and ignored all posts prior to this date. Then, we calculate the average frequency and popularity ratio for every day since _2020-01-01_. This calculation gave us a list `freqs` and a list `pops` where, for every date `dates[i]`,
+The second section analyzes data separate for each of our samples, just like the previous analysis. However, unlike how calculations are separated for each user in the first section, the second section separates calculation by date and combines users in a sample. We defined the start of COVID-19 as _2020-01-01_ and ignored all posts prior to this date. Then, we calculate the average frequency and popularity ratio for every day since _2020-01-01_. This calculation gave us a list `freqs` and a list `pops` where, for every date `dates[i]`,
 
 <blockquote>
 $$ \text{freqs}_i = \frac{|\text{COVID-posts on date}_{i}|}{|\text{All posts on date}_{i}|} $$
