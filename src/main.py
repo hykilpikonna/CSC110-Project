@@ -1,7 +1,9 @@
 from tabulate import tabulate
 
 from process.twitter_process import *
+from process.twitter_visualization import *
 from raw_collect.twitter import *
+from report.report import serve_report
 from utils import *
 
 
@@ -70,13 +72,12 @@ if __name__ == '__main__':
 
     ####################
     # Data Visualization - Step V1
-    # Meta-data visualization: Let's see some data about the sample
+    # Generate all visualization reports and graphs
+    report_all()
 
-    # Who posted the most covid tweets? (covid vs non-covid ratio)
-    # - Graph histogram of this ratio
-
-    # Who has the most covid tweet popularity (popularity of covid vs non-covid tweets ratio)
-    # - Graph histogram of this ratio
+    ####################
+    # Serve webpage
+    serve_report()
 
     ####################
     # Finalize the program for submission.

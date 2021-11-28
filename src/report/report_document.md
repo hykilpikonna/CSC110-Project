@@ -23,7 +23,9 @@ We also counted the number of people speaking each language:
 
 1. To create our samples, we collected a wide range of Twitter users using Twitter's get friends list API endpoint [(documentation)](https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list) and the follows-chaining technique. We specified one single user as the starting point, obtained the user's friends list, then we picked 3 random users and 3 most followed users from the friend list, add them to the queue, and start the process again from each of them. Because of Twitter's rate limiting on the get friends list endpoint, we can only obtain a maximum of 200 users per minute, with many of them being duplicates. We ran the program for one day and obtained 224,619 users (852.3 MB decompressed). However, only the username, popularity, post count, and language data are kept after processing (filtering). The processed user dataset `data/twitter/user/processed/users.json` is 7.9 MB in total. We selected our samples by filtering the results first based on language, selected the top 500 most followed users as `500-pop`, filtered the list again based on post count (>1000) and followers (>150), then selected a random sample of 500 users as `500-rand`.
 
-2. Tweets (ignoring retweets) **TODO**
+2. We also downloaded all tweets from our sampled users through the user-timeline API [(documentation)](https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline). Due to rate limiting, the program took around 16 hours to finish, and we obtained 7.7 GB of raw data (uncompressed). During processing, for each tweet, we extracted only its date, popularity (likes + retweets), whether it is a retweet, and whether it is COVID-related. The text of the tweets are not retained, and the processed data directory `data/twitter/user-tweets/processed/` is 141.6 MB in total.
+
+3. We also used the COVID-19 daily cases data published by New York Times [[3]](#ref3) to compare with peaks and throughs in our frequency over date graph.
 
 ## Computation & Filtering
 
@@ -181,10 +183,9 @@ Despite efforts to filter out noise or normalize the graph discussed in the [met
 
 # Conclusion
 
-_**TODO**_: A conclusion
+In summary, key findings in our research include that while news channels post about COVID-19 more frequently (Median = 7.6%), average Twitter users and most popular users don't post very much (Median ≤ 1.5%). And while COVID-posting frequencies for `eng-news` and `500-pop` fluctuates with the number of new cases in the U.S., average Twitter users' COVID-posting frequency dropped and continued to decrease since Jun 2020. And these posts were not as popular (not liked or commented as much) as users' other posts (Median ≤ 0.87).
 
-* Why are these findings important? What do they reveal?
-* Connect to larger theme?
+These findings might not be surprising, but they might have again demonstrated people's ability to adapt to new environments. The attentional effect of the start of COVID-19 might be similar to the satisfaction from buying a new thing or the grief from losing something, they all fade over time as we adapt to them. Even though people focused a lot of attention on COVID-19 when new information first became available from March 2020, people's interest in these topics decreased as we adapt to the new norm with COVID-19 in three months, demonstrated by the quickly decreasing posting rates. Or, for the audience, rather than liking or commenting on COVID-19 posts, they might have quickly scrolled through them in favor of more interesting posts. It is fascinating that we can learn to adapt to such a devastating change in our environment in only three months.
 
 ## TODO
 

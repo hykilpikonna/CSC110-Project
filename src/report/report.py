@@ -120,8 +120,8 @@ def serve_report() -> None:
         return send_from_directory(os.path.join(src_dir, 'resources'), path)
 
     # Run app
-    webbrowser.open("http://localhost:5000")
-    app.run()
+    webbrowser.open("http://localhost:8080")
+    app.run(port=8080)
 
 
 if __name__ == '__main__':
