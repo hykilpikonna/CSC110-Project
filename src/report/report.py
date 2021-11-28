@@ -1,14 +1,14 @@
-import base64
 import json
 import os.path
 import traceback
 import webbrowser
+from distutils.dir_util import copy_tree
 from pathlib import Path
 
 from flask import Flask, send_from_directory, Response
 
 from constants import REPORT_DIR, DEBUG
-from utils import read
+from utils import read, write
 
 # Constants
 src_dir = Path(os.path.realpath(__file__)).parent
@@ -76,6 +76,21 @@ def generate_html() -> str:
     return html
 
 
+def write_html() -> None:
+    """
+    Write HTML and copy files to ./dist
+
+    :return: None
+    """
+    if os.path.isdir('./dist'):
+        os.remove('./dist')
+    Path('./dist/resources').mkdir(parents=True, exist_ok=True)
+    write('./dist/index.html', generate_html())
+
+    copy_tree(str(src_dir.joinpath('resources/').absolute()), './dist/resources')
+    copy_tree(REPORT_DIR, './dist')
+
+
 def serve_report() -> None:
     """
     Serve report page in a http server.
@@ -125,4 +140,5 @@ def serve_report() -> None:
 
 
 if __name__ == '__main__':
+    write_html()
     serve_report()
