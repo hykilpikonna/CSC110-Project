@@ -127,7 +127,7 @@ As expected, the distributions looks right-skewed, with most people posting not 
 
 Since there are many outliers, medians and IQR will more accurately represent the center and spread of this distribution. As these numbers show, `eng-news` do post much more (a 6.1% increment in post frequency, or a 406.7% increase) than the other two samples. Again, this can be explained by the news channels' obligation to report news related to COVID-19 or to promote methods to slow the spread of the pandemic. These means also shows that 50% of average Twitter users dedicate below 1.5% of their timeline to COVID-related posts.
 
-## Results - COVID-19 Popularity Ratios
+### 2. User Popularity Ratios
 
 Similar histograms are graphed and statistics are calculated for user's popularity ratios in their sample, calculated using the formula described in the methods section:
 
@@ -141,12 +141,15 @@ Looking at the histograms, while `eng-news` is roughly symmetric, the other two 
 
 @include-lines `/pop/stats.md` 0 1 4 5 6 7
 
+The calculated medians show that the audience normally don't like or comment on COVID-related posts as much as other posts by all three groups, which implies that people aren't as interested in these posts. The average Twitter user's and the average English news channel's COVID-posts has only 87% of the popularity compared to their other posts, while the average `500-pop` user has only 69% of the popularity. This difference is possibly because the most popular users' audience probably followed them for the specific types of content that only they can post, and not general COVID-related content that anyone can post similarly. 
 
-# Change Analysis
+Also, even though the medians for `500-rand` and `eng-news` are the same, since the `500-rand` distribution is right skewed, its 25th percentile is much lower—25% of average Twitter users' COVID-posts are only 34% as popular as their other posts. 
+
+## Change Analysis
 
 After we answered how frequently people posted about COVID-19 and how interested are people to view these posts, we analyze our data over the posting dates to answer the second part of our research question: **How does posting frequency and people's interests in COVID-19 posts changes from the beginning of the pandemic to now?**
 
-## Results - Posting Frequency Over Time
+### 1. Posting Frequency Over Time
 
 We graphed the posting frequencies of our three samples in line graphs with the x-axis being the date with labels representing the month, which gave us the following graphs:
 
@@ -166,7 +169,7 @@ After June 2020, `500-rand` continued declining steadily without major peaks, wh
 
 In this graph, we can see that the peak around Dec 2020 and the trough around Jun 2021 in `eng-news` and `500-pop` actually correspond very closely with the rise and fall of new cases in the U.S., which is reasonable because there are more sensational news to report and more COVID-related events happening to popular individuals when cases are high. However, even though the first peak in cases around August 2020 did correlate with a peak in `500-rand`, the rise and fall of cases in the U.S. doesn't seem to affect `500-rand` overall. This is possibly because we included three languages in the population of our random sample, which means that `500-rand` isn't limited to English-speaking accounts that mostly target the U.S. audience like `eng-news`.
 
-## Results - Popularity Ratio Over Time
+### 2. Popularity Ratio Over Time
 
 We graphed a similar graph with popularity ratio being the y-axis over date as the x-axis, as shown below:
 
@@ -188,7 +191,7 @@ _**TODO**_: A conclusion
 * [ ] Frequency/time: Maybe there's a reason to the May 2021 peak?
 * [ ] Followers (x) vs COVID-related posts (y) scatter plot, each point is a user
 
-## References
+# References
 
 <a id="ref1"></a>
 

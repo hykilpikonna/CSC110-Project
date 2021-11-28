@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flask import Flask, send_from_directory, Response
 
-from constants import REPORT_DIR
+from constants import REPORT_DIR, DEBUG
 from utils import read
 
 # Constants
@@ -57,10 +57,23 @@ def generate_report() -> str:
         # every possible exception.)
         except Exception as e:
             md[i] = f"<pre class=\"error\">" \
-                    f"\nInvalid @include statement. \n{traceback.format_exc()}" \
-                    f"</pre>"
+                    f"\nInvalid @include statement. \n{traceback.format_exc()}</pre>"
 
     return '\n'.join(md)
+
+
+def generate_html() -> str:
+    """
+    Generate report then put it into the HTML template
+
+    :return: HTML string
+    """
+    # Generate markdown report and JSON encode it (which works as JS code! amazing
+    md_json = json.dumps({'content': generate_report()})
+    # Inject into HTML
+    html = read(str(src_dir.joinpath('report_page.html'))) \
+        .replace('`{{markdown}}`', md_json)
+    return html
 
 
 def serve_report() -> None:
@@ -71,21 +84,20 @@ def serve_report() -> None:
     """
     # Create flask app
     app = Flask(__name__)
+    html = generate_html()
 
     @app.route('/')
     def root() -> str:
         """
-        Generate report, put the report into the HTML template
+        Root webpage. If debug mode is enabled, generate new HTML every time the web page is
+        accessed. Else, serve the generated HTML.
 
         :return: HTML report
         """
-        # Generate markdown report and JSON encode it (which works as JS code! amazing
-        md_json = json.dumps({'content': generate_report()})
-        # Inject into HTML
-        html = read(str(src_dir.joinpath('report_page.html'))) \
-            .replace('`{{markdown}}`', md_json)
-        # Return
-        return html
+        if DEBUG:
+            return generate_html()
+        else:
+            return html
 
     @app.route('/<path:path>')
     def res(path: str) -> Response:

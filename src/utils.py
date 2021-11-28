@@ -12,7 +12,7 @@ import json5
 import numpy as np
 from tabulate import tabulate
 
-from constants import REPORT_DIR
+from constants import REPORT_DIR, DEBUG
 
 
 @dataclass
@@ -61,8 +61,9 @@ def debug(msg: object) -> None:
 
     :param msg: Message
     """
-    caller = inspect.stack()[1].function
-    print(f'[DEBUG] {caller}: {msg}')
+    if DEBUG:
+        caller = inspect.stack()[1].function
+        print(f'[DEBUG] {caller}: {msg}')
 
 
 def calculate_rate_delay(rate_limit: float) -> float:
