@@ -17,11 +17,10 @@
 <script>
 
 // Python will inject the markdown code here.
-markdown = `
-{{markdown}}
-`
+markdown = `{{markdown}}`
+
 document.getElementById('content').innerHTML =
-    marked.parse(atob(markdown));
+    marked.parse(markdown.content);
 
 // Make images clickable
 // Improved from: https://stackoverflow.com/a/50430187/7346633

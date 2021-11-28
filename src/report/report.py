@@ -1,4 +1,5 @@
 import base64
+import json
 import os.path
 import webbrowser
 from pathlib import Path
@@ -68,11 +69,11 @@ def serve_report() -> None:
 
         :return: HTML report
         """
-        # Generate markdown report and b64 encode it (this is to prevent interpretation by JS code)
-        md_b64 = base64.b64encode(generate_report().encode('utf-8')).decode('utf-8')
+        # Generate markdown report and JSON encode it (which works as JS code! amazing
+        md_json = json.dumps({'content': generate_report()})
         # Inject into HTML
         html = read(str(src_dir.joinpath('report_page.html'))) \
-            .replace('{{markdown}}', md_b64)
+            .replace('`{{markdown}}`', md_json)
         # Return
         return html
 
