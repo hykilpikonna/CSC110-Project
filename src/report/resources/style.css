@@ -42,6 +42,31 @@ span.highlight {
     background-color: beige;
 }
 
+pre.error {
+    background-color: #ffeef2;
+    color: #ff5b74;
+    padding: 0.8em 0.8em 0.8em 1em;
+}
+
+/*blockquote {*/
+/*    position: relative;*/
+/*    margin: 0 0 1.1em 0;*/
+/*    padding: 0.8em 0.8em 0.8em 1em;*/
+/*    color: gray;*/
+/*}*/
+
+/*blockquote:before {*/
+/*    content: "";*/
+/*    display: block;*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    bottom: 0;*/
+/*    left: 0;*/
+/*    width: 4px;*/
+/*    border-radius: 8px;*/
+/*    background: gray;*/
+/*}*/
+
 table {
     border-collapse: collapse;
     border: 2px solid #5b3300;

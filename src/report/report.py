@@ -1,6 +1,7 @@
 import base64
 import json
 import os.path
+import traceback
 import webbrowser
 from pathlib import Path
 
@@ -22,33 +23,42 @@ def generate_report() -> str:
     # Load markdown
     md = read(str(src_dir.joinpath('report_document.md'))).replace('\r\n', '\n').split('\n')
 
-    # Process @include statements
+    # Process line by line
     for i in range(len(md)):
         line = md[i]
         if not line.startswith('@include'):
             continue
 
-        path = line[line.index('`') + 1:]
-        path = path[:path.index('`')]
-        md[i] = read(REPORT_DIR + path)
+        # Process @include statements
+        try:
+            path = line[line.index('`') + 1:]
+            path = path[:path.index('`')]
+            md[i] = read(REPORT_DIR + path)
 
-        # Cut lines
-        # Format: @include-cut `path` <start, inclusive> [end, not inclusive]
-        if line.startswith('@include-cut'):
-            args = [int(i) for i in line.split()[2:]]
-            if len(args) == 1:
-                md[i] = '\n'.join(md[i].split('\n')[args[0]:])
-            if len(args) == 2:
-                md[i] = '\n'.join(md[i].split('\n')[args[0]:args[1]])
+            # Cut lines
+            # Format: @include-cut `path` <start, inclusive> [end, not inclusive]
+            if line.startswith('@include-cut'):
+                args = [int(i) for i in line.split()[2:]]
+                if len(args) == 1:
+                    md[i] = '\n'.join(md[i].split('\n')[args[0]:])
+                if len(args) == 2:
+                    md[i] = '\n'.join(md[i].split('\n')[args[0]:args[1]])
 
-        # Specific lines
-        # Format: @include-lines `path` <...lines>
-        # Example: @include-lines `path` 1 2 5
-        if line.startswith('@include-lines'):
-            args = [int(i) for i in line.split()[2:]]
-            lines = md[i].split('\n')
-            lines = [lines[ln] for ln in range(len(lines)) if ln in args]
-            md[i] = '\n'.join(lines)
+            # Specific lines
+            # Format: @include-lines `path` <...lines>
+            # Example: @include-lines `path` 1 2 5
+            if line.startswith('@include-lines'):
+                args = [int(i) for i in line.split()[2:]]
+                lines = md[i].split('\n')
+                lines = [lines[ln] for ln in range(len(lines)) if ln in args]
+                md[i] = '\n'.join(lines)
+
+        # Handle errors. (It prompts "too broad an exception clause" but I actually need to catch
+        # every possible exception.)
+        except Exception as e:
+            md[i] = f"<pre class=\"error\">" \
+                    f"\nInvalid @include statement. \n{traceback.format_exc()}" \
+                    f"</pre>"
 
     return '\n'.join(md)
 
