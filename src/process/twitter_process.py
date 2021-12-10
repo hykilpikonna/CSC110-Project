@@ -1,5 +1,6 @@
 """
-TODO: Module Docstring
+Processes data downloaded from the Twitter API. Processing consists of calculating popularity of
+users, creating samples of users, filtering news channels, and processing tweets for file storage.
 """
 import random
 from typing import NamedTuple
