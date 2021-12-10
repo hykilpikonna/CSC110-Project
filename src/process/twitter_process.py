@@ -110,7 +110,7 @@ class UserSample:
 
 def select_user_sample() -> None:
     """
-    Select our sample of 500 most popular users and 500 random users who meet the criteria. The
+    Select our sample of the 500 most popular users and 500 random users who meet the criteria. The
     criteria we use is that the user must have at least 150 followers, and must have a number of
     postings in between 1000 and 3250. Analyzing someone who don't post or someone who doesn't have
     enough followers for interaction might not reveal useful information. We also filter based on
@@ -284,7 +284,7 @@ def is_covid_related(text: str) -> bool:
     :return: Whether the text is covid related
     """
     # English
-    # We're hesitate to include words like "pandemic" or "vaccine" because they might refer to other
+    # We're hesitant to include words like "pandemic" or "vaccine" because they might refer to other
     # pandemics or other vaccines. However, I think we need to include "the pandemic" because many
     # posts refer to covid only as "the pandemic."
     keywords = ['covid', 'the pandemic', 'lockdown', 'spikevax', 'comirnaty', 'vaxzevria',

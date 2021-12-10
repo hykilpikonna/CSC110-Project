@@ -1,3 +1,10 @@
+"""This module contains useful functions and classes, including:
+- debug messages
+- file I/O
+- statistics functions, removing outliers and averaging values over a period
+- date-related functions
+- classes for configs, reports, statistics, and JSON"""
+
 import dataclasses
 import inspect
 import json
@@ -57,7 +64,7 @@ def load_config(path: str = 'config.json5') -> Config:
 
 def debug(msg: object) -> None:
     """
-    Output a debug message
+    Output a debug message, usually from another function
 
     :param msg: Message
     """
@@ -71,7 +78,7 @@ def calculate_rate_delay(rate_limit: float) -> float:
     Calculate the rate delay for each request given rate limit in request per minute
 
     :param rate_limit: Rate limit in requests per minute
-    :return: Rate delay in seconds per request (added one second just to be safe)
+    :return: Rate delay in seconds per request
     """
     return 1 / rate_limit * 60
 
@@ -263,7 +270,7 @@ def parse_date_only(iso: str) -> datetime:
 
 def daterange(start_date: str, end_date: str) -> Generator[tuple[str, datetime], None, None]:
     """
-    Date range for looping
+    Date range for looping, excluding the end date
 
     :param start_date: Start date in "YYYY-MM-DD" format
     :param end_date: End date in "YYYY-MM-DD" format
@@ -278,7 +285,9 @@ def daterange(start_date: str, end_date: str) -> Generator[tuple[str, datetime],
 def map_to_dates(y: dict[str, Union[int, float]], dates: list[str],
                  default: float = 0) -> list[float]:
     """
-    Map y axis to date
+    Takes y-axis data in the form of a mapping of date to values, and returns a list of all the
+    values mapped to the date in dates. If a date in dates isn't in y, then the default values is
+    used instead.
 
     Preconditions:
       - The date in dates must be in the same format as the dates in the keys of y
@@ -308,18 +317,24 @@ def filter_days_avg(y: list[float], n: int) -> list[float]:
     if n % 2 != 1:
         ValueError(f'n must be odd (you entered {n})')
 
-    # Calculate
-    results = []
-    buffer = [y[0] * n // 2]
+    # Sliding window; maintain a sum of an interval centered around i
+    # if the interval exceeds the beginning/end, pretend that the first/last elements are "extended"
 
+    radius = n // 2
+    current_sum = (radius + 1) * y[0]  # current sum is sum(y[-r:0] + y[0:1] + y[1:r + 1])
+    for i in range(radius):
+        i = min(i, len(y) - 1)
+        current_sum += y[i]  # adding the values in y[1:r + 1]
+
+    ret = []
     for i in range(len(y)):
-        buffer.append(y[i])
-        results.append(sum(buffer) / len(buffer))
-
-        # Queue longer than n days, remove first
-        if len(buffer) > n:
-            buffer.pop(0)
-    return results
+        l, r = i - radius, i + radius
+        l = max(0, l)  # avoid index out of bounds by "extending" first/last element
+        r = min(r, len(y) - 1)
+        current_sum += y[r]  # extend sliding window
+        ret.append(current_sum / n)
+        current_sum -= y[l]  # remove old values
+    return ret
 
 
 def divide_zeros(numerator: list[float], denominator: list[float]) -> list[float]:
