@@ -1,5 +1,8 @@
 """
-TODO: Module docstring
+This module interacts directly with the Twitter API to download tweets and users.
+It contains functions related scraping users/tweets, including:
+- getting the tweets of a user
+- downloading many users by checking their followers and follower's followers, etc.
 """
 import math
 import random
