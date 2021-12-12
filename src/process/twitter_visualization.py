@@ -332,6 +332,9 @@ def graph_histogram(x: list[float], path: str, title: str, freq: bool, clear_out
     for spine in ax.spines.values():
         spine.set_edgecolor(border_color)
 
+    # Grid
+    ax.grid(visible=True, axis='both')
+
     # Save
     fig.savefig(os.path.join(REPORT_DIR, path))
     fig.clf()
@@ -423,6 +426,9 @@ def graph_line_plot(x: list[datetime], y: Union[list[float], list[list[float]]],
     ax.tick_params(which='minor', colors='#e1ad6b', labelcolor='#e1ad6b')
     for spine in ax.spines.values():
         spine.set_edgecolor(border_color)
+
+    # Grid
+    ax.grid(visible=True, axis='both')
 
     # Save
     path = Path(os.path.join(REPORT_DIR, path))
