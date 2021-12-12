@@ -93,7 +93,7 @@ def write_html() -> None:
 
 def serve_report() -> None:
     """
-    Serve report page in a http server.
+    Serve report page in an http server.
 
     :return: None
     """
