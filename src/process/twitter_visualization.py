@@ -1,5 +1,6 @@
 """
-TODO: Module Docstring
+This module uses matplotlib to visualize processed data as graphs. The results are stored in report directory.
+The graphs are created after processing the data, for example with filtering and removing outliers.
 """
 from datetime import timedelta
 from dataclasses import dataclass, field
@@ -207,7 +208,7 @@ class Sample:
                 pops_i = user_pop_ratio_sum / seven_days_count
 
             # More than seven days, remove one
-            if len(seven_days_user_prs) == 20:
+            if len(seven_days_user_prs) > 7:
                 seven_days_user_prs.pop(0)
 
             self.date_pops.append(pops_i)
