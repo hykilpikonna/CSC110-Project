@@ -5,6 +5,8 @@ users, creating samples of users, filtering news channels, and processing tweets
 import json
 import os
 import random
+import sys
+import zipfile
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -322,25 +324,58 @@ def is_covid_related(text: str) -> bool:
 
 def pack_data() -> None:
     """
-    This function packs processed data and raw data separately.
+    This function packs processed data and raw data separately, and it also packs the data ready for
+    submission on MarkUs
 
     :return: None
     """
     packed_dir = f'{DATA_DIR}/packed'
     Path(packed_dir).mkdir(parents=True, exist_ok=True)
+    packed_data = f'{packed_dir}/processed.7z'
+    packed_res = f'{packed_dir}/resources.7z'
 
-    # Pack data for processed.
-    debug('Packing data...')
-    processed_dirs = ['/twitter/user/meta', '/twitter/user/processed',
-                      '/twitter/user-tweets/processed']
-    with SevenZipFile(f'{packed_dir}/processed.7z', 'w') as z:
-        z: SevenZipFile = z
-        for p in processed_dirs:
-            debug(f'- Packing {p}')
-            z.writeall(DATA_DIR + p)
+    # Pack processed data (Since packing this takes a long time, we decided to not overwrite it for
+    # every run. This is also because the processed data hasn't changed since Nov 28 when the
+    # project is mostly finished, and there is no need to re-pack data every time, whereas the
+    # resources and sources might change after every update) So, delete the packed 7z file if you
+    # want to repack.
+    if not os.path.isfile(packed_data):
+        debug('Packing data...')
+        processed_dirs = ['/twitter/user/meta', '/twitter/user/processed',
+                          '/twitter/user-tweets/processed']
+        with SevenZipFile(packed_data, 'w') as z:
+            z: SevenZipFile = z
+            for p in processed_dirs:
+                debug(f'- Packing {p}')
+                z.writeall(DATA_DIR + p)
 
     # Pack resources
     debug('Packing resources...')
-    with SevenZipFile(f'{packed_dir}/resources.7z', 'w') as z:
+    with SevenZipFile(packed_res, 'w') as z:
         z: SevenZipFile = z
         z.writeall(RES_DIR)
+
+    # Pack MarkUs submission
+    # Even though 7zip has much better compression rate than zip, MarkUs only supports zip.
+    debug('Packing source code...')
+    with zipfile.ZipFile(f'{packed_dir}/markus.zip', 'w') as zf:
+        z: zipfile.ZipFile = zf
+
+        # Add sources
+        src_path = Path(os.path.realpath(__file__)).parent
+        for f in os.listdir(src_path):
+            if not os.path.isdir(f):
+                z.write(f)
+
+        # Add packed resource
+        z.write(packed_res, 'resources.7z')
+
+        # Add report tex
+        z.write(os.path.join(src_path, '../writing/report/project_report.tex'), 'project_report.tex')
+        z.write(os.path.join(src_path, '../writing/report/project_report.pdf'), 'project_report.pdf')
+
+    # Open packed location (Since there isn't a platform-independent way of doing this, we currently
+    # only support macOS)
+    if sys.platform == 'darwin':
+        os.system(f'open {Path(packed_dir).absolute()}')
+
