@@ -4,7 +4,7 @@
 set -e
 
 # navigate into the build output directory
-cd dist
+cd src/dist
 
 # if you are deploying to a custom domain
 echo 'csc110.hydev.org' > CNAME
