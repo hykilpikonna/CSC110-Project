@@ -4,31 +4,31 @@
 # Json5 is a human-readable json format that allows for things such as unquoted keys or comments.
 json5~=0.9.6
 # Tweepy is a python SDK for twitter
-tweepy==4.4.0
+tweepy~=4.4.0
 # requests is for getting html from a website URL
-requests==2.26.0
+requests~=2.26.0
 # beautifulsoup is used to extract data from html
-beautifulsoup4==4.10.0
+beautifulsoup4~=4.10.0
 
 #####################
 # Data Visualization
 # Print table data
-tabulate==0.8.9
+tabulate~=0.8.9
 # Draw local graphs
-matplotlib==3.5.0
+matplotlib~=3.5.1
 # Calculate data statistics
-numpy==1.21.4
+numpy~=1.21.4
 # Date utility for manipulating dates
 python-dateutil~=2.8.2
 # Scipy for transforming data. We used it for IIR filtering.
 scipy~=1.7.3
 # For serving the report website
-flask==2.0.2
+flask~=2.0.2
 
 ####################
 # Data Packing
 # 7zip packing utility for packing our processed data
-py7zr==0.16.3
+py7zr~=0.17.0
 
 #####################
 # Testing and code checking
