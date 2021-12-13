@@ -438,7 +438,6 @@ def graph_line_plot(x: list[datetime], y: Union[list[float], list[list[float]]],
         if freq:
             cases = get_covid_cases_us()
             c = map_to_dates(cases.cases, [d.isoformat()[:10] for d in x])
-            # c = scipy.signal.savgol_filter(c, 45, 2)
             c = filter_days_avg(c, 7)
             c = scipy.signal.lfilter([1.0 / n] * n, 1, c)
 

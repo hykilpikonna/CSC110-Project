@@ -22,7 +22,7 @@ class ProcessedUser(NamedTuple):
     """
     User and popularity.
 
-    We use NamedTuple instead of dataclass because named tuples are easier to serialize in JSON and
+    We use NamedTuple instead of dataclass because named tuples are easier to serialize in JSON, and
     they require much less space in the stored json format because no key info is stored. For
     example, using dataclass, the json for one UserPopularity object will be:
     {"username": "a", "popularity": 1, "num_postings": 1}, while using NamedTuple, the json will be:
@@ -54,7 +54,7 @@ def process_users() -> None:
 
     # Loop through all the files
     for filename in os.listdir(f'{USER_DIR}/users'):
-        # Only check json files and ignore macos dot files
+        # Only check json files and ignore macOS dot files
         if filename.endswith('.json') and not filename.startswith('.'):
             # Read
             user = json.loads(read(f'{USER_DIR}/users/{filename}'))
@@ -190,7 +190,7 @@ def get_english_news_channels() -> list[str]:
     soup = BeautifulSoup(requests.get(url).text, 'html.parser')
     users = {h.text[1:] for h in soup.select('table tr td:nth-child(2) > a')}
 
-    # Combine two sets, ignoring case (since the ids in the 100 list are all lowercased)
+    # Combine two sets, ignoring case (since the ids in the 100 list are all lowercase)
     news_channels_lower = {n.lower() for n in news_channels}
     for u in users:
         if u not in news_channels_lower:
@@ -231,7 +231,7 @@ def load_user_sample() -> UserSample:
 
 class Posting(NamedTuple):
     """
-    Posting data stores the processed tweets data, and it contains info such as whether a tweet is
+    Posting data stores the processed tweets' data, and it contains info such as whether a tweet is
     covid-related
 
     Attributes:
@@ -251,19 +251,19 @@ class Posting(NamedTuple):
 
 def process_tweets() -> None:
     """
-    Process tweets, reduce the tweets data to only a few fields defined in the Posting class. These
-    include whether or not the tweet is covid-related, how popular is the tweet, if it is a repost,
-    and its date. The processed tweet does not contain its content.
+    Process tweets, reduce the tweets' data to only a few fields defined in the Posting class. These
+    include whether the tweet is covid-related, how popular is the tweet, if it is a repost, and its
+    date. The processed tweet does not contain its content.
 
     If a user's tweets is already processed, this function will skip over that user's data.
 
-    This function will save the processed tweets data to <tweets_dir>/processed/<username>.json
+    This function will save the processed tweets' data to <tweets_dir>/processed/<username>.json
 
     :return: None
     """
     # Loop through all the files
     for filename in os.listdir(f'{TWEETS_DIR}/user'):
-        # Only check json files and ignore macos dot files
+        # Only check json files and ignore macOS dot files
         if filename.endswith('.json') and not filename.startswith('.'):
             # Check if already processed
             if os.path.isfile(f'{TWEETS_DIR}/processed/{filename}'):
@@ -297,8 +297,8 @@ def load_tweets(username: str) -> list[Posting]:
 def is_covid_related(text: str) -> bool:
     """
     Is a tweet / article covid-related. Currently, this is done through keyword matching. Even
-    though we know that not all posts with covid-related words are covid-related posts, this is our
-    current best method of classification.
+    though we know that not all posts with covid-related words are covid-related posts, this is
+    currently our best method of classification.
 
     :param text: Text content
     :return: Whether the text is covid related

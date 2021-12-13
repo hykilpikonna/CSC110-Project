@@ -68,7 +68,7 @@ def download_all_tweets(api: API, screen_name: str,
 
     :param api: Tweepy API object
     :param screen_name: Screen name of that individual
-    :param download_if_exists: Whether or not to download if it already exists (Default: False)
+    :param download_if_exists: Whether to download if it already exists (Default: False)
     :return: None
     """
     # Ensure directories exist
@@ -126,10 +126,10 @@ def download_all_tweets(api: API, screen_name: str,
 
 def download_users_start(api: API, start_point: str, n: float = math.inf) -> None:
     """
-    This function downloads n twitter users by using a friends-chain.
+    This function downloads n Twitter users by using a friends-chain.
 
-    Since there isn't an API or a database with all twitter users, we can't obtain a strict list
-    of all twitter users, nor can we obtain a list of strictly random or most popular twitter
+    Since there isn't an API or a database with all Twitter users, we can't obtain a strict list
+    of all Twitter users, nor can we obtain a list of strictly random or most popular Twitter
     users. Therefore, we use the method of follows chaining: we start from a specific individual,
     obtain their followers, and pick 6 random individuals from the friends list. Then, we repeat
     the process for the selected friends: we pick 6 random friends of the 6 random friends
@@ -149,7 +149,7 @@ def download_users_start(api: API, start_point: str, n: float = math.inf) -> Non
     https://developer.twitter.com/en/docs/twitter-api/v1/accounts-and-users/follow-search-get-users/api-reference/get-friends-list)
     This will limit the rate of requests to 15 requests in a 15-minute window, which is one request
     per minute. But it is actually the fastest method of downloading a wide range of users on
-    twitter because it can download a maximum of 200 users at a time while the API for downloading
+    Twitter because it can download a maximum of 200 users at a time while the API for downloading
     a single user is limited to only 900 queries per 15, which is only 60 users per minute.
 
     There is another API endpoint that might do the job, which is api.twitter.com/friends/ids (Doc:

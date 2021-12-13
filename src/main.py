@@ -21,7 +21,7 @@ if __name__ == '__main__':
     # manually stop it when there are enough users)
     # download_users_start(api, 'voxdotcom')
 
-    # This task will run for a very very long time to obtain a large dataset of twitter users. If
+    # This task will run for a very, very long time to obtain a large dataset of Twitter users. If
     # you want to stop the process, you can resume it later using the following line:
     # download_users_resume_progress(api)
 
@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     #####################
     # Data processing - Step P1
-    # (After step C1) Process the downloaded twitter users, extract screen name, popularity, and
+    # (After step C1) Process the downloaded Twitter users, extract screen name, popularity, and
     # number of tweets data.
     # process_users()
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     #####################
     # Data collection - Step C2.1
-    # (After step P2) Load the downloaded twitter users by popularity, and start downloading all
+    # (After step P2) Load the downloaded Twitter users by popularity, and start downloading all
     # tweets from 500 of the most popular users. Takes around 2 hours.
     # for u in load_user_sample().most_popular:
     #     download_all_tweets(api, u.username)
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     # (After step P2) Download all tweets from the news channels we selected.
     # for u in load_user_sample().english_news:
     #     download_all_tweets(api, u)
-    # Filter out news channels that have been blocked by twitter or don't exist anymore
+    # Filter out news channels that have been blocked by twitter or don't exist
     # filter_news_channels()
 
     #####################

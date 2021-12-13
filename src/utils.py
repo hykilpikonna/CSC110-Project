@@ -181,7 +181,7 @@ def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float
         - len(points) > 0
 
     :param points: Input points list
-    :param z_threshold: Z threshold for identifying whether or not a point is an outlier
+    :param z_threshold: Z threshold for identifying whether a point is an outlier
     :return: List with outliers removed
     """
     x = np.array(points)
@@ -296,7 +296,7 @@ def daterange(start_date: str, end_date: str) -> Generator[tuple[str, datetime],
         - end_date starts with the "YYYY-MM-DD" format
 
     :param start_date: Start date in "YYYY-MM-DD" format
-    :param end_date: End date in "YYYY-MM-DD" format
+    :param end_date: Ending date in "YYYY-MM-DD" format
     :return: Generator for looping through the dates one day at a time.
     """
     start = parse_date_only(start_date)
@@ -308,7 +308,7 @@ def daterange(start_date: str, end_date: str) -> Generator[tuple[str, datetime],
 def map_to_dates(y: dict[str, Union[int, float]], dates: list[str],
                  default: float = 0) -> list[float]:
     """
-    Takes y-axis data in the form of a mapping of date to values, and returns a list of all the
+    Takes y-axis data in the form of a mapping of dates to values, and returns a list of all the
     values mapped to the date in dates. If a date in dates isn't in y, then the default values is
     used instead.
 
@@ -325,7 +325,7 @@ def map_to_dates(y: dict[str, Union[int, float]], dates: list[str],
 
 def filter_days_avg(y: list[float], n: int) -> list[float]:
     """
-    Filter y by taking an average over a n-days window. If n = 0, then return y without processing.
+    Filter y by taking an average over an n-days window. If n = 0, then return y without processing.
 
     Preconditions:
         - n % 2 == 1
@@ -351,12 +351,12 @@ def filter_days_avg(y: list[float], n: int) -> list[float]:
 
     ret = []
     for i in range(len(y)):
-        l, r = i - radius, i + radius
-        l = max(0, l)  # avoid index out of bounds by "extending" first/last element
-        r = min(r, len(y) - 1)
-        current_sum += y[r]  # extend sliding window
+        left, right = i - radius, i + radius
+        left = max(0, left)  # avoid index out of bounds by "extending" first/last element
+        right = min(right, len(y) - 1)
+        current_sum += y[right]  # extend sliding window
         ret.append(current_sum / n)
-        current_sum -= y[l]  # remove old values
+        current_sum -= y[left]  # remove old values
     return ret
 
 
@@ -377,8 +377,9 @@ def divide_zeros(numerator: list[float], denominator: list[float]) -> list[float
             output[i] = 0
         else:
             output[i] = numerator[i] / denominator[i]
-    # This marks it as incorrect type but it's actually not incorrect type, just because numpy
+    # This marks it as incorrect type, but it's actually not incorrect type, just because numpy
     # doesn't specify its return types
+    # noinspection PyTypeChecker
     return output.tolist()
 
 
