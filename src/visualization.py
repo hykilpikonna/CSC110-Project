@@ -22,12 +22,24 @@ class UserFloat:
 
     This is used for both COVID tweet frequency and popularity ratio data, because both of these
     are floating point data.
+
+    Representation Invariants:
+        - self.name != ''
+
     """
     name: str
     data: float
 
 
 class Sample:
+    """
+    A sample of many users, containing statistical data that will be used in graphs.
+
+    Representation Invariants:
+        - self.name != ''
+        - all(name != '' for name in self.users)
+
+    """
     name: str
     users: list[str]
     # Total frequencies of all posts for each user across all dates (sorted)
