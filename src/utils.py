@@ -3,7 +3,8 @@
 - file I/O
 - statistics functions, removing outliers and averaging values over a period
 - date-related functions
-- classes for configs, reports, statistics, and JSON"""
+- classes for configs, reports, statistics, and JSON
+"""
 
 import dataclasses
 import inspect
@@ -87,6 +88,9 @@ def write(file: str, text: str) -> None:
     """
     Write text to a file
 
+    Preconditions:
+      - file != ''
+
     :param file: File path (will be converted to lowercase)
     :param text: Text
     :return: None
@@ -103,6 +107,9 @@ def write(file: str, text: str) -> None:
 def read(file: str) -> str:
     """
     Read file content
+
+    Preconditions:
+      - file != ''
 
     :param file: File path (will be converted to lowercase)
     :return: None
@@ -168,6 +175,9 @@ def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float
 
     Credit to: https://stackoverflow.com/a/11886564/7346633
 
+    Preconditions:
+      - len(points) > 0
+
     :param points: Input points list
     :param z_threshold: Z threshold for identifying whether or not a point is an outlier
     :return: List with outliers removed
@@ -211,6 +221,9 @@ class Stats:
 def get_statistics(points: list[float]) -> Stats:
     """
     Calculate statistics for a set of points
+
+    Preconditions:
+      - len(points) > 0
 
     :param points: Input points
     :return: Statistics
@@ -262,7 +275,7 @@ def parse_date_only(iso: str) -> datetime:
     Parse date faster.
 
     Preconditions:
-      - iso is in the format of "YYYY-MM-DD" (e.g. "2021-10-20")
+      - iso starts with the format of "YYYY-MM-DD" (e.g. "2021-10-20" or "2021-10-20T10:04:14")
       - iso is a valid date (this function does not check for the validity of the input)
 
     :param iso: Input date
@@ -274,6 +287,10 @@ def parse_date_only(iso: str) -> datetime:
 def daterange(start_date: str, end_date: str) -> Generator[tuple[str, datetime], None, None]:
     """
     Date range for looping, excluding the end date
+
+    Preconditions:
+      - start_date starts with the "YYYY-MM-DD" format
+      - end_date starts with the "YYYY-MM-DD" format
 
     :param start_date: Start date in "YYYY-MM-DD" format
     :param end_date: End date in "YYYY-MM-DD" format
@@ -307,7 +324,7 @@ def filter_days_avg(y: list[float], n: int) -> list[float]:
     """
     Filter y by taking an average over a n-days window. If n = 0, then return y without processing.
 
-    Precondition:
+    Preconditions:
       - n % 2 == 1
       - len(y) > 0
 
@@ -390,6 +407,9 @@ def json_stringify(obj, indent: Union[int, None] = None) -> str:
     """
     Serialize json string with support for dataclasses and datetime and sets and with custom
     configuration.
+
+    Preconditions:
+      - obj != None
 
     :param obj: Objects
     :param indent: Indent size or none

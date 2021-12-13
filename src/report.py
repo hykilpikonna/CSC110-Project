@@ -1,3 +1,6 @@
+"""
+This module generates report HTML and serves it in an HTTP server.
+"""
 import json
 import os.path
 import shutil

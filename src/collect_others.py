@@ -1,3 +1,6 @@
+"""
+This module uses web requests to collect and process other data we are using in our analysis.
+"""
 from dataclasses import dataclass
 
 import requests

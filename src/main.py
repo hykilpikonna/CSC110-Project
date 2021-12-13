@@ -1,3 +1,7 @@
+"""
+This module is the main module of our program which runs different functions in different modules
+by steps.
+"""
 from visualization import *
 from collect_twitter import *
 from report import serve_report

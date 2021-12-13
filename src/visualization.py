@@ -87,7 +87,7 @@ class Sample:
         To prevent divide-by-zero, we ignored everyone who didn't post about covid and who didn't
         post at all.
 
-        Precondition:
+        Preconditions:
           - Downloaded tweets data are sorted by date
         """
         debug(f'Calculating sample tweets data for {self.name}...')
