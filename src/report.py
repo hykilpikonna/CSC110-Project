@@ -20,6 +20,9 @@ def generate_report() -> str:
     """
     Compile the report document and generate a markdown report
 
+    Preconditions:
+        - RES_DIR exists, and contains the necessary resources used in this project.
+
     :return: Markdown report
     """
     # Load markdown

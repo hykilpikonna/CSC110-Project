@@ -30,9 +30,12 @@ class UserFloat:
     This is used for both COVID tweet frequency and popularity ratio data, because both of these
     are floating point data.
 
+    Attributes:
+        - name: Twitter user's screen name
+        - data: The float data that's associated with this user
+
     Representation Invariants:
         - self.name != ''
-
     """
     name: str
     data: float
@@ -42,23 +45,33 @@ class Sample:
     """
     A sample of many users, containing statistical data that will be used in graphs.
 
+    Attributes:
+        - name: Sample name
+        - users: List of user screen names in this sample
+        - user_freqs: Total frequencies of all posts for each user across all dates (sorted)
+        - user_pops: Total popularity ratios of all posts for each user across all dates (sorted)
+        - user_all_pop_avg: Average popularity of all u's posts
+        - user_date_covid_pop_avg: Average popularity of COVID tweets by a specific user on a date
+        (user_covid_tweets_pop[user][date] = Average popularity of COVID-posts by {user} on {date})
+        - date_covid_freq: Total COVID-tweets frequency on a specific date for all users.
+        - dates: dates[i] = The i-th day since the first tweet
+        - date_freqs: date_freqs[i] = COVID frequency of all posts from all sampled users on date[i]
+        - date_pops: date_pops[i] = Average pop-ratio of all posts from all sampled users on date[i]
+
     Representation Invariants:
         - self.name != ''
         - all(name != '' for name in self.users)
-
     """
     name: str
     users: list[str]
-    # Total frequencies of all posts for each user across all dates (sorted)
+
     user_freqs: list[UserFloat]
-    # Total popularity ratios of all posts for each user across all dates (sorted)
     user_pops: list[UserFloat]
-    # Average popularity of all u's posts
     user_all_pop_avg: dict[str, float]
-    # Average popularity of COVID tweets by a specific user on a specific date
+
     # user_covid_tweets_pop[user][date] = Average popularity of COVID-posts by {user} on {date}
     user_date_covid_pop_avg: dict[str, dict[str, float]]
-    # Total COVID-tweets frequency on a specific date for all users.
+
     date_covid_freq: dict[str, float]
     # dates[i] = The i-th day since the first tweet
     dates: list[datetime]

@@ -27,14 +27,16 @@ class ProcessedUser(NamedTuple):
     example, using dataclass, the json for one UserPopularity object will be:
     {"username": "a", "popularity": 1, "num_postings": 1}, while using NamedTuple, the json will be:
     ["a", 1, 1], which saves an entire 42 bytes for each user.
+
+    Attributes:
+        - username: The Twitter user's screen name
+        - popularity: A measurement of a user's popularity, such as followers count
+        - num_postings: Number of tweets
+        - language: Language code in Twitter's language code format
     """
-    # Username
     username: str
-    # A measurement of a user's popularity, such as followers count
     popularity: int
-    # Number of tweets
     num_postings: int
-    # Language
     lang: str
 
 
@@ -106,6 +108,11 @@ def get_user_popularity_ranking(user: str) -> int:
 class UserSample:
     """
     This is a data class storing our different samples.
+
+    Attributes:
+        - most_popular: Our sample of the most popular users on Twitter
+        - random: Our sample of random users on Twitter
+        - english_news: Our sample of news media accounts on Twitter
 
     Representation Invariants:
         - all(news != '' for news in self.english_news)
@@ -224,20 +231,21 @@ def load_user_sample() -> UserSample:
 
 class Posting(NamedTuple):
     """
-    Posting data stores the processed tweets data, and it contains info such as whether or not a
-    tweet is covid-related
+    Posting data stores the processed tweets data, and it contains info such as whether a tweet is
+    covid-related
+
+    Attributes:
+        - covid_related: True if the post is determined to be covid-related
+        - popularity: A measure of tweet popularity measured by comments + likes
+        - repost: Whether the post is a repost
+        - date: Posting date and time in ISO format ("YYYY-MM-DDThh-mm-ss")
 
     Representation Invariants:
         - popularity >= 0
-
     """
-    # Full text of the post's content
     covid_related: bool
-    # Popularity of the post
     popularity: int
-    # Is it a repost
     repost: bool
-    # Date in ISO format
     date: str
 
 
