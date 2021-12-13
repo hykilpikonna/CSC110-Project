@@ -163,7 +163,7 @@ def get_english_news_channels() -> list[str]:
     Run this after download_all_tweets(api, 'TwitterNews')
 
     Preconditions:
-      - <tweets_dir>/user/TwitterNews.json exists.
+        - <tweets_dir>/user/TwitterNews.json exists.
 
     :return: A list of news channel screen names
     """
@@ -194,7 +194,7 @@ def filter_news_channels() -> None:
     Filter out news channels that don't exist anymore or have been banned by Twitter.
 
     Preconditions:
-      - Run this after downloading all tweets from the news channels in Step 2.3 in main.
+        - Run this after downloading all tweets from the news channels in Step 2.3 in main.
 
     :return: None
     """

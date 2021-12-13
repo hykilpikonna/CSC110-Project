@@ -510,6 +510,9 @@ def report_change_graphs(sample: Sample) -> None:
 def report_all() -> None:
     """
     Generate all reports
+    
+    Preconditions:
+        - Report has been 
     """
     graph_load_font()
 
@@ -536,15 +539,3 @@ def report_all() -> None:
     graph_line_plot(samples[0].dates, [s.date_freqs for s in samples], 'change/comb/freq.png',
                     'COVID-posting frequency over time for all samples - IIR(10)', True, 10,
                     labels=[s.name for s in samples])
-
-
-if __name__ == '__main__':
-    report_all()
-    # samples = load_user_sample()
-    # combine_tweets_for_sample([u.username for u in samples.most_popular], '500-pop')
-    # combine_tweets_for_sample([u.username for u in samples.random], '500-rand')
-    # combine_tweets_for_sample(samples.english_news, 'eng-news')
-
-    # tweets = load_combined_tweets('500-pop')
-    # print(len(tweets))
-    # view_covid_tweets_date(tweets)

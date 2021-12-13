@@ -29,16 +29,16 @@ class Config:
     Secrets configuration for this program.
 
     Attributes:
-      - consumer_key: The consumer key from the Twitter application portal
-      - consumer_secret: The consumer secret from the Twitter application portal
-      - access_token: The access token of an app from the Twitter application portal
-      - access_secret: The access secret of an app from the Twitter application portal
+        - consumer_key: The consumer key from the Twitter application portal
+        - consumer_secret: The consumer secret from the Twitter application portal
+        - access_token: The access token of an app from the Twitter application portal
+        - access_secret: The access secret of an app from the Twitter application portal
 
     Representation Invariants:
-      - self.consumer_key != ''
-      - self.consumer_secret != ''
-      - self.access_token != ''
-      - self.access_secret != ''
+        - self.consumer_key != ''
+        - self.consumer_secret != ''
+        - self.access_token != ''
+        - self.access_secret != ''
     """
     # Twitter's official API v1 keys
     consumer_key: str
@@ -89,7 +89,7 @@ def write(file: str, text: str) -> None:
     Write text to a file
 
     Preconditions:
-      - file != ''
+        - file != ''
 
     :param file: File path (will be converted to lowercase)
     :param text: Text
@@ -109,7 +109,7 @@ def read(file: str) -> str:
     Read file content
 
     Preconditions:
-      - file != ''
+        - file != ''
 
     :param file: File path (will be converted to lowercase)
     :return: None
@@ -123,8 +123,8 @@ class Reporter:
     Report file creator
 
     Attributes:
-      - report: The string of the report
-      - file: Where the report is stored
+        - report: The string of the report
+        - file: Where the report is stored
 
     Representation Invariants:
         - self.file != ''
@@ -176,7 +176,7 @@ def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float
     Credit to: https://stackoverflow.com/a/11886564/7346633
 
     Preconditions:
-      - len(points) > 0
+        - len(points) > 0
 
     :param points: Input points list
     :param z_threshold: Z threshold for identifying whether or not a point is an outlier
@@ -203,12 +203,12 @@ class Stats:
     Data class storing the statistics of a sample
 
     Attributes:
-      - mean: The average of the sample
-      - stddev: The standard deviation
-      - median: The median value of the sample, or the 50th percentile
-      - iqr: The interquartile-range (75th percentile - 25th percentile)
-      - q25: The first quartile, or the 25th percentile
-      - q75: The third quartile, or the 75th percentile
+        - mean: The average of the sample
+        - stddev: The standard deviation
+        - median: The median value of the sample, or the 50th percentile
+        - iqr: The interquartile-range (75th percentile - 25th percentile)
+        - q25: The first quartile, or the 25th percentile
+        - q75: The third quartile, or the 75th percentile
     """
     mean: float
     stddev: float
@@ -223,7 +223,7 @@ def get_statistics(points: list[float]) -> Stats:
     Calculate statistics for a set of points
 
     Preconditions:
-      - len(points) > 0
+        - len(points) > 0
 
     :param points: Input points
     :return: Statistics
@@ -260,8 +260,8 @@ def parse_date_time(iso: str) -> datetime:
     python's built-in dateutil.parser.isoparse() function.
 
     Preconditions:
-      - iso is the output of datetime.isoformat() (In a format like "2021-10-20T23:50:14")
-      - iso is a valid date (this function does not check for the validity of the input)
+        - iso is the output of datetime.isoformat() (In a format like "2021-10-20T23:50:14")
+        - iso is a valid date (this function does not check for the validity of the input)
 
     :param iso: Input date
     :return: Datetime object
@@ -275,8 +275,8 @@ def parse_date_only(iso: str) -> datetime:
     Parse date faster.
 
     Preconditions:
-      - iso starts with the format of "YYYY-MM-DD" (e.g. "2021-10-20" or "2021-10-20T10:04:14")
-      - iso is a valid date (this function does not check for the validity of the input)
+        - iso starts with the format of "YYYY-MM-DD" (e.g. "2021-10-20" or "2021-10-20T10:04:14")
+        - iso is a valid date (this function does not check for the validity of the input)
 
     :param iso: Input date
     :return: Datetime object
@@ -289,8 +289,8 @@ def daterange(start_date: str, end_date: str) -> Generator[tuple[str, datetime],
     Date range for looping, excluding the end date
 
     Preconditions:
-      - start_date starts with the "YYYY-MM-DD" format
-      - end_date starts with the "YYYY-MM-DD" format
+        - start_date starts with the "YYYY-MM-DD" format
+        - end_date starts with the "YYYY-MM-DD" format
 
     :param start_date: Start date in "YYYY-MM-DD" format
     :param end_date: End date in "YYYY-MM-DD" format
@@ -310,7 +310,7 @@ def map_to_dates(y: dict[str, Union[int, float]], dates: list[str],
     used instead.
 
     Preconditions:
-      - The date in dates must be in the same format as the dates in the keys of y
+        - The date in dates must be in the same format as the dates in the keys of y
 
     :param y: Y axis data (in the format y[date] = value)
     :param dates: Dates
@@ -325,8 +325,8 @@ def filter_days_avg(y: list[float], n: int) -> list[float]:
     Filter y by taking an average over a n-days window. If n = 0, then return y without processing.
 
     Preconditions:
-      - n % 2 == 1
-      - len(y) > 0
+        - n % 2 == 1
+        - len(y) > 0
 
     :param y: Values
     :param n: Number of days, must be odd
@@ -362,7 +362,7 @@ def divide_zeros(numerator: list[float], denominator: list[float]) -> list[float
     Divide two lists of floats, ignoring zeros (anything dividing by zero will produce zero)
 
     Preconditions:
-      - len(numerator) == len(denominator)
+        - len(numerator) == len(denominator)
 
     :param numerator: Numerator
     :param denominator: Denominator
@@ -409,7 +409,7 @@ def json_stringify(obj, indent: Union[int, None] = None) -> str:
     configuration.
 
     Preconditions:
-      - obj != None
+        - obj != None
 
     :param obj: Objects
     :param indent: Indent size or none
