@@ -118,6 +118,9 @@ class Reporter:
     Attributes:
       - report: The string of the report
       - file: Where the report is stored
+
+    Representation Invariants:
+        - self.file != ''
     """
     report: str
     file: str
@@ -360,6 +363,10 @@ def divide_zeros(numerator: list[float], denominator: list[float]) -> list[float
 
 
 class EnhancedJSONEncoder(json.JSONEncoder):
+    """
+    An improvement to the json.JSONEncoder class, which supports:
+    encoding for dataclasses, encoding for datetime, and sets
+    """
     def default(self, o):
 
         # Support encoding dataclasses
