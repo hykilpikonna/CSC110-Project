@@ -103,6 +103,10 @@ def get_user_popularity_ranking(user: str) -> int:
 class UserSample:
     """
     This is a data class storing our different samples.
+
+    Representation Invariants:
+        - all(news != '' for news in self.english_news)
+
     """
     most_popular: list[ProcessedUser]
     random: list[ProcessedUser]
@@ -219,6 +223,10 @@ class Posting(NamedTuple):
     """
     Posting data stores the processed tweets data, and it contains info such as whether or not a
     tweet is covid-related
+
+    Representation Invariants:
+        - popularity >= 0
+
     """
     # Full text of the post's content
     covid_related: bool
