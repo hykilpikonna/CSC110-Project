@@ -5,6 +5,15 @@ import requests
 
 @dataclass
 class CasesData:
+    """
+    A dataclass that stores a mapping of date to cases on that day and a mapping of date to deaths
+    on that day.
+
+    Representation Invariants:
+        - all(x >= 0 for x in self.cases.values())
+        - all(x >= 0 for x in self.deaths.values())
+
+    """
     # cases[date in "YYYY-MM-DD"] = 7-day average of cases around that date
     cases: dict[str, float]
     deaths: dict[str, float]
