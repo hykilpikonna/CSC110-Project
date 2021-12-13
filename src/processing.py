@@ -14,7 +14,7 @@ import requests
 from bs4 import BeautifulSoup
 from py7zr import SevenZipFile
 
-from constants import DATA_DIR, TWEETS_DIR, USER_DIR
+from constants import DATA_DIR, TWEETS_DIR, USER_DIR, RES_DIR
 from utils import read, debug, write, json_stringify
 
 
@@ -338,3 +338,9 @@ def pack_data() -> None:
         for p in processed_dirs:
             debug(f'- Packing {p}')
             z.writeall(DATA_DIR + p)
+
+    # Pack resources
+    debug('Packing resources...')
+    with SevenZipFile(f'{packed_dir}/resources.7z', 'w') as z:
+        z: SevenZipFile = z
+        z.writeall(RES_DIR)
