@@ -124,6 +124,6 @@ dmypy.json
 *.xml
 *.out
 
-config.json5
+./config.json5
 data/
 /report/

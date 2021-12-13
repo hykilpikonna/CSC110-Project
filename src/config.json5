@@ -1,0 +1,8 @@
+{
+    // Twitter official V2 API keys
+    // Register for them on the Twitter api portal
+    consumer_key: 'Your_consumer_key',
+    consumer_secret: 'Your_consumer_secret',
+    access_token: 'Your_access_token',
+    access_secret: 'Your_access_secret',
+}
