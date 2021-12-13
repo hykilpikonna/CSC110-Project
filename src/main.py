@@ -2,11 +2,12 @@
 This module is the main module of our program which runs different functions in different modules
 by steps.
 """
-from visualization import *
-from collect_twitter import *
-from report import serve_report
-from utils import *
 
+from collect_twitter import *
+from processing import *
+from report import *
+from utils import *
+from visualization import *
 
 if __name__ == '__main__':
     # Load config and create API
@@ -40,10 +41,6 @@ if __name__ == '__main__':
     # (After step P1) Select 500 most popular users and 500 random users who meet a particular
     # criteria as our sample, also find news channels
     # select_user_sample()
-
-    # Just curious, who are the 20 most popular individuals on twitter?
-    # print(tabulate(((u.username, u.popularity) for u in load_user_sample().most_popular[:20]),
-    #                headers=['Name', 'Followers']))
 
     #####################
     # Data collection - Step C2.1

@@ -1,18 +1,25 @@
 """
-This module uses matplotlib to visualize processed data as graphs. The results are stored in report directory.
+This module uses matplotlib to visualize processed data as graphs. The results are stored in
+report directory.
 The graphs are created after processing the data, for example with filtering and removing outliers.
 """
-import os.path
-from typing import Optional
 
+import os.path
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import Optional, Union
+
+import matplotlib.dates as mdates
 import matplotlib.ticker
 import scipy.signal
 from matplotlib import pyplot as plt, font_manager
-import matplotlib.dates as mdates
 
-from constants import RES_DIR
-from processing import *
 from collect_others import get_covid_cases_us
+from constants import RES_DIR, REPORT_DIR
+from processing import load_tweets, load_user_sample
+from utils import debug, daterange, map_to_dates, filter_days_avg, Reporter, remove_outliers, \
+    tabulate_stats, get_statistics
 
 
 @dataclass()
@@ -163,7 +170,8 @@ class Sample:
             popularity.append(UserFloat(u, covid_pop_avg / all_pop_avg))
 
         # Calculate frequency on date
-        self.date_covid_freq = {d: date_covid_count[d] / date_all_count[d] for d in date_covid_count}
+        self.date_covid_freq = {d: date_covid_count[d] / date_all_count[d] for d in
+                                date_covid_count}
 
         # Sort by relative popularity or frequency
         popularity.sort(key=lambda x: x.data, reverse=True)
@@ -244,7 +252,7 @@ def load_samples() -> list[Sample]:
     keys = ['en', 'zh', 'ja']
     pop_lang = [u.lang for u in users.most_popular]
     rand_lang = [u.lang for u in users.random]
-    Reporter('sample-demographics.md')\
+    Reporter('sample-demographics.md') \
         .table([['`500-pop`'] + [str(len(pop_lang))] + [str(pop_lang.count(k)) for k in keys],
                 ['`500-rand`'] + [str(len(rand_lang))] + [str(rand_lang.count(k)) for k in keys]],
                ['Total', 'English', 'Chinese', 'Japanese'], False)
@@ -512,7 +520,7 @@ def report_all() -> None:
     Generate all reports
     
     Preconditions:
-        - Report has been 
+        - Twitter data have been downloaded and processed.
     """
     graph_load_font()
 

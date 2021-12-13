@@ -4,16 +4,18 @@ It contains functions related scraping users/tweets, including:
 - getting the tweets of a user
 - downloading many users by checking their followers and follower's followers, etc.
 """
+import json
 import math
+import os
 import random
 import time
-from typing import List
+from typing import List, Union
 
 import tweepy
 from tweepy import API, TooManyRequests, User, Tweet, Unauthorized, NotFound
 
 from constants import TWEETS_DIR, USER_DIR
-from utils import *
+from utils import Config, debug, calculate_rate_delay, write, json_stringify, read
 
 
 def tweepy_login(conf: Config) -> tweepy.API:
@@ -57,7 +59,8 @@ def download_all_tweets(api: API, screen_name: str,
     Twitter API Reference
     --------
     It will be using the API endpoint api.twitter.com/statuses/user_timeline (Documentation:
-    https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline)
+    https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get
+    -statuses-user_timeline)
     This endpoint has a rate limit of 900 requests / 15-minutes = 60 rpm for user auth, and it has a
     limit of 100,000 requests / 24 hours = 69.44 rpm independent of authentication method. To be
     safe, this function uses a rate limit of 60 rpm.
@@ -294,15 +297,3 @@ def download_users_execute(api: API, n: float,
 
         # Rate limit
         time.sleep(rate_delay)
-
-
-if __name__ == '__main__':
-    # python_ta.check_all(config={
-    #     'max-line-length': 100,
-    #     'disable': ['R1705', 'C0200', 'E9998', 'E9999']
-    # })
-
-    config = load_config('config.json5')
-    tweepy_api = tweepy_login(config)
-    # download_users_start(tweepy_api, 'sauricat')
-    download_users_resume_progress(tweepy_api)

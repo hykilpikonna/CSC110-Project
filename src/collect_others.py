@@ -1,6 +1,7 @@
 """
 This module uses web requests to collect and process other data we are using in our analysis.
 """
+
 from dataclasses import dataclass
 
 import requests
@@ -12,12 +13,14 @@ class CasesData:
     A dataclass that stores a mapping of date to cases on that day and a mapping of date to deaths
     on that day.
 
+    Attributes:
+        - cases: cases[date in "YYYY-MM-DD"] = 7-day average of cases around that date
+        - deaths: deaths[date in "YYYY-MM-DD"] = 7-day average of deaths around that date
+
     Representation Invariants:
         - all(x >= 0 for x in self.cases.values())
         - all(x >= 0 for x in self.deaths.values())
-
     """
-    # cases[date in "YYYY-MM-DD"] = 7-day average of cases around that date
     cases: dict[str, float]
     deaths: dict[str, float]
 

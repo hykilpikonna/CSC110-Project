@@ -1,4 +1,5 @@
-"""This module contains useful functions and classes, including:
+"""
+This module contains useful functions and classes, including:
 - debug messages
 - file I/O
 - statistics functions, removing outliers and averaging values over a period
@@ -14,7 +15,7 @@ import statistics
 from dataclasses import dataclass
 from datetime import datetime, date, timedelta
 from pathlib import Path
-from typing import Union, NamedTuple, Any, Generator
+from typing import Union, Any, Generator
 
 import json5
 import numpy as np
@@ -49,7 +50,8 @@ class Config:
 
 def load_config(path: str = 'config.json5') -> Config:
     """
-    Load config using JSON5, from either the local file ~/config.json5 or from the environment variable named config.
+    Load config using JSON5, from either the local file ~/config.json5 or from the environment
+    variable named config.
 
     :param path: Path of the config file (Default: config.json5)
     :return: Config object
@@ -242,6 +244,7 @@ def tabulate_stats(stats: list[Stats], percent: bool = False) -> list[list[str]]
     :param percent: Whether the numbers are percentages
     :return: Table for tabulate
     """
+
     def num(n: float) -> str:
         return f'{n:.2f}' if not percent else f'{n * 100:.1f}%'
 
@@ -384,6 +387,7 @@ class EnhancedJSONEncoder(json.JSONEncoder):
     An improvement to the json.JSONEncoder class, which supports:
     encoding for dataclasses, encoding for datetime, and sets
     """
+
     def default(self, o):
 
         # Support encoding dataclasses

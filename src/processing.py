@@ -2,17 +2,20 @@
 Processes data downloaded from the Twitter API. Processing consists of calculating popularity of
 users, creating samples of users, filtering news channels, and processing tweets for file storage.
 """
+import json
+import os
 import random
-from typing import NamedTuple
 from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import NamedTuple
 
-import dateutil.parser
 import requests
 from bs4 import BeautifulSoup
 from py7zr import SevenZipFile
 
 from constants import DATA_DIR, TWEETS_DIR, USER_DIR
-from utils import *
+from utils import read, debug, write, json_stringify
 
 
 class ProcessedUser(NamedTuple):
