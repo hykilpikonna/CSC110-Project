@@ -128,3 +128,4 @@ config.json5
 data/
 /report/
 /src/report
+.DS_Store
