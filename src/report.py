@@ -1,5 +1,6 @@
 import json
 import os.path
+import shutil
 import traceback
 import webbrowser
 from distutils.dir_util import copy_tree
@@ -7,11 +8,8 @@ from pathlib import Path
 
 from flask import Flask, send_from_directory, Response
 
-from constants import REPORT_DIR, DEBUG
+from constants import REPORT_DIR, DEBUG, RES_DIR
 from utils import read, write
-
-# Constants
-src_dir = Path(os.path.realpath(__file__)).parent
 
 
 def generate_report() -> str:
@@ -21,7 +19,7 @@ def generate_report() -> str:
     :return: Markdown report
     """
     # Load markdown
-    md = read(str(src_dir.joinpath('report_document.md'))).replace('\r\n', '\n').split('\n')
+    md = read(os.path.join(RES_DIR, './report_document.md')).replace('\r\n', '\n').split('\n')
 
     # Process line by line
     for i in range(len(md)):
@@ -71,7 +69,7 @@ def generate_html() -> str:
     # Generate markdown report and JSON encode it (which works as JS code! amazing
     md_json = json.dumps({'content': generate_report()})
     # Inject into HTML
-    html = read(str(src_dir.joinpath('report_page.html'))) \
+    html = read(os.path.join(RES_DIR, 'report_page.html')) \
         .replace('`{{markdown}}`', md_json)
     return html
 
@@ -83,11 +81,11 @@ def write_html() -> None:
     :return: None
     """
     if os.path.isdir('./dist'):
-        os.remove('./dist')
-    Path('./dist/resources').mkdir(parents=True, exist_ok=True)
+        shutil.rmtree('./dist')
+    Path('./dist/html').mkdir(parents=True, exist_ok=True)
     write('./dist/index.html', generate_html())
 
-    copy_tree(str(src_dir.joinpath('resources/').absolute()), './dist/resources')
+    copy_tree(os.path.join(RES_DIR, 'html/'), './dist/html')
     copy_tree(REPORT_DIR, './dist')
 
 
@@ -124,7 +122,7 @@ def serve_report() -> None:
         """
         return send_from_directory(Path(REPORT_DIR).absolute(), path)
 
-    @app.route('/resources/<path:path>')
+    @app.route('/html/<path:path>')
     def js_res(path: str) -> Response:
         """
         JS Resource endpoint. This maps JS and CSS queries to the resources directory
@@ -132,7 +130,7 @@ def serve_report() -> None:
         :param path: Path of the resource
         :return: File resource or 404
         """
-        return send_from_directory(os.path.join(src_dir, 'resources'), path)
+        return send_from_directory(os.path.join(RES_DIR, 'html'), path)
 
     # Run app
     webbrowser.open("http://localhost:8080")

@@ -5,6 +5,7 @@ DATA_DIR = '../data'
 TWEETS_DIR = f'{DATA_DIR}/twitter/user-tweets'
 USER_DIR = f'{DATA_DIR}/twitter/user'
 REPORT_DIR = './report'
+RES_DIR = './resources'
 
 # Debug mode, or developer mode. This affects two things:
 # 1. Whether debug messages are outputted

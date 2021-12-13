@@ -80,7 +80,7 @@ $$ \text{pop_ratio}_i = \frac{ \sum_{u \in \text{Users}} \left(\frac{\sum\text{P
 After calculation, `freqs` and `pops` are plotted in line graphs against `dates`. Initially, we are seeing graphs with very high peaks such as the graph below. After some investigation, we found that these peaks are caused by not having enough tweets on each day to average out the random error of one single popular tweet. For example, in the graph below, we adjusted the program to print different users' popularity ratios when we found an average popularity ratio of greater than 20, which produced the output on the right. As it turns out, on 2020-07-11, the user @juniorbachchan posted that he and his father tested positive, and that single post is 163.84 times more popular than the average of all his posts. (The post is linked [here](https://twitter.com/juniorbachchan/status/1282018653215395840), it has 235k likes, 25k comments, and 32k retweets). Even though these data points are outliers, there isn't an effective way of removing them since we don't have enough tweets data from each user to calculate their range (for example, someone's COVID-related post might be the only one they've posted). So, we've decided to limit the viewing window to `y = [0, 2]` as shown in the graph on the right.
 
 <div class="image-row">
-    <div><img src="resources/peak-1.png" alt="graph"></div>
+    <div><img src="html/peak-1.png" alt="graph"></div>
     <div style="display: flex; flex-direction: column; justify-content: center"><pre>
 Date:  2020-07-11
 - JoeBiden 1.36
@@ -90,7 +90,7 @@ Date:  2020-07-11
 - gucci 0.13
 - StephenKing 0.61
     </pre></div>
-    <div><img src="resources/peak-2.png" alt="graph"></div>
+    <div><img src="html/peak-2.png" alt="graph"></div>
 </div>
 
 Then, we encountered the issue of noise. When we plot the graph without a filter, we found that the graph is actually very noisy. We decided to average the results over 7 days. Then, we also experimented with different filters from the `scipy` library and different parameter values, and chose to use an IIR filter with `n = 10`.

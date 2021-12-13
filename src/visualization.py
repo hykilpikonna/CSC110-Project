@@ -2,20 +2,17 @@
 This module uses matplotlib to visualize processed data as graphs. The results are stored in report directory.
 The graphs are created after processing the data, for example with filtering and removing outliers.
 """
-from datetime import timedelta
-from dataclasses import dataclass, field
+import os.path
 from typing import Optional
 
 import matplotlib.ticker
-import numpy as np
-import requests
 import scipy.signal
 from matplotlib import pyplot as plt, font_manager
 import matplotlib.dates as mdates
-from matplotlib import cm
 
-from process.twitter_process import *
-from raw_collect.others import get_covid_cases_us
+from constants import RES_DIR
+from processing import *
+from collect_others import get_covid_cases_us
 
 
 @dataclass()
@@ -287,7 +284,7 @@ def graph_load_font() -> None:
     """
     Load iosevka font for matplotlib
     """
-    font = Path(os.path.realpath(__file__)).absolute().parent.joinpath('iosevka-ss04-regular.ttf')
+    font = os.path.join(RES_DIR, 'iosevka-ss04-regular.ttf')
     fe = font_manager.FontEntry(font, 'iosevka')
     font_manager.fontManager.ttflist.insert(0, fe)
     plt.rcParams["font.family"] = "iosevka"

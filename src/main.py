@@ -1,9 +1,6 @@
-from tabulate import tabulate
-
-from process.twitter_process import *
-from process.twitter_visualization import *
-from raw_collect.twitter import *
-from report.report import serve_report
+from visualization import *
+from collect_twitter import *
+from report import serve_report
 from utils import *
 
 
