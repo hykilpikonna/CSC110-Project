@@ -1,0 +1,22 @@
+| Username       | Frequency   |
+|----------------|-------------|
+| big_picture    | 77.8%       |
+| NBCNewsHealth  | 71.9%       |
+| Circa          | 50.0%       |
+| caitlinnowens  | 41.4%       |
+| msnbc_breaking | 40.0%       |
+| UnivisionNews  | 34.6%       |
+| firstdraftnews | 27.7%       |
+| NBCNewsNow     | 27.0%       |
+| itvpeston      | 26.9%       |
+| FaceTheNation  | 26.1%       |
+| telegraphnews  | 25.8%       |
+| LesterHoltNBC  | 23.4%       |
+| nytimesphoto   | 22.2%       |
+| boomlive_in    | 22.2%       |
+| mckquarterly   | 22.1%       |
+| straits_times  | 19.4%       |
+| cnbcevents     | 18.5%       |
+| TwitterMoments | 17.6%       |
+| sciam          | 17.5%       |
+| LiceMovono     | 17.3%       |

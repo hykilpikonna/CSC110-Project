@@ -1,0 +1,22 @@
+| Username        | Frequency   |
+|-----------------|-------------|
+| Beyonce         | 50.0%       |
+| UNICEF          | 38.9%       |
+| WHO             | 31.3%       |
+| EmmaWatson      | 26.3%       |
+| BillGates       | 19.6%       |
+| UN              | 19.5%       |
+| SenWarren       | 18.4%       |
+| XHNews          | 14.7%       |
+| cnnbrk          | 14.3%       |
+| PDChina         | 13.7%       |
+| BBCBreaking     | 13.1%       |
+| BreakingNews    | 11.4%       |
+| AP              | 11.3%       |
+| Caradelevingne  | 11.1%       |
+| FLOTUS45        | 10.7%       |
+| sardesairajdeep | 10.7%       |
+| hazardeden10    | 10.5%       |
+| VP              | 10.4%       |
+| POTUS           | 10.0%       |
+| WSJ             | 10.0%       |

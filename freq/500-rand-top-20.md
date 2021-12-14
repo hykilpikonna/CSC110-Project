@@ -1,0 +1,22 @@
+| Username        | Frequency   |
+|-----------------|-------------|
+| JHUCAIH         | 54.8%       |
+| DrJudyMonroe    | 49.6%       |
+| PoltergeistTC   | 41.6%       |
+| _FatmaAhmed     | 31.6%       |
+| OUCitizenGovern | 28.6%       |
+| btolchin        | 27.0%       |
+| AusHCPNG        | 26.4%       |
+| UNECEHLM        | 23.6%       |
+| PIBFactCheck    | 20.6%       |
+| gospeakyourmind | 20.1%       |
+| RepHarley       | 20.0%       |
+| susancolehaley  | 19.2%       |
+| SNHDflu         | 18.4%       |
+| UrbanScholar1   | 18.2%       |
+| william_mcinnes | 18.2%       |
+| chrisfradkin    | 18.1%       |
+| USEmbassyBW     | 18.1%       |
+| carlosex        | 17.7%       |
+| tobiaskurth     | 17.4%       |
+| georgesoros     | 17.2%       |

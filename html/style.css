@@ -1,0 +1,116 @@
+
+html {
+    scroll-behavior: smooth;
+}
+
+#content {
+    margin: auto auto 100px;
+    padding: 0 20px;
+    max-width: 800px;
+    text-align: justify;
+    text-justify: inter-word;
+
+    font-family: "Microsoft YaHei UI", Avenir, Helvetica, Arial, sans-serif;
+    color: #5b3300;
+}
+
+h1, h2, h3 {
+    border-bottom: 1px solid #5b3300;
+    font-size: 2em;
+    margin-top: 1em;
+}
+
+h2 {
+    font-size: 1.5em;
+}
+
+h3 {
+    font-size: 1.2em;
+}
+
+code {
+    padding: 1px 5px;
+    background-color: beige;
+}
+
+a {
+    color: coral;
+    text-decoration: none;
+}
+
+span.highlight {
+    background-color: beige;
+}
+
+pre.error {
+    background-color: #ffeef2;
+    color: #ff5b74;
+    padding: 0.8em 0.8em 0.8em 1em;
+}
+
+/*blockquote {*/
+/*    position: relative;*/
+/*    margin: 0 0 1.1em 0;*/
+/*    padding: 0.8em 0.8em 0.8em 1em;*/
+/*    color: gray;*/
+/*}*/
+
+/*blockquote:before {*/
+/*    content: "";*/
+/*    display: block;*/
+/*    position: absolute;*/
+/*    top: 0;*/
+/*    bottom: 0;*/
+/*    left: 0;*/
+/*    width: 4px;*/
+/*    border-radius: 8px;*/
+/*    background: gray;*/
+/*}*/
+
+table {
+    border-collapse: collapse;
+    border: 2px solid #5b3300;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+th, td {
+    border: 1px solid #5b3300;
+    text-align: center;
+}
+
+.image-row {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.image-row div {
+    flex: 33.33%;
+}
+
+.image-row img {
+    width: 100%;
+}
+
+img {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+img.clickable {
+    cursor: pointer;
+}
+
+img.large {
+    background-size: contain !important;
+}
+
+#modal {
+    transition: all 0.25s ease;
+}
+
+#modal.zoom {
+    background-size: contain !important;
+}
