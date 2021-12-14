@@ -8,10 +8,12 @@ This module contains useful functions and classes, including:
 """
 
 import dataclasses
+import doctest
 import inspect
 import json
 import os
 import statistics
+import math  # python_ta complains about unused import but it's used in a doctest
 from dataclasses import dataclass
 from datetime import datetime, date, timedelta
 from pathlib import Path
@@ -19,6 +21,8 @@ from typing import Union, Any, Generator
 
 import json5
 import numpy as np
+import python_ta
+import python_ta.contracts
 from tabulate import tabulate
 
 from constants import REPORT_DIR, DEBUG
@@ -155,6 +159,11 @@ class Reporter:
             self.save()
 
     def save(self) -> None:
+        """
+        Save the report to the file
+
+        :return: None
+        """
         write(self.file, self.report)
 
     def table(self, table: list[list[str]], headers: list[str], header_code: bool = False) -> None:
@@ -331,6 +340,16 @@ def filter_days_avg(y: list[float], n: int) -> list[float]:
         - n % 2 == 1
         - len(y) > 0
 
+    >>> actual = filter_days_avg(list(range(10)), 3)
+    >>> expected = [1/3, 1, 2, 3, 4, 5, 6, 7, 8, 26/3]
+    >>> all(math.isclose(actual[i], expected[i]) for i in range(10))
+    True
+
+    >>> actual = filter_days_avg(list(range(10)), 5)
+    >>> expected = [0.6, 1.2, 2, 3, 4, 5, 6, 7, 7.8, 8.4]
+    >>> all(math.isclose(actual[i], expected[i]) for i in range(10))
+    True
+
     :param y: Values
     :param n: Number of days, must be odd
     :return: Averaged data
@@ -350,6 +369,11 @@ def filter_days_avg(y: list[float], n: int) -> list[float]:
         current_sum += y[i]  # adding the values in y[1:r + 1]
 
     ret = []
+    # python_ta says "unnecessary indexing" because the index only accesses items from 1 list.
+    # But a look at the code tells you that iterating is not sufficient for the sliding window,
+    # random access is actually better, because prior elements need to be accessed as well, and
+    # using a queue seems too silly. The other option is to literally extend the array but that
+    # takes extra space instead of O(1) space, so why do that?
     for i in range(len(y)):
         left, right = i - radius, i + radius
         left = max(0, left)  # avoid index out of bounds by "extending" first/last element
@@ -389,7 +413,7 @@ class EnhancedJSONEncoder(json.JSONEncoder):
     encoding for dataclasses, encoding for datetime, and sets
     """
 
-    def default(self, o):
+    def default(self, o: object) -> object:
 
         # Support encoding dataclasses
         # https://stackoverflow.com/a/51286749/7346633
@@ -408,7 +432,7 @@ class EnhancedJSONEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-def json_stringify(obj, indent: Union[int, None] = None) -> str:
+def json_stringify(obj: object, indent: Union[int, None] = None) -> str:
     """
     Serialize json string with support for dataclasses and datetime and sets and with custom
     configuration.
@@ -421,3 +445,16 @@ def json_stringify(obj, indent: Union[int, None] = None) -> str:
     :return: Json strings
     """
     return json.dumps(obj, indent=indent, cls=EnhancedJSONEncoder, ensure_ascii=False)
+
+
+if __name__ == '__main__':
+    doctest.testmod()
+    # python_ta.contracts.check_all_contracts()
+    python_ta.check_all(config={
+        'extra-imports': ['dataclasses', 'doctest', 'inspect', 'json', 'os', 'statistics', 'math',
+                          'datetime', 'pathlib', 'typing', 'json5', 'numpy', 'tabulate',
+                          'constants'],  # the names (strs) of imported modules
+        'allowed-io': ['load_config', 'write', 'debug', 'read'],
+        'max-line-length': 100,
+        'disable': ['R1705', 'C0200', 'E9994', 'W0611']
+    }, output='pyta_report.html')
