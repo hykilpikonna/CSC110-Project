@@ -364,7 +364,7 @@ def pack_data() -> None:
         # Add sources
         src_path = Path(os.path.realpath(__file__)).parent
         for f in os.listdir(src_path):
-            if not os.path.isdir(f) and f != '.DS_Store':
+            if not os.path.isdir(f) and f != '.DS_Store' and not f.startswith('._'):
                 z.write(f)
 
         # Add packed resource
