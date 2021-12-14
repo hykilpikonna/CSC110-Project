@@ -12,6 +12,9 @@ from pathlib import Path
 
 from flask import Flask, send_from_directory, Response
 
+import python_ta
+import python_ta.contracts
+
 from constants import REPORT_DIR, DEBUG, RES_DIR
 from utils import read, write
 
@@ -35,6 +38,7 @@ def generate_report() -> str:
             continue
 
         # Process @include statements
+        # noinspection PyBroadException
         try:
             path = line[line.index('`') + 1:]
             path = path[:path.index('`')]
@@ -43,7 +47,7 @@ def generate_report() -> str:
             # Cut lines
             # Format: @include-cut `path` <start, inclusive> [end, not inclusive]
             if line.startswith('@include-cut'):
-                args = [int(i) for i in line.split()[2:]]
+                args = [int(j) for j in line.split()[2:]]
                 if len(args) == 1:
                     md[i] = '\n'.join(md[i].split('\n')[args[0]:])
                 if len(args) == 2:
@@ -53,7 +57,7 @@ def generate_report() -> str:
             # Format: @include-lines `path` <...lines>
             # Example: @include-lines `path` 1 2 5
             if line.startswith('@include-lines'):
-                args = [int(i) for i in line.split()[2:]]
+                args = [int(j) for j in line.split()[2:]]
                 lines = md[i].split('\n')
                 lines = [lines[ln] for ln in range(len(lines)) if ln in args]
                 md[i] = '\n'.join(lines)
@@ -145,5 +149,12 @@ def serve_report() -> None:
 
 
 if __name__ == '__main__':
-    write_html()
-    serve_report()
+    python_ta.contracts.check_all_contracts()
+    python_ta.check_all(config={
+        'extra-imports': ['json', 'os.path', 'shutil', 'traceback', 'webbrowser',
+                          'distutils.dir_util', 'pathlib', 'flask', 'constants', 'utils'
+                          ],  # the names (strs) of imported modules
+        'allowed-io': [],  # the names (strs) of functions that call print/open/input
+        'max-line-length': 100,
+        'disable': ['R1705', 'C0200', 'R1702', 'W0703']
+    })
