@@ -5,6 +5,8 @@ This module uses web requests to collect and process other data we are using in 
 from dataclasses import dataclass
 
 import requests
+import python_ta
+import python_ta.contracts
 
 
 @dataclass
@@ -33,7 +35,7 @@ def get_covid_cases_us() -> CasesData:
     """
     url = 'https://raw.githubusercontent.com/nytimes/covid-19-data/master/rolling-averages/us.csv'
     csv = requests.get(url).text.replace('\r\n', '\n').split('\n')[1:]
-    data = CasesData(dict(), dict())
+    data = CasesData({}, {})
 
     # Parse CSV
     for line in csv:
@@ -42,3 +44,13 @@ def get_covid_cases_us() -> CasesData:
         data.cases[day] = float(cases)
         data.deaths[day] = float(deaths)
     return data
+
+
+if __name__ == '__main__':
+    python_ta.contracts.check_all_contracts()
+    python_ta.check_all(config={
+        'extra-imports': ['requests', 'dataclasses'],  # the names (strs) of imported modules
+        'allowed-io': [],  # the names (strs) of functions that call print/open/input
+        'max-line-length': 100,
+        'disable': ['R1705', 'C0200']
+    })
