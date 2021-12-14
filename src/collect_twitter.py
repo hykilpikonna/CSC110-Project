@@ -15,6 +15,9 @@ from typing import List, Union
 import tweepy
 from tweepy import API, TooManyRequests, User, Tweet, Unauthorized, NotFound
 
+import python_ta
+import python_ta.contracts
+
 from constants import TWEETS_DIR, USER_DIR
 from utils import Config, debug, calculate_rate_delay, write, json_stringify, read
 
@@ -224,7 +227,7 @@ def download_users_execute(api: API, n: float,
 
     print("Executing friends-chain download:")
     print(f"- n: {n}")
-    print(f"- Requests per minute: 1")
+    print(f"- Requests per minute: {1}")
     print(f"- Directory: {USER_DIR}")
     print(f"- Downloaded: {len(downloaded)}")
     print(f"- Current search set: {len(current_set)}")
@@ -265,6 +268,7 @@ def download_users_execute(api: API, n: float,
         screen_names.sort(key=lambda x: x[1])
 
         # Add 3 random users to the next set
+        # python_ta thinks that u is not indexable but it is, because it is a tuple of length 2
         if len(screen_names) > 3:
             samples = {u[0] for u in random.sample(screen_names, 3)}
         else:
@@ -298,3 +302,14 @@ def download_users_execute(api: API, n: float,
 
         # Rate limit
         time.sleep(rate_delay)
+
+
+if __name__ == '__main__':
+    python_ta.contracts.check_all_contracts()
+    python_ta.check_all(config={
+        'extra-imports': ['json', 'math', 'os', 'random', 'time', 'typing', 'tweepy', 'constants',
+                          'utils'],  # the names (strs) of imported modules
+        'allowed-io': ['download_users_execute'],
+        'max-line-length': 100,
+        'disable': ['R1705', 'C0200', 'R0913', 'W0212']
+    }, output='pyta_report.html')
