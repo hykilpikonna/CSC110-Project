@@ -40,27 +40,44 @@ sorting=nyt
  
     \section{Computational Overview}
 
-    \subsection*{Data Gathering}
+    \subsection*{Data Gathering \& Processing}
     \indent
 
-    However, since twitter limited the request rate of this API endpoint to 1 request ($\le 200$ users) per minute, we ran the program continuously for one day to gather this data.
+    This section explains the data gathering and processing done in \verb|collect_twitter.py|, \verb|collect_others.py|, and \verb|processing.py|. In this section, raw data will be collected and processed into the \verb|processed_data.7z| that we provided.
 
-    We plan to transform different platforms’ user posting data, all with unique formats, into data in a platform-independent data model to store and compare. When processing social media data, we will convert platform-dependent keywords such as \texttt{favorites}, \texttt{retweets}, or \texttt{full\_text} on Twitter and \texttt{content}, \texttt{views}, or \texttt{comments} on Telegram into our unique platform-independent model with keywords such as \texttt{popularity} and \texttt{text}. And we will store all processed data in \textbf{JSON} before analysis. As for the raw data from different social media platforms, we plan to gather Twitter data using the \textbf{Tweepy} library and Telegram channels data using \textbf{python-telegram-bot}. However, unfortunately, there are no known libraries for Wechat Moments. We will try to obtain Wechat data through package capture using pyshark, but that might not be successful.
+    To create our samples, we collected a wide range of Twitter users using Twitter's get friends list API endpoint through \textbf{tweepy}, using the follows-chaining technique. We specified one single user as the starting point (in this case, we picked \verb|voxdotcom|). The program then obtains the user's friends list, picks 3 random users and 3 most followed users from the friend list, adds them to the queue, and starts the downloading process again from each of the six friends. Because of Twitter's rate limiting on the get friends list endpoint, we can only obtain a maximum of 200 users per minute, with many of them being duplicates. We ran the program continuously for one day and obtained 224,619 users (852.3 MB decompressed). However, only the username, popularity, post count, and language data are kept after processing (filtering). The processed user dataset \verb|data/twitter/user/processed/users.json| is 7.9 MB in total. We selected our samples by filtering the results first based on language, selected the top 500 most followed users as 500-pop, filtered the list again based on post count (>1000) and followers (>150), then selected a random sample of 500 users as 500-rand.
 
-    For news outlet data, we plan to use \textbf{requests} to obtain raw HTML from different listing sites, extract news articles’ titles, publishers, and publishing dates with \textbf{regex}, and store them using JSON. We will convert different HTML formats from different news publishers’ sites into our platform-independent news model.
+    We also downloaded all tweets from our sampled users through the user-timeline API also with \textbf{tweepy}. Due to rate limiting, the program took around 16 hours to finish, and we obtained 7.7 GB of raw data (uncompressed). During processing, for each tweet, we extracted only its date, popularity (likes + retweets), whether it is a retweet, and whether it is related to the COVID-19 pandemic. The text of the tweets are not retained, and the processed data directory \verb|data/twitter/user-tweets/processed/| is 141.6 MB in total.
 
-    We also use the \textbf{Json5} library to parse configurations and API keys of our data gathering and analysis programs.
+    To determine whether a post is COVID-related we used keyword matching with three lists of COVID-related keywords for English, Chinese, and Japanese. Tweets with content containing these keywords are marked as COVID-related.
 
-    \subsection*{Data Analysis/Visualization}
+    We also used the COVID-19 daily cases data published by New York Times to compare with peaks and through in our frequency over date graph, and the program gathered this data by sending an HTTP requst to New York Times' public github repository using \textbf{requests} and then parsing the CSV.
+
+    For submission, we packed the processed data into a 7zip archive using \textbf{py7zr}. This is necessary because our processed data are placed very close to the raw data in the folder structure, and creating the archive manually requires separating the processed data from the raw data into two separate folders first. We also used py7zr to pack our HTML resources.
+
+    We also used \textbf{json5} to store the configuration of this program, which contains Twitter API keys.
+
+    \subsection*{Statistical Visualization Generation}
     \indent
 
-    We plan to use \textbf{matplotlib} to create data images or \textbf{plotly} to create websites for data visualization. We plan to use \textbf{NumPy} for statistical calculations.
+    This section explains the statistical report generation done in \verb|visualization.py|. In this section, specific "elements" used in our report are generated. For example, an element might be an image of the user frequency graph in one of our samples, and another element might be a markdown table showing the amount of users who posted less than 1\% or didn't post in our samples. Each element is stored in a separate file, which will be included in the visualized report explained in the next section.
 
-    To identify whether or not some article is about COVID, we currently use a keyword search. However, a keyword search might not be accurate when COVID has became such an essential background to our society (i.e. many articles with the word COVID in them are about something else). We might experiment with training a binary classification model with \textbf{Keras} and \textbf{scikit-learn} to better classify COVID articles. We might also experiment with training autoencoders with vectorized word occurence data in an COVID-related article to find if there are significant categories within COVID articles (i.e. some COVID articles might be about new COVID policies, and others might just be general updates relating to COVID, and this might be an important insight because people's interests in these different types of COVID articles might differ).
+    Since the statistical computations of report generation is explained in the interactive report, this section will only focus on the technical aspect of which libraries we used to complete these computations and generate the statistical elements of the report.
 
-    The primary type of graph we will use will be a frequency histogram——an individual or a group of data’s frequency of mentioning COVID-related topics will be graphed against the date from January 1, 2020, to Nov 1, 2021. We will experiment with group sizes and classification methods to find which variables influence the frequency and which don’t. (For example, we will group individuals by popularity and compare between groups to find if popularity impacts the frequency they mention COVID-related topics). We also plan to overlay these charts in comparison to visualize the statistical differences better.
+    We used \textbf{matplotlib} to generate images that will be displayed in our report, including histograms and line graphs. We used \textbf{scipy} for signal filtering and smoothening the curves so that they are readable (specifically, \verb|scipy.signal.lfilter|). We used \textbf{numpy} in our statistical calculations to calculate percentile points and remove outliers. We then used \textbf{tabulate} to generate Markdown format tables for report elements.
 
-    Another variant of the frequency histogram will be plotted not against the date but against the country’s confirmed cases since people’s emotions of anxiety might be influenced by the growing or decreasing of confirmed cases. We will also graph some data using this variant to find more insights.
+    \subsection*{Interactive Report Generation}
+    \indent
+
+    This section explains the interactive report creation in \verb|report.py|.
+
+    We wrote our report in Markdown format, located in \verb|resources/report_document.md|. However, the default Markdown format doesn't support including the contents of other markdown files generated in the previous step, so we extended the markdown format by adding \verb|@include|, \verb|@include-lines|, and \verb|@include-cut| functionality.
+
+    Then, to display the markdown in a webpage, we created a template HTML (\verb|resources/report_page.html|) and used python to inject the markdown content into the HTML template. Then, we used \textbf{Marked} (a JS library) to render the Markdown to the webpage. We did not use the python Markdown library because it did not support the Github Markdown table format generated with \textbf{tabulate} in the previous step. Then, we used the \textbf{Flask} framework to serve the webpage along with the referenced assets like images, js, and fonts on an HTTP server.
+
+    On the webpage, we used \textbf{jQuery} (a JS library) to make the images enlargeable. We also imported \textbf{MathJax} (a JS library) to automatically render LaTeX on the webpage (no code needed to reference this library).
+
+    Even though the handout required the project to be purely written in Python, instructors in Piazza allowed us to use web languages as long as all data gathering, processing, computation, visualization, and image rendering are done in pure Python (@1704).
 
     \section{Running Instructions}
     \indent
@@ -72,21 +89,22 @@ sorting=nyt
         
         \item [3. ] Install \verb|src/requirements.txt|, either with PyCharm or with \texttt{pip install -r src/requirements.txt}.
         
-        \item [4. ] If you would like to collect data manually, do the following:
+        \item [4. ] If you would like to test out our data collection code or collect data manually, do the following: (We do not recommend collecting all data manually because it took the program two days to gather our data due to rate limiting)
         
         \begin{itemize}
             \item [a. ] Register for Twitter API keys on their website. For more information, look at the following link: \href{https://developer.twitter.com/en/docs/twitter-api/getting-started/getting-access-to-the-twitter-api}{(Getting access to the Twitter API)}.
-            \item [b. ] In \verb|src/main.py|, uncomment all the lines of code for data collection and processing: that is, the steps C1.0-C1.2, P1-P2, C2.1-C2.3, P3.
+            \item [b. ] Copy the Twitter API keys into the corresponding fields in \verb|src/config.json5|
+            \item [c. ] In \verb|src/main.py|, uncomment all the lines of code for data collection and processing: that is, the steps C1.0-C1.2, P1-P2, C2.1-C2.3, P3.
         \end{itemize}
         
-        \item [5. ] If you would not like to collect data manually, you can download it from \url{https://send.utoronto.ca}, which expires on December 27.\\
+        \item [5. ] If you would like to use our processed data, you can download the archive from \url{https://send.utoronto.ca} with the following code, which will expire on December 27.\\
         Claim ID: 6PPMsHQNTV7TJRmu\\
         Claim Passcode: 9VPba4YiYx2cetbU\\
-        Alternatively, you can download it from \url{https://csc110.hydev.org/processed-data.7z}\\
+        Alternatively, you can download it from a permanent link: \url{https://csc110.hydev.org/processed-data.7z}\\
         Extract the archive into a directory called \verb|data| at the same level as \verb|src|, that is, \verb|data| and \verb|src| should be in the same folder.\\
-        The file \verb|src/utils.py| contains a more detailed directory tree.
+        The file \verb|src/constants.py| contains a more detailed directory tree.
         
-        \item [6. ] Run \verb|src/main.py|, either in PyCharm or with \texttt{python3 src/main.py}.
+        \item [6. ] Run \verb|src/main.py|, either in PyCharm or with \texttt{python3 main.py}. Note that the execution directory should be in \verb|src| and not the root directory. If you use PyCharm, you should open \verb|src| in PyCharm instead of the root directory. This file structure is intentionally designed to prevent PyCharm from indexing \verb|data|, which takes an extremely long time.
         
     \end{itemize}
 
