@@ -1,4 +1,4 @@
-"""
+"""CSC110 Fall 2021 Project
 This module interacts directly with the Twitter API to download tweets and users.
 It contains functions related scraping users/tweets, including:
 - getting the tweets of a user

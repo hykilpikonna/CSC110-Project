@@ -1,4 +1,4 @@
-"""
+"""CSC110 Fall 2021 Project
 This module generates report HTML and serves it in an HTTP server.
 """
 

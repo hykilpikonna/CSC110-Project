@@ -1,4 +1,4 @@
-"""
+"""CSC110 Fall 2021 Project
 This module contains useful functions and classes, including:
 - debug messages
 - file I/O

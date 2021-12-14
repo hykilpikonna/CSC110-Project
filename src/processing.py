@@ -1,4 +1,4 @@
-"""
+"""CSC110 Fall 2021 Project
 Processes data downloaded from the Twitter API. Processing consists of calculating popularity of
 users, creating samples of users, filtering news channels, and processing tweets for file storage.
 """

@@ -1,4 +1,4 @@
-"""
+"""CSC110 Fall 2021 Project
 This module is the main module of our program which runs different functions in different modules
 by steps.
 """

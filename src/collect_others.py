@@ -1,4 +1,4 @@
-"""
+"""CSC110 Fall 2021 Project
 This module uses web requests to collect and process other data we are using in our analysis.
 """
 

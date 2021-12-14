@@ -1,4 +1,4 @@
-"""
+"""CSC110 Fall 2021 Project
 This module uses matplotlib to visualize processed data as graphs. The results are stored in
 report directory.
 The graphs are created after processing the data, for example with filtering and removing outliers.

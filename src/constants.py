@@ -1,4 +1,4 @@
-"""
+"""CSC110 Fall 2021 Project
 This module stores constant variables in our projects.
 
 Instructors said that we can use global constants: https://piazza.com/class/ksovzjrlsye72f?cid=1664
