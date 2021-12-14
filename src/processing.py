@@ -2,36 +2,43 @@
 Processes data downloaded from the Twitter API. Processing consists of calculating popularity of
 users, creating samples of users, filtering news channels, and processing tweets for file storage.
 """
+import json
+import os
 import random
-from typing import NamedTuple
+import sys
+import zipfile
 from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import NamedTuple
 
-import dateutil.parser
 import requests
 from bs4 import BeautifulSoup
 from py7zr import SevenZipFile
 
-from constants import DATA_DIR, TWEETS_DIR, USER_DIR
-from utils import *
+from constants import DATA_DIR, TWEETS_DIR, USER_DIR, RES_DIR
+from utils import read, debug, write, json_stringify
 
 
 class ProcessedUser(NamedTuple):
     """
     User and popularity.
 
-    We use NamedTuple instead of dataclass because named tuples are easier to serialize in JSON and
+    We use NamedTuple instead of dataclass because named tuples are easier to serialize in JSON, and
     they require much less space in the stored json format because no key info is stored. For
     example, using dataclass, the json for one UserPopularity object will be:
     {"username": "a", "popularity": 1, "num_postings": 1}, while using NamedTuple, the json will be:
     ["a", 1, 1], which saves an entire 42 bytes for each user.
+
+    Attributes:
+        - username: The Twitter user's screen name
+        - popularity: A measurement of a user's popularity, such as followers count
+        - num_postings: Number of tweets
+        - language: Language code in Twitter's language code format
     """
-    # Username
     username: str
-    # A measurement of a user's popularity, such as followers count
     popularity: int
-    # Number of tweets
     num_postings: int
-    # Language
     lang: str
 
 
@@ -49,7 +56,7 @@ def process_users() -> None:
 
     # Loop through all the files
     for filename in os.listdir(f'{USER_DIR}/users'):
-        # Only check json files and ignore macos dot files
+        # Only check json files and ignore macOS dot files
         if filename.endswith('.json') and not filename.startswith('.'):
             # Read
             user = json.loads(read(f'{USER_DIR}/users/{filename}'))
@@ -103,6 +110,11 @@ def get_user_popularity_ranking(user: str) -> int:
 class UserSample:
     """
     This is a data class storing our different samples.
+
+    Attributes:
+        - most_popular: Our sample of the most popular users on Twitter
+        - random: Our sample of random users on Twitter
+        - english_news: Our sample of news media accounts on Twitter
 
     Representation Invariants:
         - all(news != '' for news in self.english_news)
@@ -162,8 +174,8 @@ def get_english_news_channels() -> list[str]:
 
     Run this after download_all_tweets(api, 'TwitterNews')
 
-    Precondition:
-      - <tweets_dir>/user/TwitterNews.json exists.
+    Preconditions:
+        - <tweets_dir>/user/TwitterNews.json exists.
 
     :return: A list of news channel screen names
     """
@@ -180,7 +192,7 @@ def get_english_news_channels() -> list[str]:
     soup = BeautifulSoup(requests.get(url).text, 'html.parser')
     users = {h.text[1:] for h in soup.select('table tr td:nth-child(2) > a')}
 
-    # Combine two sets, ignoring case (since the ids in the 100 list are all lowercased)
+    # Combine two sets, ignoring case (since the ids in the 100 list are all lowercase)
     news_channels_lower = {n.lower() for n in news_channels}
     for u in users:
         if u not in news_channels_lower:
@@ -193,8 +205,8 @@ def filter_news_channels() -> None:
     """
     Filter out news channels that don't exist anymore or have been banned by Twitter.
 
-    Precondition:
-      - Run this after downloading all tweets from the news channels in Step 2.3 in main.
+    Preconditions:
+        - Run this after downloading all tweets from the news channels in Step 2.3 in main.
 
     :return: None
     """
@@ -221,38 +233,39 @@ def load_user_sample() -> UserSample:
 
 class Posting(NamedTuple):
     """
-    Posting data stores the processed tweets data, and it contains info such as whether or not a
-    tweet is covid-related
+    Posting data stores the processed tweets' data, and it contains info such as whether a tweet is
+    covid-related
+
+    Attributes:
+        - covid_related: True if the post is determined to be covid-related
+        - popularity: A measure of tweet popularity measured by comments + likes
+        - repost: Whether the post is a repost
+        - date: Posting date and time in ISO format ("YYYY-MM-DDThh-mm-ss")
 
     Representation Invariants:
         - popularity >= 0
-
     """
-    # Full text of the post's content
     covid_related: bool
-    # Popularity of the post
     popularity: int
-    # Is it a repost
     repost: bool
-    # Date in ISO format
     date: str
 
 
 def process_tweets() -> None:
     """
-    Process tweets, reduce the tweets data to only a few fields defined in the Posting class. These
-    include whether or not the tweet is covid-related, how popular is the tweet, if it is a repost,
-    and its date. The processed tweet does not contain its content.
+    Process tweets, reduce the tweets' data to only a few fields defined in the Posting class. These
+    include whether the tweet is covid-related, how popular is the tweet, if it is a repost, and its
+    date. The processed tweet does not contain its content.
 
     If a user's tweets is already processed, this function will skip over that user's data.
 
-    This function will save the processed tweets data to <tweets_dir>/processed/<username>.json
+    This function will save the processed tweets' data to <tweets_dir>/processed/<username>.json
 
     :return: None
     """
     # Loop through all the files
     for filename in os.listdir(f'{TWEETS_DIR}/user'):
-        # Only check json files and ignore macos dot files
+        # Only check json files and ignore macOS dot files
         if filename.endswith('.json') and not filename.startswith('.'):
             # Check if already processed
             if os.path.isfile(f'{TWEETS_DIR}/processed/{filename}'):
@@ -286,8 +299,8 @@ def load_tweets(username: str) -> list[Posting]:
 def is_covid_related(text: str) -> bool:
     """
     Is a tweet / article covid-related. Currently, this is done through keyword matching. Even
-    though we know that not all posts with covid-related words are covid-related posts, this is our
-    current best method of classification.
+    though we know that not all posts with covid-related words are covid-related posts, this is
+    currently our best method of classification.
 
     :param text: Text content
     :return: Whether the text is covid related
@@ -311,19 +324,58 @@ def is_covid_related(text: str) -> bool:
 
 def pack_data() -> None:
     """
-    This function packs processed data and raw data separately.
+    This function packs processed data and raw data separately, and it also packs the data ready for
+    submission on MarkUs
 
     :return: None
     """
     packed_dir = f'{DATA_DIR}/packed'
     Path(packed_dir).mkdir(parents=True, exist_ok=True)
+    packed_data = f'{packed_dir}/processed.7z'
+    packed_res = f'{packed_dir}/resources.7z'
 
-    # Pack data for processed.
-    debug('Packing data...')
-    processed_dirs = ['/twitter/user/meta', '/twitter/user/processed',
-                      '/twitter/user-tweets/processed']
-    with SevenZipFile(f'{packed_dir}/processed.7z', 'w') as z:
+    # Pack processed data (Since packing this takes a long time, we decided to not overwrite it for
+    # every run. This is also because the processed data hasn't changed since Nov 28 when the
+    # project is mostly finished, and there is no need to re-pack data every time, whereas the
+    # resources and sources might change after every update) So, delete the packed 7z file if you
+    # want to repack.
+    if not os.path.isfile(packed_data):
+        debug('Packing data...')
+        processed_dirs = ['/twitter/user/meta', '/twitter/user/processed',
+                          '/twitter/user-tweets/processed']
+        with SevenZipFile(packed_data, 'w') as z:
+            z: SevenZipFile = z
+            for p in processed_dirs:
+                debug(f'- Packing {p}')
+                z.writeall(DATA_DIR + p)
+
+    # Pack resources
+    debug('Packing resources...')
+    with SevenZipFile(packed_res, 'w') as z:
         z: SevenZipFile = z
-        for p in processed_dirs:
-            debug(f'- Packing {p}')
-            z.writeall(DATA_DIR + p)
+        z.writeall(RES_DIR)
+
+    # Pack MarkUs submission
+    # Even though 7zip has much better compression rate than zip, MarkUs only supports zip.
+    debug('Packing source code...')
+    with zipfile.ZipFile(f'{packed_dir}/markus.zip', 'w') as zf:
+        z: zipfile.ZipFile = zf
+
+        # Add sources
+        src_path = Path(os.path.realpath(__file__)).parent
+        for f in os.listdir(src_path):
+            if not os.path.isdir(f) and f != '.DS_Store' and not f.startswith('._'):
+                z.write(f)
+
+        # Add packed resource
+        z.write(packed_res, 'resources.7z')
+
+        # Add report tex
+        z.write(os.path.join(src_path, '../writing/report/project_report.tex'), 'project_report.tex')
+        z.write(os.path.join(src_path, '../writing/report/project_report.pdf'), 'project_report.pdf')
+
+    # Open packed location (Since there isn't a platform-independent way of doing this, we currently
+    # only support macOS)
+    if sys.platform == 'darwin':
+        os.system(f'open {Path(packed_dir).absolute()}')
+

@@ -1,18 +1,25 @@
 """
-This module uses matplotlib to visualize processed data as graphs. The results are stored in report directory.
+This module uses matplotlib to visualize processed data as graphs. The results are stored in
+report directory.
 The graphs are created after processing the data, for example with filtering and removing outliers.
 """
-import os.path
-from typing import Optional
 
+import os.path
+from dataclasses import dataclass
+from datetime import datetime
+from pathlib import Path
+from typing import Optional, Union
+
+import matplotlib.dates as mdates
 import matplotlib.ticker
 import scipy.signal
 from matplotlib import pyplot as plt, font_manager
-import matplotlib.dates as mdates
 
-from constants import RES_DIR
-from processing import *
 from collect_others import get_covid_cases_us
+from constants import RES_DIR, REPORT_DIR
+from processing import load_tweets, load_user_sample
+from utils import debug, daterange, map_to_dates, filter_days_avg, Reporter, remove_outliers, \
+    tabulate_stats, get_statistics
 
 
 @dataclass()
@@ -23,9 +30,12 @@ class UserFloat:
     This is used for both COVID tweet frequency and popularity ratio data, because both of these
     are floating point data.
 
+    Attributes:
+        - name: Twitter user's screen name
+        - data: The float data that's associated with this user
+
     Representation Invariants:
         - self.name != ''
-
     """
     name: str
     data: float
@@ -35,23 +45,33 @@ class Sample:
     """
     A sample of many users, containing statistical data that will be used in graphs.
 
+    Attributes:
+        - name: Sample name
+        - users: List of user screen names in this sample
+        - user_freqs: Total frequencies of all posts for each user across all dates (sorted)
+        - user_pops: Total popularity ratios of all posts for each user across all dates (sorted)
+        - user_all_pop_avg: Average popularity of all u's posts
+        - user_date_covid_pop_avg: Average popularity of COVID tweets by a specific user on a date
+        (user_covid_tweets_pop[user][date] = Average popularity of COVID-posts by {user} on {date})
+        - date_covid_freq: Total COVID-tweets frequency on a specific date for all users.
+        - dates: dates[i] = The i-th day since the first tweet
+        - date_freqs: date_freqs[i] = COVID frequency of all posts from all sampled users on date[i]
+        - date_pops: date_pops[i] = Average pop-ratio of all posts from all sampled users on date[i]
+
     Representation Invariants:
         - self.name != ''
         - all(name != '' for name in self.users)
-
     """
     name: str
     users: list[str]
-    # Total frequencies of all posts for each user across all dates (sorted)
+
     user_freqs: list[UserFloat]
-    # Total popularity ratios of all posts for each user across all dates (sorted)
     user_pops: list[UserFloat]
-    # Average popularity of all u's posts
     user_all_pop_avg: dict[str, float]
-    # Average popularity of COVID tweets by a specific user on a specific date
+
     # user_covid_tweets_pop[user][date] = Average popularity of COVID-posts by {user} on {date}
     user_date_covid_pop_avg: dict[str, dict[str, float]]
-    # Total COVID-tweets frequency on a specific date for all users.
+
     date_covid_freq: dict[str, float]
     # dates[i] = The i-th day since the first tweet
     dates: list[datetime]
@@ -87,7 +107,7 @@ class Sample:
         To prevent divide-by-zero, we ignored everyone who didn't post about covid and who didn't
         post at all.
 
-        Precondition:
+        Preconditions:
           - Downloaded tweets data are sorted by date
         """
         debug(f'Calculating sample tweets data for {self.name}...')
@@ -163,7 +183,8 @@ class Sample:
             popularity.append(UserFloat(u, covid_pop_avg / all_pop_avg))
 
         # Calculate frequency on date
-        self.date_covid_freq = {d: date_covid_count[d] / date_all_count[d] for d in date_covid_count}
+        self.date_covid_freq = {d: date_covid_count[d] / date_all_count[d] for d in
+                                date_covid_count}
 
         # Sort by relative popularity or frequency
         popularity.sort(key=lambda x: x.data, reverse=True)
@@ -244,7 +265,7 @@ def load_samples() -> list[Sample]:
     keys = ['en', 'zh', 'ja']
     pop_lang = [u.lang for u in users.most_popular]
     rand_lang = [u.lang for u in users.random]
-    Reporter('sample-demographics.md')\
+    Reporter('sample-demographics.md') \
         .table([['`500-pop`'] + [str(len(pop_lang))] + [str(pop_lang.count(k)) for k in keys],
                 ['`500-rand`'] + [str(len(rand_lang))] + [str(rand_lang.count(k)) for k in keys]],
                ['Total', 'English', 'Chinese', 'Japanese'], False)
@@ -417,7 +438,6 @@ def graph_line_plot(x: list[datetime], y: Union[list[float], list[list[float]]],
         if freq:
             cases = get_covid_cases_us()
             c = map_to_dates(cases.cases, [d.isoformat()[:10] for d in x])
-            # c = scipy.signal.savgol_filter(c, 45, 2)
             c = filter_days_avg(c, 7)
             c = scipy.signal.lfilter([1.0 / n] * n, 1, c)
 
@@ -510,6 +530,9 @@ def report_change_graphs(sample: Sample) -> None:
 def report_all() -> None:
     """
     Generate all reports
+    
+    Preconditions:
+        - Twitter data have been downloaded and processed.
     """
     graph_load_font()
 
@@ -536,15 +559,3 @@ def report_all() -> None:
     graph_line_plot(samples[0].dates, [s.date_freqs for s in samples], 'change/comb/freq.png',
                     'COVID-posting frequency over time for all samples - IIR(10)', True, 10,
                     labels=[s.name for s in samples])
-
-
-if __name__ == '__main__':
-    report_all()
-    # samples = load_user_sample()
-    # combine_tweets_for_sample([u.username for u in samples.most_popular], '500-pop')
-    # combine_tweets_for_sample([u.username for u in samples.random], '500-rand')
-    # combine_tweets_for_sample(samples.english_news, 'eng-news')
-
-    # tweets = load_combined_tweets('500-pop')
-    # print(len(tweets))
-    # view_covid_tweets_date(tweets)

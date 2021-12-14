@@ -25,7 +25,7 @@ We also counted the number of people speaking each language:
 
 2. We also downloaded all tweets from our sampled users through the user-timeline API [(documentation)](https://developer.twitter.com/en/docs/twitter-api/v1/tweets/timelines/api-reference/get-statuses-user_timeline). Due to rate limiting, the program took around 16 hours to finish, and we obtained 7.7 GB of raw data (uncompressed). During processing, for each tweet, we extracted only its date, popularity (likes + retweets), whether it is a retweet, and whether it is COVID-related. The text of the tweets are not retained, and the processed data directory `data/twitter/user-tweets/processed/` is 141.6 MB in total.
 
-3. We also used the COVID-19 daily cases data published by New York Times [[3]](#ref3) to compare with peaks and throughs in our frequency over date graph.
+3. We also used the COVID-19 daily cases data published by New York Times [[3]](#ref3) to compare with peaks and through in our frequency over date graph.
 
 ## Computation & Filtering
 
@@ -196,7 +196,7 @@ These findings might not be surprising, but they might have again demonstrated p
 
 <a id="ref1"></a>
 
-[1] Bremmen, N. (2010, September 3). The 100 most influential news media twitter accounts. _Memeburn_. Retrieved November 27, 2021, from https://memeburn.com/2010/09/the-100-most-influential-news-media-twitter-accounts/.
+[1] Bremmen, N. (2010, September 3). The 100 most influential news media Twitter accounts. _Memeburn_. Retrieved November 27, 2021, from https://memeburn.com/2010/09/the-100-most-influential-news-media-twitter-accounts/.
 
 <a id="ref2"></a>
 

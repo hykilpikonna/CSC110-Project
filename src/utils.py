@@ -1,9 +1,11 @@
-"""This module contains useful functions and classes, including:
+"""
+This module contains useful functions and classes, including:
 - debug messages
 - file I/O
 - statistics functions, removing outliers and averaging values over a period
 - date-related functions
-- classes for configs, reports, statistics, and JSON"""
+- classes for configs, reports, statistics, and JSON
+"""
 
 import dataclasses
 import inspect
@@ -13,7 +15,7 @@ import statistics
 from dataclasses import dataclass
 from datetime import datetime, date, timedelta
 from pathlib import Path
-from typing import Union, NamedTuple, Any, Generator
+from typing import Union, Any, Generator
 
 import json5
 import numpy as np
@@ -28,16 +30,16 @@ class Config:
     Secrets configuration for this program.
 
     Attributes:
-      - consumer_key: The consumer key from the Twitter application portal
-      - consumer_secret: The consumer secret from the Twitter application portal
-      - access_token: The access token of an app from the Twitter application portal
-      - access_secret: The access secret of an app from the Twitter application portal
+        - consumer_key: The consumer key from the Twitter application portal
+        - consumer_secret: The consumer secret from the Twitter application portal
+        - access_token: The access token of an app from the Twitter application portal
+        - access_secret: The access secret of an app from the Twitter application portal
 
     Representation Invariants:
-      - self.consumer_key != ''
-      - self.consumer_secret != ''
-      - self.access_token != ''
-      - self.access_secret != ''
+        - self.consumer_key != ''
+        - self.consumer_secret != ''
+        - self.access_token != ''
+        - self.access_secret != ''
     """
     # Twitter's official API v1 keys
     consumer_key: str
@@ -48,7 +50,8 @@ class Config:
 
 def load_config(path: str = 'config.json5') -> Config:
     """
-    Load config using JSON5, from either the local file ~/config.json5 or from the environment variable named config.
+    Load config using JSON5, from either the local file ~/config.json5 or from the environment
+    variable named config.
 
     :param path: Path of the config file (Default: config.json5)
     :return: Config object
@@ -87,6 +90,9 @@ def write(file: str, text: str) -> None:
     """
     Write text to a file
 
+    Preconditions:
+        - file != ''
+
     :param file: File path (will be converted to lowercase)
     :param text: Text
     :return: None
@@ -104,6 +110,9 @@ def read(file: str) -> str:
     """
     Read file content
 
+    Preconditions:
+        - file != ''
+
     :param file: File path (will be converted to lowercase)
     :return: None
     """
@@ -116,8 +125,8 @@ class Reporter:
     Report file creator
 
     Attributes:
-      - report: The string of the report
-      - file: Where the report is stored
+        - report: The string of the report
+        - file: Where the report is stored
 
     Representation Invariants:
         - self.file != ''
@@ -168,8 +177,11 @@ def remove_outliers(points: list[float], z_threshold: float = 3.5) -> list[float
 
     Credit to: https://stackoverflow.com/a/11886564/7346633
 
+    Preconditions:
+        - len(points) > 0
+
     :param points: Input points list
-    :param z_threshold: Z threshold for identifying whether or not a point is an outlier
+    :param z_threshold: Z threshold for identifying whether a point is an outlier
     :return: List with outliers removed
     """
     x = np.array(points)
@@ -193,12 +205,12 @@ class Stats:
     Data class storing the statistics of a sample
 
     Attributes:
-      - mean: The average of the sample
-      - stddev: The standard deviation
-      - median: The median value of the sample, or the 50th percentile
-      - iqr: The interquartile-range (75th percentile - 25th percentile)
-      - q25: The first quartile, or the 25th percentile
-      - q75: The third quartile, or the 75th percentile
+        - mean: The average of the sample
+        - stddev: The standard deviation
+        - median: The median value of the sample, or the 50th percentile
+        - iqr: The interquartile-range (75th percentile - 25th percentile)
+        - q25: The first quartile, or the 25th percentile
+        - q75: The third quartile, or the 75th percentile
     """
     mean: float
     stddev: float
@@ -211,6 +223,9 @@ class Stats:
 def get_statistics(points: list[float]) -> Stats:
     """
     Calculate statistics for a set of points
+
+    Preconditions:
+        - len(points) > 0
 
     :param points: Input points
     :return: Statistics
@@ -229,6 +244,7 @@ def tabulate_stats(stats: list[Stats], percent: bool = False) -> list[list[str]]
     :param percent: Whether the numbers are percentages
     :return: Table for tabulate
     """
+
     def num(n: float) -> str:
         return f'{n:.2f}' if not percent else f'{n * 100:.1f}%'
 
@@ -247,8 +263,8 @@ def parse_date_time(iso: str) -> datetime:
     python's built-in dateutil.parser.isoparse() function.
 
     Preconditions:
-      - iso is the output of datetime.isoformat() (In a format like "2021-10-20T23:50:14")
-      - iso is a valid date (this function does not check for the validity of the input)
+        - iso is the output of datetime.isoformat() (In a format like "2021-10-20T23:50:14")
+        - iso is a valid date (this function does not check for the validity of the input)
 
     :param iso: Input date
     :return: Datetime object
@@ -262,8 +278,8 @@ def parse_date_only(iso: str) -> datetime:
     Parse date faster.
 
     Preconditions:
-      - iso is in the format of "YYYY-MM-DD" (e.g. "2021-10-20")
-      - iso is a valid date (this function does not check for the validity of the input)
+        - iso starts with the format of "YYYY-MM-DD" (e.g. "2021-10-20" or "2021-10-20T10:04:14")
+        - iso is a valid date (this function does not check for the validity of the input)
 
     :param iso: Input date
     :return: Datetime object
@@ -275,8 +291,12 @@ def daterange(start_date: str, end_date: str) -> Generator[tuple[str, datetime],
     """
     Date range for looping, excluding the end date
 
+    Preconditions:
+        - start_date starts with the "YYYY-MM-DD" format
+        - end_date starts with the "YYYY-MM-DD" format
+
     :param start_date: Start date in "YYYY-MM-DD" format
-    :param end_date: End date in "YYYY-MM-DD" format
+    :param end_date: Ending date in "YYYY-MM-DD" format
     :return: Generator for looping through the dates one day at a time.
     """
     start = parse_date_only(start_date)
@@ -288,12 +308,12 @@ def daterange(start_date: str, end_date: str) -> Generator[tuple[str, datetime],
 def map_to_dates(y: dict[str, Union[int, float]], dates: list[str],
                  default: float = 0) -> list[float]:
     """
-    Takes y-axis data in the form of a mapping of date to values, and returns a list of all the
+    Takes y-axis data in the form of a mapping of dates to values, and returns a list of all the
     values mapped to the date in dates. If a date in dates isn't in y, then the default values is
     used instead.
 
     Preconditions:
-      - The date in dates must be in the same format as the dates in the keys of y
+        - The date in dates must be in the same format as the dates in the keys of y
 
     :param y: Y axis data (in the format y[date] = value)
     :param dates: Dates
@@ -305,11 +325,11 @@ def map_to_dates(y: dict[str, Union[int, float]], dates: list[str],
 
 def filter_days_avg(y: list[float], n: int) -> list[float]:
     """
-    Filter y by taking an average over a n-days window. If n = 0, then return y without processing.
+    Filter y by taking an average over an n-days window. If n = 0, then return y without processing.
 
-    Precondition:
-      - n % 2 == 1
-      - len(y) > 0
+    Preconditions:
+        - n % 2 == 1
+        - len(y) > 0
 
     :param y: Values
     :param n: Number of days, must be odd
@@ -331,12 +351,12 @@ def filter_days_avg(y: list[float], n: int) -> list[float]:
 
     ret = []
     for i in range(len(y)):
-        l, r = i - radius, i + radius
-        l = max(0, l)  # avoid index out of bounds by "extending" first/last element
-        r = min(r, len(y) - 1)
-        current_sum += y[r]  # extend sliding window
+        left, right = i - radius, i + radius
+        left = max(0, left)  # avoid index out of bounds by "extending" first/last element
+        right = min(right, len(y) - 1)
+        current_sum += y[right]  # extend sliding window
         ret.append(current_sum / n)
-        current_sum -= y[l]  # remove old values
+        current_sum -= y[left]  # remove old values
     return ret
 
 
@@ -345,7 +365,7 @@ def divide_zeros(numerator: list[float], denominator: list[float]) -> list[float
     Divide two lists of floats, ignoring zeros (anything dividing by zero will produce zero)
 
     Preconditions:
-      - len(numerator) == len(denominator)
+        - len(numerator) == len(denominator)
 
     :param numerator: Numerator
     :param denominator: Denominator
@@ -357,8 +377,9 @@ def divide_zeros(numerator: list[float], denominator: list[float]) -> list[float
             output[i] = 0
         else:
             output[i] = numerator[i] / denominator[i]
-    # This marks it as incorrect type but it's actually not incorrect type, just because numpy
+    # This marks it as incorrect type, but it's actually not incorrect type, just because numpy
     # doesn't specify its return types
+    # noinspection PyTypeChecker
     return output.tolist()
 
 
@@ -367,6 +388,7 @@ class EnhancedJSONEncoder(json.JSONEncoder):
     An improvement to the json.JSONEncoder class, which supports:
     encoding for dataclasses, encoding for datetime, and sets
     """
+
     def default(self, o):
 
         # Support encoding dataclasses
@@ -390,6 +412,9 @@ def json_stringify(obj, indent: Union[int, None] = None) -> str:
     """
     Serialize json string with support for dataclasses and datetime and sets and with custom
     configuration.
+
+    Preconditions:
+        - obj != None
 
     :param obj: Objects
     :param indent: Indent size or none

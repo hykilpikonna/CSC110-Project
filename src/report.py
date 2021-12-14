@@ -1,3 +1,7 @@
+"""
+This module generates report HTML and serves it in an HTTP server.
+"""
+
 import json
 import os.path
 import shutil
@@ -15,6 +19,9 @@ from utils import read, write
 def generate_report() -> str:
     """
     Compile the report document and generate a markdown report
+
+    Preconditions:
+        - RES_DIR exists, and contains the necessary resources used in this project.
 
     :return: Markdown report
     """
@@ -53,7 +60,7 @@ def generate_report() -> str:
 
         # Handle errors. (It prompts "too broad an exception clause" but I actually need to catch
         # every possible exception.)
-        except Exception as e:
+        except Exception:
             md[i] = f"<pre class=\"error\">" \
                     f"\nInvalid @include statement. \n{traceback.format_exc()}</pre>"
 
@@ -66,7 +73,7 @@ def generate_html() -> str:
 
     :return: HTML string
     """
-    # Generate markdown report and JSON encode it (which works as JS code! amazing
+    # Generate markdown report and JSON encode it (which works as JS code! amazing)
     md_json = json.dumps({'content': generate_report()})
     # Inject into HTML
     html = read(os.path.join(RES_DIR, 'report_page.html')) \
@@ -115,7 +122,7 @@ def serve_report() -> None:
     @app.route('/<path:path>')
     def res(path: str) -> Response:
         """
-        Resources endpoint. This maps report queries to the report directory
+        Resources endpoint. This function maps report queries to the report directory
 
         :param path: Path of the resource
         :return: File resource or 404
