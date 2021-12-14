@@ -16,6 +16,8 @@ import requests
 from bs4 import BeautifulSoup
 from py7zr import SevenZipFile
 
+import python_ta
+
 from constants import DATA_DIR, TWEETS_DIR, USER_DIR, RES_DIR
 from utils import read, debug, write, json_stringify
 
@@ -35,6 +37,9 @@ class ProcessedUser(NamedTuple):
         - popularity: A measurement of a user's popularity, such as followers count
         - num_postings: Number of tweets
         - language: Language code in Twitter's language code format
+
+    Representation Invariants:
+        - self.username != ''
     """
     username: str
     popularity: int
@@ -118,7 +123,6 @@ class UserSample:
 
     Representation Invariants:
         - all(news != '' for news in self.english_news)
-
     """
     most_popular: list[ProcessedUser]
     random: list[ProcessedUser]
@@ -149,8 +153,8 @@ def select_user_sample() -> None:
     users = load_users()
 
     # Filter by language first
-    users = [u for u in users if u.lang is not None and
-             any(lang in u.lang for lang in {'en', 'zh', 'ja'})]
+    users = [u for u in users if u.lang is not None
+             and any(lang in u.lang for lang in {'en', 'zh', 'ja'})]
 
     # Find most popular, and exclude them from the random sample
     most_popular = users[:500]
@@ -243,7 +247,7 @@ class Posting(NamedTuple):
         - date: Posting date and time in ISO format ("YYYY-MM-DDThh-mm-ss")
 
     Representation Invariants:
-        - popularity >= 0
+        - self.popularity >= 0
     """
     covid_related: bool
     popularity: int
@@ -371,11 +375,21 @@ def pack_data() -> None:
         z.write(packed_res, 'resources.7z')
 
         # Add report tex
-        z.write(os.path.join(src_path, '../writing/report/project_report.tex'), 'project_report.tex')
-        z.write(os.path.join(src_path, '../writing/report/project_report.pdf'), 'project_report.pdf')
+        for file in ['project_report.tex', 'project_report.pdf']:
+            z.write(os.path.join(src_path, f'../writing/report/{file}'), file)
 
     # Open packed location (Since there isn't a platform-independent way of doing this, we currently
     # only support macOS)
     if sys.platform == 'darwin':
         os.system(f'open {Path(packed_dir).absolute()}')
 
+
+if __name__ == '__main__':
+    python_ta.check_all(config={
+        'extra-imports': ['json', 'os', 'random', 'sys', 'zipfile', 'dataclasses', 'datetime',
+                          'pathlib', 'typing', 'requests', 'bs4', 'py7zr', 'constants', 'utils'
+                          ],  # the names (strs) of imported modules
+        'allowed-io': [],  # the names (strs) of functions that call print/open/input
+        'max-line-length': 100,
+        'disable': ['R1705', 'C0200']
+    }, output='pyta_report.html')
