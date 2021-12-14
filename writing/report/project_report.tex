@@ -65,14 +65,37 @@ sorting=nyt
     \section{Running Instructions}
     \indent
 
-    TODO
+    \begin{itemize}
+        \item [1. ] Download the submitted files into a new folder called \verb|src|.
+        
+        \item [2. ] Extract the archive \verb|src/resources.7z| into the folder \verb|src/resources|.
+        
+        \item [3. ] Install \verb|src/requirements.txt|, either with PyCharm or with \texttt{pip install -r src/requirements.txt}.
+        
+        \item [4. ] If you would like to collect data manually, do the following:
+        
+        \begin{itemize}
+            \item [a. ] Register for Twitter API keys on their website. For more information, look at the following link: \href{https://developer.twitter.com/en/docs/twitter-api/getting-started/getting-access-to-the-twitter-api}{(Getting access to the Twitter API)}.
+            \item [b. ] In \verb|src/main.py|, uncomment all the lines of code for data collection and processing: that is, the steps C1.0-C1.2, P1-P2, C2.1-C2.3, P3.
+        \end{itemize}
+        
+        \item [5. ] If you would not like to collect data manually, you can download it from \url{https://send.utoronto.ca}, which expires on December 27.\\
+        Claim ID: 6PPMsHQNTV7TJRmu\\
+        Claim Passcode: 9VPba4YiYx2cetbU\\
+        Alternatively, you can download it from \url{https://csc110.hydev.org/processed-data.7z}\\
+        Extract the archive into a directory called \verb|data| at the same level as \verb|src|, that is, \verb|data| and \verb|src| should be in the same folder.\\
+        The file \verb|src/utils.py| contains a more detailed directory tree.
+        
+        \item [6. ] Run \verb|src/main.py|, either in PyCharm or with \texttt{python3 src/main.py}.
+        
+    \end{itemize}
 
     \section{Changes to Proposal}
     \indent
 
     First, we originally planned to include news reports from separate journal websites in our analysis as well. However, when we gather the data, we found that there is no way to identify the popularity of a news report published on a journal website. So, we decided to gather the tweets of news accounts on Twitter instead, which will also have the benefit of having the same data gathering and analysis process for each news channel.
 
-    Second, we originally planned to compare people's interests in posting COVID-related topics between different platforms because we thought Chinese people don't rely on Twitter as much since Twitter is blocked in China. However, there isn't any publically available Wechat API that we can use for analysis, and Wechat is also more private, with access to someone's postings limited to only their friends. (It is as if everyone on Twitter has a locked account). Therefore, it is impractical to gather data from Wechat. And, for Telegram channels, the postings does not have a like feature, and might not have commenting feature unless the channel host specifically set up for it using a third-party bot. So there isn't a reliable way to obtain popularity data on Telegram as well. So, instead of comparing between platforms, we compared different groups of people on the Twitter platform.
+    Second, we originally planned to compare people's interests in posting COVID-related topics between different platforms because we thought Chinese people don't rely on Twitter as much since Twitter is blocked in China. However, there isn't any publically available WeChat API that we can use for analysis, and WeChat is also more private, with access to someone's postings limited to only their friends. (It is as if everyone on Twitter has a locked account). Therefore, it is impractical to gather data from WeChat. And, for Telegram channels, the postings does not have a like feature, and might not have commenting feature unless the channel host specifically set up for it using a third-party bot. So there isn't a reliable way to obtain popularity data on Telegram as well. So, instead of comparing between platforms, we compared different groups of people on the Twitter platform.
 
     \section{Discussion}
     \indent
