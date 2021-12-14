@@ -10,9 +10,13 @@ from utils import *
 from visualization import *
 
 if __name__ == '__main__':
+    #####################
+    # Data collection - Step C1.0
     # Load config and create API
-    conf = load_config('config.json5')
-    api = tweepy_login(conf)
+    # This is required if you would like to collect the data yourself.
+    # In that case, you also need to register for Twitter API keys and add them to config.json5
+    # conf = load_config('config.json5')
+    # api = tweepy_login(conf)
 
     #####################
     # Data collection - Step C1.1
