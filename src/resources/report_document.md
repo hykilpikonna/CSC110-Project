@@ -187,11 +187,6 @@ In summary, key findings in our research include that while news channels post a
 
 These findings might not be surprising, but they might have again demonstrated people's ability to adapt to new environments. The duration of the sensational effect of the start of COVID-19 might be similar to the grief from losing something important, they all fade over time as we adapt to them. Even though people focused a lot of attention on COVID-19 when new information first became available from March 2020, people's interest in these topics decreased as we adapt to the new norm with COVID-19 in three months, demonstrated by the quickly decreasing posting rates. Or, for the audience, rather than liking or commenting on COVID-19 posts, they might have quickly scrolled through them in favor of more interesting posts. It is fascinating that we can learn to adapt to such a devastating change in our environment in only three months.
 
-## TODO
-
-* [ ] Frequency/time: Maybe there's a reason to the May 2021 peak?
-* [ ] Followers (x) vs COVID-related posts (y) scatter plot, each point is a user
-
 # References
 
 <a id="ref1"></a>

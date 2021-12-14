@@ -73,7 +73,9 @@ if __name__ == '__main__':
     # Generate all visualization reports and graphs
     report_all()
 
-    ####################
+    # Write HTML for deploying to GitHub Pages
+    write_html()
+
     # Serve webpage
     serve_report()
 

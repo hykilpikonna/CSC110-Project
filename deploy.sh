@@ -3,6 +3,8 @@
 # abort on errors
 set -e
 
+cp ../data/packed/processed.7z ./src/dist/processed-data.7z
+
 # navigate into the build output directory
 cd src/dist
 
