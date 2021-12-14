@@ -15,6 +15,9 @@ import matplotlib.ticker
 import scipy.signal
 from matplotlib import pyplot as plt, font_manager
 
+import python_ta
+import python_ta.contracts
+
 from collect_others import get_covid_cases_us
 from constants import RES_DIR, REPORT_DIR
 from processing import load_tweets, load_user_sample
@@ -80,7 +83,7 @@ class Sample:
     # date_pops[i] = Average popularity ratio of all posts from all users in this sample on date[i]
     date_pops: list[float]
 
-    def __init__(self, name: str, users: list[str]):
+    def __init__(self, name: str, users: list[str]) -> None:
         self.name = name
         self.users = users
         self.calculate_sample_data()
@@ -113,10 +116,10 @@ class Sample:
         debug(f'Calculating sample tweets data for {self.name}...')
         popularity = []
         frequency = []
-        date_covid_count = dict()
-        date_all_count = dict()
-        self.user_all_pop_avg = dict()
-        self.user_date_covid_pop_avg = dict()
+        date_covid_count = {}
+        date_all_count = {}
+        self.user_all_pop_avg = {}
+        self.user_date_covid_pop_avg = {}
         for i in range(len(self.users)):
             u = self.users[i]
 
@@ -136,15 +139,14 @@ class Sample:
                 frequency.append(UserFloat(u, 0))
                 continue
             # Calculate the frequency of COVID-related tweets
-            freq = len(covid) / len(tweets)
-            frequency.append(UserFloat(u, freq))
+            frequency.append(UserFloat(u, len(covid) / len(tweets)))
 
             # Calculate date fields
             # Assume tweets are sorted
             # tweets.sort(key=lambda x: x.date)
             # Calculate popularity by date
-            date_cp_sum = dict()
-            date_cp_count = dict()
+            date_cp_sum = {}
+            date_cp_count = {}
             for t in tweets:
                 d = t.date[:10]
 
@@ -165,15 +167,15 @@ class Sample:
                 date_all_count[d] += 1
 
             self.user_date_covid_pop_avg[u] = \
-                {d: date_cp_sum[d] / date_cp_count[d] for d in date_cp_sum}
+                {date: date_cp_sum[date] / date_cp_count[date] for date in date_cp_sum}
 
             # Calculate total popularity ratio for a user
             # To prevent divide by zero, ignore everyone who didn't post about covid
             if len(covid) == 0:
                 continue
             # Get the average popularity for COVID-related tweets
-            covid_pop_avg = sum(t.popularity for t in covid) / len(covid)
-            all_pop_avg = sum(t.popularity for t in tweets) / len(tweets)
+            covid_pop_avg = sum(tweet.popularity for tweet in covid) / len(covid)
+            all_pop_avg = sum(tweet.popularity for tweet in tweets) / len(tweets)
             # Save global_avg
             self.user_all_pop_avg[u] = all_pop_avg
             # To prevent divide by zero, ignore everyone who literally have no likes on any post
@@ -183,7 +185,7 @@ class Sample:
             popularity.append(UserFloat(u, covid_pop_avg / all_pop_avg))
 
         # Calculate frequency on date
-        self.date_covid_freq = {d: date_covid_count[d] / date_all_count[d] for d in
+        self.date_covid_freq = {date: date_covid_count[date] / date_all_count[date] for date in
                                 date_covid_count}
 
         # Sort by relative popularity or frequency
@@ -220,8 +222,8 @@ class Sample:
             self.dates.append(dt)
 
             # Calculate date covid popularity ratio
-            users_posted_today = [u for u in self.users if u in self.user_date_covid_pop_avg and
-                                  ds in self.user_date_covid_pop_avg[u]]
+            users_posted_today = [u for u in self.users if u in self.user_date_covid_pop_avg
+                                  and ds in self.user_date_covid_pop_avg[u]]
             if len(users_posted_today) == 0:
                 seven_days_user_prs.append([])
             else:
@@ -230,6 +232,10 @@ class Sample:
                 seven_days_user_prs.append(user_prs)
 
             # Average over seven days
+            # python_ta thinks user_prs is being shadowed here but it's not because the other
+            # instance is stuck in the else statement above
+            # python_ta also thinks that user_prs is possibly not defined here
+            # but it's in a comprehension so it is
             seven_days_count = sum(len(user_prs) for user_prs in seven_days_user_prs)
             if seven_days_count == 0:
                 pops_i = 1
@@ -301,10 +307,10 @@ def report_ignored(samples: list[Sample]) -> None:
     """
     # For frequencies, report who didn't post
     table = [["Total users"] + [str(len(s.users)) for s in samples],
-             ["Users who didn't post at all"] +
-             [str(len([1 for a in s.user_freqs if a.data == 0])) for s in samples],
-             ["Users who posted less than 1%"] +
-             [str(len([1 for a in s.user_freqs if a.data < 0.01])) for s in samples]]
+             ["Users who didn't post at all"]
+             + [str(len([1 for a in s.user_freqs if a.data == 0])) for s in samples],
+             ["Users who posted less than 1%"]
+             + [str(len([1 for a in s.user_freqs if a.data < 0.01])) for s in samples]]
 
     Reporter('freq/didnt-post.md').table(table, [s.name for s in samples], True)
 
@@ -387,9 +393,7 @@ def graph_line_plot(x: list[datetime], y: Union[list[float], list[list[float]]],
     """
     # Filter
     if n > 0:
-        b = [1.0 / n] * n
-        a = 1
-        y = scipy.signal.lfilter(b, a, y)
+        y = scipy.signal.lfilter([1.0 / n] * n, 1, y)
 
     border_color = '#5b3300'
 
@@ -436,8 +440,7 @@ def graph_line_plot(x: list[datetime], y: Union[list[float], list[list[float]]],
 
         # Plotting frequency, add in the COVID cases data
         if freq:
-            cases = get_covid_cases_us()
-            c = map_to_dates(cases.cases, [d.isoformat()[:10] for d in x])
+            c = map_to_dates(get_covid_cases_us(), [d.isoformat()[:10] for d in x])
             c = filter_days_avg(c, 7)
             c = scipy.signal.lfilter([1.0 / n] * n, 1, c)
 
@@ -512,13 +515,20 @@ def report_change_different_n(sample: Sample) -> None:
     :param sample: Sample
     :return: None
     """
-    for n in range(5, 16, 5):
+    for n in [5, 10, 15]:
         graph_line_plot(sample.dates, sample.date_pops, f'change/n/{n}.png',
                         f'COVID-posting popularity ratio over time for {sample.name} IIR(n={n})',
                         False, n)
 
 
 def report_change_graphs(sample: Sample) -> None:
+    """
+    Report COVID-posting popularity ratio vs. time and COVID-posting frequency vs time,
+    both with IIR(10) filter
+
+    :param sample: Sample
+    :return: None
+    """
     graph_line_plot(sample.dates, sample.date_pops, f'change/pop/{sample.name}.png',
                     f'COVID-posting popularity ratio over time for {sample.name} IIR(10)',
                     False, 10)
@@ -530,7 +540,7 @@ def report_change_graphs(sample: Sample) -> None:
 def report_all() -> None:
     """
     Generate all reports
-    
+
     Preconditions:
         - Twitter data have been downloaded and processed.
     """
@@ -553,9 +563,24 @@ def report_all() -> None:
         report_change_graphs(s)
     report_change_different_n(samples[0])
 
+    # python_ta thinks that s is shadowing again but the other instance is in the for loop above
+    # or in another comprehension so clearly there is no shadowing
     graph_line_plot(samples[0].dates, [s.date_pops for s in samples], 'change/comb/pop.png',
                     'COVID-posting popularity ratio over time for all samples - IIR(10)', False, 10,
                     labels=[s.name for s in samples])
     graph_line_plot(samples[0].dates, [s.date_freqs for s in samples], 'change/comb/freq.png',
                     'COVID-posting frequency over time for all samples - IIR(10)', True, 10,
                     labels=[s.name for s in samples])
+
+
+if __name__ == '__main__':
+    # python_ta.contracts.check_all_contracts()
+    python_ta.check_all(config={
+        'extra-imports': ['os.path', 'dataclasses', 'datetime', 'pathlib', 'typing', 'matplotlib',
+                          'matplotlib.dates', 'matplotlib.ticker', 'scipy.signal', 'collect_others',
+                          'processing', 'constants', 'utils'
+                          ],  # the names (strs) of imported modules
+        'allowed-io': ['report_all'],  # the names (strs) of functions that call print/open/input
+        'max-line-length': 100,
+        'disable': ['R1705', 'C0200', 'E9988', 'E9969', 'R0902', 'R1702', 'R0913']
+    }, output='pyta_report.html')
