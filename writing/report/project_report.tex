@@ -72,21 +72,21 @@ sorting=nyt
         
         \item [3. ] Install \verb|src/requirements.txt|, either with PyCharm or with \texttt{pip install -r src/requirements.txt}.
         
-        \item [4. ] If you would like to collect data manually, do the following:
+        \item [4. ] If you would like to test out our data collection code or collect data manually, do the following: (We do not recommend collecting all data manually because it took the program two days to gather our data due to rate limiting)
         
         \begin{itemize}
             \item [a. ] Register for Twitter API keys on their website. For more information, look at the following link: \href{https://developer.twitter.com/en/docs/twitter-api/getting-started/getting-access-to-the-twitter-api}{(Getting access to the Twitter API)}.
             \item [b. ] In \verb|src/main.py|, uncomment all the lines of code for data collection and processing: that is, the steps C1.0-C1.2, P1-P2, C2.1-C2.3, P3.
         \end{itemize}
         
-        \item [5. ] If you would not like to collect data manually, you can download it from \url{https://send.utoronto.ca}, which expires on December 27.\\
+        \item [5. ] If you would like to use our processed data, you can download the archive from \url{https://send.utoronto.ca} with the following code, which will expire on December 27.\\
         Claim ID: 6PPMsHQNTV7TJRmu\\
         Claim Passcode: 9VPba4YiYx2cetbU\\
-        Alternatively, you can download it from \url{https://csc110.hydev.org/processed-data.7z}\\
+        Alternatively, you can download it from a permanent link: \url{https://csc110.hydev.org/processed-data.7z}\\
         Extract the archive into a directory called \verb|data| at the same level as \verb|src|, that is, \verb|data| and \verb|src| should be in the same folder.\\
-        The file \verb|src/utils.py| contains a more detailed directory tree.
+        The file \verb|src/constants.py| contains a more detailed directory tree.
         
-        \item [6. ] Run \verb|src/main.py|, either in PyCharm or with \texttt{python3 src/main.py}.
+        \item [6. ] Run \verb|src/main.py|, either in PyCharm or with \texttt{python3 main.py}. Note that the execution directory should be in \verb|src| and not the root directory. If you use PyCharm, you should open \verb|src| in PyCharm instead of the root directory. This file structure is intentionally designed to prevent PyCharm from indexing \verb|data|, which takes an extremely long time.
         
     \end{itemize}
 
